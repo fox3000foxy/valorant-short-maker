@@ -96,9 +96,9 @@ export class ValorantTTS {
 				}
 			);
 
-			const writer = piper.stdin.getWriter();
-			await writer.write(new TextEncoder().encode(this.text));
-			await writer.close();
+			const writer = piper.stdin;
+			writer.write(new TextEncoder().encode(this.text));
+			writer.end();
 			const piperExit = await piper.exited;
 
 			if (piperExit !== 0) {
