@@ -1,0 +1,23 @@
+{
+  "name": "valorant-short-maker",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --format=cjs --packages=external --minify --outfile=index.cjs",
+    "start": "node index.cjs",
+    "format": "bunx --bun @biomejs/biome format --write ./src",
+    "check": "bunx --bun @biomejs/biome check ./src",
+    "lint": "bunx --bun @biomejs/biome lint ./src",
+    "lint:write": "bunx --bun @biomejs/biome lint --write ./src",
+    "test": "bun test ./tests",
+    "test:watch": "bun test --watch ./tests",
+    "test:coverage": "bun test --coverage ./tests"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
