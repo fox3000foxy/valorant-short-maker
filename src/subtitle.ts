@@ -207,6 +207,88 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 ${events}`;
 	}
 
+	generateKaraokeASS(captions: WordCaption[], agentColors: string[]): string {
+		const outlineColor = _assColor(agentColors[1] ?? "#000000");
+		const highlightColor = _assColor(agentColors[0] ?? "#FFFFFF");
+		const defaultTextColor = _assColor("#FFFFFF");
+
+		const marginV = Math.round(this.options.height * 0.33);
+		const fontSize = this.options.fontSize;
+		const maxCharsPerLine = 30;
+		const lines: { text: string; words: WordCaption[] }[] = [];
+		let currentLine: WordCaption[] = [];
+		let currentChars = 0;
+
+		for (const word of captions) {
+			const wordLen = word.text.replace(/\s/g, "").length;
+			if (currentChars + wordLen > maxCharsPerLine && currentLine.length > 0) {
+				lines.push({
+					text: currentLine.map((word) => word.text).join(""),
+					words: currentLine,
+				});
+				currentLine = [word];
+				currentChars = wordLen;
+			} else {
+				currentLine.push(word);
+				currentChars += wordLen;
+			}
+		}
+		if (currentLine.length > 0) {
+			lines.push({
+				text: currentLine.map((word) => word.text).join(""),
+				words: currentLine,
+			});
+		}
+
+		const events: string[] = [];
+
+		for (const line of lines) {
+			for (let idx = 0; idx < line.words.length; idx++) {
+				const word = line.words[idx]!;
+				const nextWord = line.words[idx + 1];
+				const eventEnd = nextWord ? nextWord.startTime : word.endTime;
+
+				const textParts: string[] = [];
+				for (let j = 0; j < line.words.length; j++) {
+					const word = line.words[j]!;
+					const escaped = word.text
+						.replace(/{/g, "\\{")
+						.replace(/}/g, "\\}")
+						.replace(/\n/g, "\\N");
+
+					if (j === idx) {
+						const boldTag = word.bold ? "{\\b1}" : "";
+						const boldEnd = word.bold ? "{\\b0}" : "";
+						textParts.push(
+							`${boldTag}{\\c${highlightColor}}${escaped}{\\r}${boldEnd}`
+						);
+					} else {
+						textParts.push(escaped);
+					}
+				}
+
+				const text = textParts.join(" ");
+				events.push(
+					`Dialogue: 0,${_formatTime(word.startTime)},${_formatTime(eventEnd)},Default,,0,0,${marginV},,${text}`
+				);
+			}
+		}
+
+		return `[Script Info]
+ScriptType: v4.00+
+PlayResX: ${this.options.width}
+PlayResY: ${this.options.height}
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,${this.options.fontName},${fontSize},${defaultTextColor},${defaultTextColor},${outlineColor},&H00000000,-1,0,0,0,100,100,0,0,1,${this.options.borderSize + 1},0,2,10,10,${marginV},1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+${events.join("\n")}`;
+	}
+
 	static groupTextToWords(
 		text: string,
 		totalDuration: number,
@@ -230,11 +312,7 @@ ${events}`;
 		let wordCount = 0;
 		let totalChars = 0;
 		for (const word of words) {
-			if (word.isSpace) {
-				if (meaningful.length > 0) {
-					meaningful[meaningful.length - 1]!.text += word.raw;
-				}
-			} else {
+			if (!word.isSpace) {
 				const entry = {
 					text: word.raw,
 					originalIndex: wordCount,
