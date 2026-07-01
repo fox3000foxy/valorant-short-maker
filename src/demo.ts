@@ -90,9 +90,7 @@ async function processPhrase(
 }
 
 async function renderSegment(info: SegmentInfo): Promise<void> {
-	console.log(
-		`  Rendering ${info.agent} segment (${info.duration.toFixed(2)}s)...`
-	);
+	console.log(`  Rendering ${info.agent} (${info.duration.toFixed(2)}s)...`);
 
 	const totalFrames = Math.ceil(info.duration * 25);
 
@@ -113,13 +111,11 @@ async function renderSegment(info: SegmentInfo): Promise<void> {
 		"-filter_complex",
 		[
 			"[1:v]format=rgba," +
-			`loop=loop=${totalFrames}:size=1,` +
-			"setpts=N/25/TB," +
-			"scale=" +
-			`${CIRCLE_SIZE}*(1+${VIBRATE_AMPLITUDE}*sin(n*PI/${VIBRATE_FREQ}))` +
-			`:${CIRCLE_SIZE}` +
-			":eval=frame:force_original_aspect_ratio=decrease" +
-			"[circle]",
+				`loop=loop=${totalFrames}:size=1,` +
+				"setpts=N/25/TB," +
+				"scale=" +
+				`${CIRCLE_SIZE}*(1+${VIBRATE_AMPLITUDE}*sin(n*PI/${VIBRATE_FREQ}))` +
+				":-1:eval=frame[circle]",
 			`[0:v][circle]overlay=(W-w)/2:${CIRCLE_Y}[base]`,
 			`[base]ass=${info.assPath}[vid]`,
 		].join(";"),
@@ -136,7 +132,9 @@ async function renderSegment(info: SegmentInfo): Promise<void> {
 		"-c:a",
 		"aac",
 		"-b:a",
-		"128k",
+		"192k",
+		"-af",
+		"volume=2.0",
 		"-shortest",
 		info.videoPath,
 	]);
@@ -161,16 +159,22 @@ async function main() {
 		segments.push(info);
 	}
 
+	// Render each segment with video + audio embedded
 	for (const info of segments) {
 		await renderSegment(info);
 	}
 
-	console.log("\nConcatenating segments...");
-	const concatPath = join(OUT_DIR, "concat.txt");
-	await Bun.write(
-		concatPath,
-		segments.map((seg) => `file '${seg.videoPath}'`).join("\n")
-	);
+	// Concat all segments using concat filter (reliable audio)
+	console.log("\nMuxing final video...");
+	const inputs: string[] = [];
+	const filterParts: string[] = [];
+	for (const seg of segments) {
+		inputs.push("-i", seg.videoPath);
+		filterParts.push(
+			`[${filterParts.length / 2}:v][${filterParts.length / 2}:a]`
+		);
+	}
+	const concatFilter = `${filterParts.join("")}concat=n=${segments.length}:v=1:a=1[vid][aud]`;
 
 	const outputPath = join(OUT_DIR, "demo.mp4");
 	const proc = Bun.spawn([
@@ -179,14 +183,23 @@ async function main() {
 		"-hide_banner",
 		"-loglevel",
 		"error",
-		"-f",
-		"concat",
-		"-safe",
-		"0",
-		"-i",
-		concatPath,
-		"-c",
-		"copy",
+		...inputs,
+		"-filter_complex",
+		concatFilter,
+		"-map",
+		"[vid]",
+		"-map",
+		"[aud]",
+		"-c:v",
+		"libx264",
+		"-preset",
+		"fast",
+		"-crf",
+		"23",
+		"-c:a",
+		"aac",
+		"-b:a",
+		"192k",
 		outputPath,
 	]);
 
@@ -196,8 +209,8 @@ async function main() {
 	]);
 
 	if (_exitCode !== 0) {
-		console.error("  Concat stderr:", stderr);
-		throw new Error("Concat failed");
+		console.error("  Mux stderr:", stderr);
+		throw new Error("Mux failed");
 	}
 
 	console.log("\n=== Done! ===");
