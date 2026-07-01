@@ -16,9 +16,12 @@ const PHRASES: Phrase[] = [
 ];
 
 const OUT_DIR = mkdtempSync(join(tmpdir(), "demo-"));
-const RESOLUTION = "1080x1920";
 const FONT_NAME = "Montserrat";
 const FONT_SIZE = 72;
+const CIRCLE_SIZE = 300;
+const CIRCLE_Y = 180;
+const VIBRATE_AMPLITUDE = 0.05;
+const VIBRATE_FREQ = 2;
 
 async function getAudioDuration(path: string): Promise<number> {
 	const proc = Bun.spawn([
@@ -58,16 +61,13 @@ async function processPhrase(
 	);
 	const videoPath = join(OUT_DIR, `${index}_${phrase.agent}.mp4`);
 
-	// Generate TTS audio
 	console.log(`[${index + 1}/3] Generating TTS for ${phrase.agent}...`);
 	const tts = new ValorantTTS(phrase.agent, phrase.text);
 	await tts.generate(audioPath);
 
-	// Get audio duration
 	const duration = await getAudioDuration(audioPath);
 	console.log(`  Duration: ${duration.toFixed(2)}s`);
 
-	// Get agent colors
 	const sub = new ValorantSubtitle(phrase.agent, {
 		fontName: FONT_NAME,
 		fontSize: FONT_SIZE,
@@ -75,10 +75,7 @@ async function processPhrase(
 	const colors = await sub.getColors();
 	console.log(`  Colors: ${colors.slice(0, 3).join(", ")}`);
 
-	// Generate word captions (proportional to audio duration)
 	const captions = ValorantSubtitle.groupTextToWords(phrase.text, duration);
-
-	// Generate karaoke ASS
 	const ass = sub.generateKaraokeASS(captions, colors);
 	await Bun.write(assPath, ass);
 
@@ -97,6 +94,8 @@ async function renderSegment(info: SegmentInfo): Promise<void> {
 		`  Rendering ${info.agent} segment (${info.duration.toFixed(2)}s)...`
 	);
 
+	const totalFrames = Math.ceil(info.duration * 25);
+
 	const proc = Bun.spawn([
 		"ffmpeg",
 		"-y",
@@ -106,29 +105,39 @@ async function renderSegment(info: SegmentInfo): Promise<void> {
 		"-f",
 		"lavfi",
 		"-i",
-		`color=c=black:s=${RESOLUTION}:d=${info.duration}`,
+		`color=c=black:s=1080x1920:r=25:d=${info.duration}`,
 		"-i",
 		info.iconPath,
+		"-i",
+		info.audioPath,
 		"-filter_complex",
 		[
-			"[1:v]format=rgba,zoompan=" +
-				"z=1+0.03*sin(2*PI*on/15)" +
-				`:d=${Math.ceil(info.duration * 25)}` +
-				":fps=25:s=250x250" +
-				",setpts=PTS-STARTPTS[circle]",
-			"[0:v][circle]overlay=(W-w)/2:80[base]",
+			"[1:v]format=rgba," +
+			`loop=loop=${totalFrames}:size=1,` +
+			"setpts=N/25/TB," +
+			"scale=" +
+			`${CIRCLE_SIZE}*(1+${VIBRATE_AMPLITUDE}*sin(n*PI/${VIBRATE_FREQ}))` +
+			`:${CIRCLE_SIZE}` +
+			":eval=frame:force_original_aspect_ratio=decrease" +
+			"[circle]",
+			`[0:v][circle]overlay=(W-w)/2:${CIRCLE_Y}[base]`,
 			`[base]ass=${info.assPath}[vid]`,
 		].join(";"),
 		"-map",
 		"[vid]",
+		"-map",
+		"2:a",
 		"-c:v",
 		"libx264",
 		"-preset",
 		"fast",
 		"-crf",
 		"23",
-		"-t",
-		info.duration.toString(),
+		"-c:a",
+		"aac",
+		"-b:a",
+		"128k",
+		"-shortest",
 		info.videoPath,
 	]);
 
@@ -146,93 +155,50 @@ async function renderSegment(info: SegmentInfo): Promise<void> {
 async function main() {
 	console.log("=== Valorant Karaoke Demo ===\n");
 
-	// Process all phrases
 	const segments: SegmentInfo[] = [];
 	for (let i = 0; i < PHRASES.length; i++) {
 		const info = await processPhrase(PHRASES[i]!, i);
 		segments.push(info);
 	}
 
-	// Render each segment
 	for (const info of segments) {
 		await renderSegment(info);
 	}
 
-	// Create concat files
-	console.log("\nConcatenating...");
-	const videoListPath = join(OUT_DIR, "videos.txt");
-	const audioListPath = join(OUT_DIR, "audios.txt");
+	console.log("\nConcatenating segments...");
+	const concatPath = join(OUT_DIR, "concat.txt");
 	await Bun.write(
-		videoListPath,
+		concatPath,
 		segments.map((seg) => `file '${seg.videoPath}'`).join("\n")
 	);
-	await Bun.write(
-		audioListPath,
-		segments.map((seg) => `file '${seg.audioPath}'`).join("\n")
-	);
 
-	const finalVideo = join(OUT_DIR, "raw_video.mp4");
-	const finalAudio = join(OUT_DIR, "combined.wav");
-
-	// Concat video segments
-	const videoProc = Bun.spawn([
-		"ffmpeg",
-		"-y",
-		"-hide_banner",
-		"-loglevel",
-		"error",
-		"-f",
-		"concat",
-		"-safe",
-		"0",
-		"-i",
-		videoListPath,
-		"-c",
-		"copy",
-		finalVideo,
-	]);
-	await new Response(videoProc.stderr).text();
-
-	// Concat audio
-	const audioProc = Bun.spawn([
-		"ffmpeg",
-		"-y",
-		"-hide_banner",
-		"-loglevel",
-		"error",
-		"-f",
-		"concat",
-		"-safe",
-		"0",
-		"-i",
-		audioListPath,
-		"-c",
-		"copy",
-		finalAudio,
-	]);
-	await new Response(audioProc.stderr).text();
-
-	// Final mux
 	const outputPath = join(OUT_DIR, "demo.mp4");
-	console.log(`\nFinal mux to ${outputPath}...`);
-	const muxProc = Bun.spawn([
+	const proc = Bun.spawn([
 		"ffmpeg",
 		"-y",
 		"-hide_banner",
 		"-loglevel",
 		"error",
+		"-f",
+		"concat",
+		"-safe",
+		"0",
 		"-i",
-		finalVideo,
-		"-i",
-		finalAudio,
-		"-c:v",
+		concatPath,
+		"-c",
 		"copy",
-		"-c:a",
-		"aac",
-		"-shortest",
 		outputPath,
 	]);
-	await new Response(muxProc.stderr).text();
+
+	const [stderr, _exitCode] = await Promise.all([
+		new Response(proc.stderr).text(),
+		proc.exited,
+	]);
+
+	if (_exitCode !== 0) {
+		console.error("  Concat stderr:", stderr);
+		throw new Error("Concat failed");
+	}
 
 	console.log("\n=== Done! ===");
 	console.log(`Output: ${outputPath}`);
