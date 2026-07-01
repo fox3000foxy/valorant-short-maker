@@ -33,11 +33,11 @@ async function getAudioDuration(path: string): Promise<number> {
 }
 
 type SegmentInfo = {
+	agent: string;
 	audioPath: string;
 	duration: number;
 	assPath: string;
 	iconPath: string;
-	colors: string[];
 	videoPath: string;
 };
 
@@ -53,7 +53,7 @@ async function processPhrase(
 		"icons",
 		`${phrase.agent.charAt(0).toUpperCase() + phrase.agent.slice(1)}.png`,
 	);
-	const videoPath = join(OUT_DIR, `${index}_${phrase.agent}.mp4");
+	const videoPath = join(OUT_DIR, `${index}_${phrase.agent}.mp4`);
 
 	// Generate TTS audio
 	console.log(`[${index + 1}/3] Generating TTS for ${phrase.agent}...`);
@@ -80,65 +80,36 @@ async function processPhrase(
 	await Bun.write(assPath, ass);
 
 	return {
+		agent: phrase.agent,
 		audioPath,
 		duration,
 		assPath,
 		iconPath,
-		colors,
 		videoPath,
 	};
 }
 
-async function renderSegment(
-	info: SegmentInfo,
-): Promise<void> {
-	console.log(`  Rendering segment (${info.duration.toFixed(2)}s)...`);
+async function renderSegment(info: SegmentInfo): Promise<void> {
+	console.log(`  Rendering ${info.agent} segment (${info.duration.toFixed(2)}s)...`);
 
-	// Create animated agent circle with subtle zoom via zoompan
-	const circleAnimPath = join(OUT_DIR, `${info.agent}_anim_%03d.png`);
-	const circleAnimDir = join(OUT_DIR, `${info.agent}_anim_frames`);
-	Bun.spawnSync(["mkdir", "-p", circleAnimDir]);
-
-	// Generate zoom frames: subtle breathing effect
-	const totalFrames = Math.ceil(info.duration * 25);
-	for (let f = 0; f < totalFrames; f++) {
-		const t = f / 25;
-		const zoom = 1 + 0.03 * Math.sin(2 * Math.PI * t / 0.6);
-		const scale = Math.round(250 * zoom);
-		const framePath = join(circleAnimDir, `frame_${f.toString().padStart(4, "0")}.png`);
-		Bun.spawnSync([
-			"ffmpeg",
-			"-y", "-hide_banner", "-loglevel", "error",
-			"-i", info.iconPath,
-			"-vf", `scale=${scale}:${scale}:force_original_aspect_ratio=decrease,pad=${scale}:${scale}:(ow-iw)/2:(oh-ih)/2:color=black@0`,
-			"-frames:v", "1",
-			framePath,
-		]);
-	}
-
-	// Convert frames to video
-	const circleVideo = join(OUT_DIR, `${info.agent}_circle.mp4`);
-	Bun.spawnSync([
-		"ffmpeg",
-		"-y", "-hide_banner", "-loglevel", "error",
-		"-framerate", "25",
-		"-i", join(circleAnimDir, "frame_%04d.png"),
-		"-c:v", "libx264",
-		"-pix_fmt", "yuv420p",
-		"-vf", "scale=250:250",
-		circleVideo,
-	]);
-
-	// Render final segment with overlay
 	const proc = Bun.spawn([
 		"ffmpeg",
 		"-y", "-hide_banner", "-loglevel", "error",
 		"-f", "lavfi",
 		"-i", `color=c=black:s=${RESOLUTION}:d=${info.duration}`,
-		"-i", circleVideo,
+		"-i", info.iconPath,
 		"-filter_complex",
-		`[1:v]format=rgba,setpts=PTS-STARTPTS[circle];` +
-		`[0:v][circle]overlay=(W-w)/2:80:shortest=1[vid]`,
+		[
+			`[1:v]format=rgba,zoompan=` +
+			`z='1+0.03*sin(2*PI*on/25/0.6)'` +
+			`:d=${Math.ceil(info.duration * 25)}` +
+			`:fps=25` +
+			`:x='iw/2*(1-1/z)'` +
+			`:y='ih/2*(1-1/z)'` +
+			`:s=250x250,setpts=PTS-STARTPTS[circle]`,
+			`[0:v][circle]overlay=(W-w)/2:80[base]`,
+			`[base]ass=${info.assPath}[vid]`,
+		].join(";"),
 		"-map", "[vid]",
 		"-c:v", "libx264",
 		"-preset", "fast",
@@ -146,9 +117,9 @@ async function renderSegment(
 		"-t", info.duration.toString(),
 		info.videoPath,
 	]);
-	const output = await new Response(proc.stderr).text();
+	const out = await new Response(proc.stderr).text();
 	if (proc.exitCode !== 0) {
-		console.error("  FFmpeg error:", output);
+		console.error("  FFmpeg error:", out);
 		throw new Error("FFmpeg rendering failed");
 	}
 }
@@ -225,13 +196,6 @@ async function main() {
 
 	console.log(`\n=== Done! ===`);
 	console.log(`Output: ${outputPath}`);
-	console.log(`Temp dir: ${OUT_DIR}`);
-
-	// Cleanup circle frames
-	for (const info of segments) {
-		const dir = join(OUT_DIR, `${info.agent}_anim_frames`);
-		Bun.spawnSync(["rm", "-rf", dir]);
-	}
 }
 
 main().catch(console.error);
