@@ -21,7 +21,6 @@ const FONT_SIZE = 72;
 const CIRCLE_SIZE = 300;
 const CIRCLE_Y = 180;
 const VIBRATE_AMPLITUDE = 0.05;
-const VIBRATE_FREQ = 2;
 
 async function getAudioDuration(path: string): Promise<number> {
 	const proc = Bun.spawn([
@@ -114,9 +113,10 @@ async function renderSegment(info: SegmentInfo): Promise<void> {
 				`loop=loop=${totalFrames}:size=1,` +
 				"setpts=N/25/TB," +
 				"scale=" +
-				`${CIRCLE_SIZE}*(1+${VIBRATE_AMPLITUDE}*sin(n*PI/${VIBRATE_FREQ}))` +
-				":-1:eval=frame[circle]",
-			`[0:v][circle]overlay=(W-w)/2:${CIRCLE_Y}[base]`,
+				`${CIRCLE_SIZE}*(1+${VIBRATE_AMPLITUDE}*sin(2*PI*n/25*3))` +
+				":-1:eval=frame," +
+				`pad=${CIRCLE_SIZE}:${CIRCLE_SIZE}:(ow-iw)/2:(oh-ih)/2:color=black@0[circle]`,
+			`[0:v][circle]overlay=(W-${CIRCLE_SIZE})/2:${CIRCLE_Y}[base]`,
 			`[base]ass=${info.assPath}[vid]`,
 		].join(";"),
 		"-map",
@@ -168,11 +168,11 @@ async function main() {
 	console.log("\nMuxing final video...");
 	const inputs: string[] = [];
 	const filterParts: string[] = [];
+	let streamIdx = 0;
 	for (const seg of segments) {
 		inputs.push("-i", seg.videoPath);
-		filterParts.push(
-			`[${filterParts.length / 2}:v][${filterParts.length / 2}:a]`
-		);
+		filterParts.push(`[${streamIdx}:v][${streamIdx}:a]`);
+		streamIdx++;
 	}
 	const concatFilter = `${filterParts.join("")}concat=n=${segments.length}:v=1:a=1[vid][aud]`;
 
