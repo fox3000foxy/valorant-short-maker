@@ -11,10 +11,10 @@ interface Phrase {
 }
 
 function parseScript(): Phrase[] {
-	const raw = readFileSync(
-		join(import.meta.dirname, "..", "script.txt"),
-		"utf-8"
-	);
+const raw = readFileSync(
+	join(import.meta.dirname, "..", "demo_script.txt"),
+	"utf-8",
+);
 	return raw
 		.split("\n")
 		.map((line) => line.trim())
@@ -35,7 +35,7 @@ function parseScript(): Phrase[] {
 
 const PHRASES = parseScript();
 
-const OUT_DIR = join(import.meta.dirname, "..", "outputs");
+const OUT_DIR = join(import.meta.dirname, "..", "demo_outputs");
 if (!existsSync(OUT_DIR)) {
 	mkdirSync(OUT_DIR, { recursive: true });
 }
