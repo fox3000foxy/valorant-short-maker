@@ -10,8 +10,8 @@ Style: Default,Montserrat,100,&HFFFFFF&,&HFFFFFF&,&H402000&,&H00000000,-1,0,0,0,
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.00,0:00:00.52,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}Watch{\c&HFFFFFF&} the
-Dialogue: 0,0:00:00.52,0:00:01.04,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} Watch {\c&HC08060&}the{\c&HFFFFFF&}
-Dialogue: 0,0:00:01.04,0:00:01.57,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}flanks.{\c&HFFFFFF&} Stay
-Dialogue: 0,0:00:01.57,0:00:02.09,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} flanks. {\c&HC08060&}Stay{\c&HFFFFFF&}
-Dialogue: 0,0:00:02.09,0:00:03.13,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}close.{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.00,0:00:00.53,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}Watch{\c&HFFFFFF&} the
+Dialogue: 0,0:00:00.53,0:00:01.06,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} Watch {\c&HC08060&}the{\c&HFFFFFF&}
+Dialogue: 0,0:00:01.06,0:00:01.60,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}flanks.{\c&HFFFFFF&} Stay
+Dialogue: 0,0:00:01.60,0:00:02.13,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} flanks. {\c&HC08060&}Stay{\c&HFFFFFF&}
+Dialogue: 0,0:00:02.13,0:00:03.19,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}close.{\c&HFFFFFF&}

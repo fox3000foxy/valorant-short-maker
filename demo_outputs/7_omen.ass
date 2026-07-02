@@ -10,9 +10,9 @@ Style: Default,Montserrat,100,&HFFFFFF&,&HFFFFFF&,&H402000&,&H00000000,-1,0,0,0,
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.00,0:00:00.56,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}I{\c&HFFFFFF&} cannot
-Dialogue: 0,0:00:00.56,0:00:01.13,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} I {\c&HC08060&}cannot{\c&HFFFFFF&}
-Dialogue: 0,0:00:01.13,0:00:01.69,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}see{\c&HFFFFFF&} clearly.
-Dialogue: 0,0:00:01.69,0:00:02.25,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} see {\c&HC08060&}clearly.{\c&HFFFFFF&}
-Dialogue: 0,0:00:02.25,0:00:02.82,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}Only{\c&HFFFFFF&} fragments.
-Dialogue: 0,0:00:02.82,0:00:03.38,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} Only {\c&HC08060&}fragments.{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.00,0:00:00.57,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}I{\c&HFFFFFF&} cannot
+Dialogue: 0,0:00:00.57,0:00:01.13,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} I {\c&HC08060&}cannot{\c&HFFFFFF&}
+Dialogue: 0,0:00:01.13,0:00:01.70,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}see{\c&HFFFFFF&} clearly.
+Dialogue: 0,0:00:01.70,0:00:02.27,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} see {\c&HC08060&}clearly.{\c&HFFFFFF&}
+Dialogue: 0,0:00:02.27,0:00:02.83,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}Only{\c&HFFFFFF&} fragments.
+Dialogue: 0,0:00:02.83,0:00:03.40,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} Only {\c&HC08060&}fragments.{\c&HFFFFFF&}

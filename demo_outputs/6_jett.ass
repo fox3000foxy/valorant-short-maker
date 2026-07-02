@@ -11,8 +11,8 @@ Style: Default,Montserrat,100,&HFFFFFF&,&HFFFFFF&,&H604000&,&H00000000,-1,0,0,0,
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 Dialogue: 0,0:00:00.00,0:00:00.33,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}Great.{\c&HFFFFFF&} Another
-Dialogue: 0,0:00:00.33,0:00:00.65,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} Great. {\c&H604020&}Another{\c&HFFFFFF&}
-Dialogue: 0,0:00:00.65,0:00:00.98,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}cryptic{\c&HFFFFFF&} warning.
-Dialogue: 0,0:00:00.98,0:00:01.31,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} cryptic {\c&H604020&}warning.{\c&HFFFFFF&}
-Dialogue: 0,0:00:01.31,0:00:01.64,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}Spill{\c&HFFFFFF&} it.
-Dialogue: 0,0:00:01.64,0:00:01.96,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} Spill {\c&H604020&}it.{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.33,0:00:00.66,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} Great. {\c&H604020&}Another{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.66,0:00:00.99,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}cryptic{\c&HFFFFFF&} warning.
+Dialogue: 0,0:00:00.99,0:00:01.32,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} cryptic {\c&H604020&}warning.{\c&HFFFFFF&}
+Dialogue: 0,0:00:01.32,0:00:01.65,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}Spill{\c&HFFFFFF&} it.
+Dialogue: 0,0:00:01.65,0:00:01.99,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} Spill {\c&H604020&}it.{\c&HFFFFFF&}

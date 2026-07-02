@@ -10,5 +10,5 @@ Style: Default,Montserrat,100,&HFFFFFF&,&HFFFFFF&,&H604000&,&H00000000,-1,0,0,0,
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.00,0:00:00.37,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}Excuse{\c&HFFFFFF&}
-Dialogue: 0,0:00:00.37,0:00:00.74,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}me?{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.00,0:00:00.36,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}Excuse{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.36,0:00:00.72,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}me?{\c&HFFFFFF&}
