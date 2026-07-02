@@ -39,7 +39,9 @@ export function parseScript(): Phrase[] {
 
 export const PHRASES = parseScript();
 
-export const OUT_DIR = join(import.meta.dirname, "..", "demo_outputs");
+export const WHOOSH_PATH = join(import.meta.dirname, "..", "sounds", "whoosh.mp3");
+
+const OUT_DIR = join(import.meta.dirname, "..", "demo_outputs");
 if (!existsSync(OUT_DIR)) {
 	mkdirSync(OUT_DIR, { recursive: true });
 }
@@ -314,7 +316,7 @@ export async function renderSegment(
 	let mixFilter: string;
 	if (hasTTS) {
 		mixFilter =
-			`[2:a]volume=0.7[tts];[bga]volume=0.95[bga_v];[tts][bga_v]amix=inputs=2:duration=first[aud]`;
+			`[2:a]volume=1.5[tts];[bga]volume=0.7[bga_v];[tts][bga_v]amix=inputs=2:duration=first[aud]`;
 	} else {
 		mixFilter = `[bga]volume=0.95[aud]`;
 	}
@@ -377,6 +379,100 @@ export async function renderSegment(
 	// }
 }
 
+async function applyFisheyeTransition(inputPath: string, outputPath: string): Promise<void> {
+	const inputInfo = Bun.spawnSync([
+		process.cwd() + "/bin/ffmpeg/ffprobe",
+		"-v", "error",
+		"-select_streams", "v:0",
+		"-show_entries", "stream=r_frame_rate,nb_frames",
+		"-of", "csv=p=0",
+		inputPath,
+	]);
+	const [fpsStr, nbFramesStr] = inputInfo.stdout.toString().trim().split(",");
+	const fps = Number.parseInt(fpsStr!.split("/")[0]!, 10);
+	const totalFrames = Number.parseInt(nbFramesStr!, 10) || Math.ceil(Number.parseFloat(
+		Bun.spawnSync([
+			process.cwd() + "/bin/ffmpeg/ffprobe",
+			"-v", "error",
+			"-show_entries", "format=duration",
+			"-of", "default=noprint_wrappers=1:nokey=1",
+			inputPath,
+		]).stdout.toString().trim()
+	) * fps);
+
+	const transitionFrames = Math.floor(0.2 * fps);
+	const splitOut = Array.from({ length: transitionFrames + 1 }, (_, i) => `[v${i}]`).join("");
+	const splitLine = `[0:v]split=${transitionFrames + 1}${splitOut}`;
+
+	const fishParts: string[] = [splitLine];
+	const overlayChain: string[] = [];
+
+	for (let i = 0; i < transitionFrames; i++) {
+		const k1 = -(0.5 * (1 - i / transitionFrames));
+		const inLabel = `w${i}`;
+		const outLabel = `f${i}`;
+		const prevLabel = i === 0 ? "base" : `f${i - 1}`;
+		fishParts.push(
+			`[v${i}]select=eq(n\\,${i}),setpts=PTS-STARTPTS,lenscorrection=cx=0.5:cy=0.25:k1=${k1.toFixed(3)}:k2=0[${inLabel}]`
+		);
+		overlayChain.push(
+			`[${prevLabel}][${inLabel}]overlay=0:0:enable='eq(n\\,${i})'[${outLabel}]`
+		);
+	}
+
+	const filterGraph = [
+		...fishParts,
+		`[v${transitionFrames}]null[base]`,
+		...overlayChain,
+		`[f${transitionFrames - 1}]split=2[tmix_src][tail_src]`,
+		`[tmix_src]select=lt(n\\,${transitionFrames}),setpts=PTS-STARTPTS[tmix_in]`,
+		`[tmix_in]tmix=frames=3[tmix_out]`,
+		`[tail_src]select=gte(n\\,${transitionFrames}),setpts=PTS-STARTPTS[tail_out]`,
+		`[tmix_out][tail_out]concat=n=2:v=1:a=0[vid]`,
+		`[0:a][1:a]amix=inputs=2:duration=first:weights=1 0.6[aud]`,
+	].join(";\n");
+
+	const proc = Bun.spawn([
+		process.cwd() + "/bin/ffmpeg/ffmpeg",
+		"-y",
+		"-hide_banner",
+		"-loglevel",
+		"error",
+		"-i",
+		inputPath,
+		"-i",
+		WHOOSH_PATH,
+		"-filter_complex",
+		filterGraph,
+		"-map",
+		"[vid]",
+		"-map",
+		"[aud]",
+		"-c:v",
+		"libx264",
+		"-preset",
+		"ultrafast",
+		"-crf",
+		"28",
+		"-c:a",
+		"libmp3lame",
+		"-b:a",
+		"192k",
+		"-r:v",
+		"60",
+		outputPath,
+	]);
+
+	const [stderr, code] = await Promise.all([
+		new Response(proc.stderr).text(),
+		proc.exited,
+	]);
+	if (code !== 0) {
+		console.error("  Fisheye transition error:", stderr);
+		throw new Error(`Fisheye transition failed (exit ${code})`);
+	}
+}
+
 async function main() {
 	console.log("=== Demo ===\n");
 	const segments: SegmentInfo[] = [];
@@ -386,11 +482,17 @@ async function main() {
 	}
 
 	let bgOffset = 0;
-	for (const info of segments) {
+	for (let i = 0; i < segments.length; i++) {
+		const info = segments[i]!;
 		console.log(`  Rendering ${info.agent} (${info.duration.toFixed(2)}s)...`);
 		await renderSegment(info, bgOffset);
 		bgOffset += info.duration;
 	}
+
+	const firstPath = join(OUT_DIR, "00_intro.mp4");
+	console.log("\n  Applying fisheye intro + whoosh...");
+	await applyFisheyeTransition(segments[0]!.videoPath, firstPath);
+	segments[0]!.videoPath = firstPath;
 
 	console.log("\nMuxing final video with audio...");
 
@@ -430,7 +532,7 @@ export async function concatSegments(
 	if (hasMusic) {
 		filterGraph =
 			`${filterParts.join("")}concat=n=${segCount}:v=1:a=1[vid][aud];` +
-			`[${segCount}:a]volume=0.33[bgm];` +
+			`[${segCount}:a]volume=0.6[bgm];` +
 			`[aud][bgm]amix=inputs=2:duration=first[aud_out]`;
 	} else {
 		filterGraph =

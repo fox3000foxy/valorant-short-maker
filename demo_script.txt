@@ -1,5 +1,16 @@
-omen: Can anyone plant in B
-jett: I'm on it right now
-pause: 1.0
-phoenix: Don't forget to check for enemies Jett.
-jett: I know what i'm doing!!
+phoenix: Alright lads, [0.4] watch and learn [0.6] I'm gonna 1v5 them
+brimstone: Phoenix, [0.3] you're already dead.
+omen: I can see you peeking from spawn.
+phoenix: Okay, [0.3] maybe 1v4?
+jett: I just saw you whiff an entire magazine, [0.3] on a Sage wall.
+phoenix: It was a warning shot!
+killjoy: At what, [0.4] the map geometry?
+raze: Let me show you how it's done! [0.3] BOOM!
+raze: They're all still alive.
+omen: Your boom was, [0.3] in fact, [0.3] a quiet tickle.
+jett: I'm going in. [0.4] Try not to spectate me for once.
+jett: Okay I got two!
+phoenix: Nice!
+jett: And I fell off the map.
+brimstone: Sigh... [0.5] I'm too old for this.
+sage: Okay, [0.4] fine. [0.6] I'll go rez.

@@ -68,69 +68,92 @@ export class ValorantTTS {
 			".tmp",
 			`tts_${this.agent}_${Date.now()}`
 		);
-		// const rawWav = join(tmpDir, "seg.wav");
 
 		try {
 			await Bun.$`mkdir -p ${tmpDir}`;
 
-			const piper = Bun.spawn(
-				[
-					// "python3",
-					// "-m",
-					// "piper",
-					process.cwd() + "/.venv/bin/piper",
-					"-m",
-					this._modelPath,
-					"--output_file",
-					outputPath,
-					"--noise_scale",
-					String(this.options.noiseScale),
-					"--noise_w",
-					String(this.options.noiseW),
-					"--length_scale",
-					String(this.options.lengthScale),
-				],
-				{
-					stdin: "pipe",
-					stdout: "ignore",
-					stderr: "ignore",
+			const segments = this.text.split(/\[(\d+\.?\d*)\]/);
+			const inputParts: string[] = [];
+			const concatInputs: string[] = [];
+
+			await Bun.$`mkdir -p ${tmpDir}`;
+
+			for (let i = 0; i < segments.length; i++) {
+				const part = segments[i]!;
+				if (i % 2 === 0) {
+					const text = part.trim();
+					if (!text) continue;
+					const wavPath = join(tmpDir, `seg_${i}.wav`);
+					const piper = Bun.spawn(
+						[
+							process.cwd() + "/.venv/bin/piper",
+							"-m",
+							this._modelPath,
+							"--output_file",
+							wavPath,
+							"--noise_scale",
+							String(this.options.noiseScale),
+							"--noise_w",
+							String(this.options.noiseW),
+							"--length_scale",
+							String(this.options.lengthScale),
+						],
+						{
+							stdin: "pipe",
+							stdout: "ignore",
+							stderr: "ignore",
+						}
+					);
+					const writer = piper.stdin;
+					writer.write(new TextEncoder().encode(text));
+					writer.end();
+					const piperExit = await piper.exited;
+					if (piperExit !== 0) {
+						throw new Error(`Piper TTS failed with exit code ${piperExit}`);
+					}
+					inputParts.push(wavPath);
+				} else {
+					const dur = Number.parseFloat(part);
+					if (dur <= 0) continue;
+					const silPath = join(tmpDir, `sil_${i}.wav`);
+					const silProc = Bun.spawn([
+						process.cwd() + "/bin/ffmpeg/ffmpeg",
+						"-y", "-hide_banner", "-loglevel", "error",
+						"-f", "lavfi", "-i", `anullsrc=r=22050:cl=mono`,
+						"-t", String(dur),
+						silPath,
+					]);
+					const silExit = await silProc.exited;
+					if (silExit !== 0) {
+						throw new Error(`Silence generation failed (exit ${silExit})`);
+					}
+					inputParts.push(silPath);
 				}
-			);
-
-			const writer = piper.stdin;
-			writer.write(new TextEncoder().encode(this.text));
-			writer.end();
-			const piperExit = await piper.exited;
-
-			if (piperExit !== 0) {
-				throw new Error(`Piper TTS failed with exit code ${piperExit}`);
 			}
 
-			// const ffmpeg = Bun.spawn(
-			// 	[
-			// 		process.cwd() + "/bin/ffmpeg/ffmpeg",
-			// 		"-i",
-			// 		rawWav,
-			// 		"-af",
-			// 		this.options.filterChain,
-			// 		"-ar",
-			// 		String(this.sampleRate),
-			// 		outputPath,
-			// 		"-y",
-			// 	],
-			// 	{
-			// 		stdout: "ignore",
-			// 		stderr: "ignore",
-			// 	}
-			// );
+			if (inputParts.length === 0) {
+				throw new Error("No audio segments generated from text");
+			}
 
-			// const ffmpegExit = await ffmpeg.exited;
-
-			// if (ffmpegExit !== 0) {
-			// 	throw new Error(
-			// 		`FFmpeg processing failed with exit code ${ffmpegExit}`
-			// 	);
-			// }
+			if (inputParts.length === 1) {
+				await Bun.$`cp ${inputParts[0]} ${outputPath}`;
+			} else {
+				const filterParts = inputParts.map((_, i) => `[${i}:a]`).join("");
+				const graph = `${filterParts}concat=n=${inputParts.length}:v=0:a=1[out]`;
+				const ffArgs = [
+					process.cwd() + "/bin/ffmpeg/ffmpeg",
+					"-y", "-hide_banner", "-loglevel", "error",
+					...inputParts.flatMap((p) => ["-i", p]),
+					"-filter_complex", graph,
+					"-map", "[out]",
+					outputPath,
+				];
+				const ff = Bun.spawn(ffArgs);
+				const ffExit = await ff.exited;
+				if (ffExit !== 0) {
+					throw new Error(`Audio concat failed (exit ${ffExit})`);
+				}
+			}
 
 			return Bun.file(outputPath);
 		} finally {
