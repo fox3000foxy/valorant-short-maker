@@ -347,18 +347,19 @@ export async function renderSegment(
 async function main() {
 	console.log("=== Demo ===\n");
 
-	const segments: SegmentInfo[] = [];
-	for (let i = 0; i < PHRASES.length; i++) {
-		const info = await processPhrase(PHRASES[i]!, i);
-		segments.push(info);
-	}
+	const segments = await Promise.all(
+		PHRASES.map((phrase, i) => processPhrase(phrase, i))
+	);
 
-	let bgOffset = 0;
-	for (const info of segments) {
-		console.log(`  Rendering ${info.agent} (${info.duration.toFixed(2)}s)...`);
-		await renderSegment(info, bgOffset);
-		bgOffset += info.duration;
-	}
+	const bgOffsets = segments.map((_, i) =>
+		segments.slice(0, i).reduce((acc, s) => acc + s.duration, 0)
+	);
+	await Promise.all(
+		segments.map((info, i) => {
+			console.log(`  Rendering ${info.agent} (${info.duration.toFixed(2)}s)...`);
+			return renderSegment(info, bgOffsets[i]!);
+		})
+	);
 
 	console.log("\nMuxing final video with audio...");
 
