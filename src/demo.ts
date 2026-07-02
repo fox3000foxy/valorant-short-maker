@@ -56,13 +56,13 @@ export const BG_VIDEO_PATH = join(
 	import.meta.dirname,
 	"..",
 	"bg-video",
-	"no_voice_005.mp4",
+	"clip_005_new_audio.mp4",
 );
 export const BG_MUSIC_PATH = join(
 	import.meta.dirname,
 	"..",
 	"bg-video",
-	"background_music.mp3",
+	"background_musici.mp3",
 );
 
 export interface SegmentInfo {
@@ -331,40 +331,47 @@ export async function renderSegment(
 	if (hasTTS) {
 		ffInputs.push("-i", info.audioPath);
 	}
+	if (useCachedFiles) {
+		console.log(`  Rendering ${info.agent}... (cached)`);
+	} else {
+		console.log(`  Rendering ${info.agent}...`);
 
-	const proc = Bun.spawn([
-		process.cwd() + "/bin/ffmpeg/ffmpeg",
-		"-y",
-		"-hide_banner",
-		"-loglevel",
-		"error",
-		...ffInputs,
-		"-filter_complex",
-		filterGraph,
-		"-map",
-		`[${vidLabel}]`,
-		"-map",
-		"[aud]",
-		"-c:v",
-		"libx264",
-		"-preset",
-		"fast",
-		"-crf",
-		"23",
-		"-c:a",
-		"libmp3lame",
-		"-b:a",
-		"192k",
-		info.videoPath,
-	]);
 
-	const [stderr, _exitCode] = await Promise.all([
-		new Response(proc.stderr).text(),
-		proc.exited,
-	]);
-	if (_exitCode !== 0) {
-		console.error("  FFmpeg error:", stderr);
-		throw new Error(`Render failed (exit ${_exitCode})`);
+		const proc = Bun.spawn([
+			process.cwd() + "/bin/ffmpeg/ffmpeg",
+			"-y",
+			"-hide_banner",
+			"-loglevel",
+			"error",
+			...ffInputs,
+			"-filter_complex",
+			filterGraph,
+			"-map",
+			`[${vidLabel}]`,
+			"-map",
+			"[aud]",
+			"-c:v",
+			"libx264",
+			"-preset",
+			"fast",
+			"-crf",
+			"23",
+			"-c:a",
+			"libmp3lame",
+			"-b:a",
+			"192k",
+			info.videoPath,
+		]);
+
+		const [stderr, _exitCode] = await Promise.all([
+			new Response(proc.stderr).text(),
+			proc.exited,
+		]);
+
+		if (_exitCode !== 0) {
+			console.error("  FFmpeg error:", stderr);
+			throw new Error(`Render failed (exit ${_exitCode})`);
+		}
 	}
 }
 
@@ -399,27 +406,33 @@ export async function concatSegments(
 ): Promise<void> {
 	const inputs: string[] = [];
 	const filterParts: string[] = [];
+
+	// Chaque segment MP4 contient déjà la vidéo + l'audio mixé
 	for (const seg of segments) {
 		inputs.push("-i", seg.videoPath);
-		inputs.push("-i", seg.audioPath);
 	}
+
 	for (let i = 0; i < segments.length; i++) {
-		filterParts.push(`[${i * 2}:v]`);
-		filterParts.push(`[${i * 2 + 1}:a]`);
+		filterParts.push(`[${i}:v]`);
+		filterParts.push(`[${i}:a]`);
 	}
 
 	const segCount = segments.length;
 	const hasMusic = bgMusicPath !== undefined && existsSync(bgMusicPath);
 
 	let filterGraph: string;
+
 	if (hasMusic) {
-		inputs.push("-i", bgMusicPath!);
+		// La musique de fond est ajoutée en dernière entrée
+		inputs.push("-i", bgMusicPath);
+
 		filterGraph =
 			`${filterParts.join("")}concat=n=${segCount}:v=1:a=1[vid][aud];` +
-			`[${segCount * 2}:a]volume=0.33[bgm];` +
-			"[aud][bgm]amix=inputs=2:duration=first[aud_out]";
+			`[${segCount}:a]volume=0.33[bgm];` +
+			`[aud][bgm]amix=inputs=2:duration=first[aud_out]`;
 	} else {
-		filterGraph = `${filterParts.join("")}concat=n=${segCount}:v=1:a=1[vid][aud_out]`;
+		filterGraph =
+			`${filterParts.join("")}concat=n=${segCount}:v=1:a=1[vid][aud_out]`;
 	}
 
 	const proc = Bun.spawn([
@@ -450,13 +463,14 @@ export async function concatSegments(
 		outputPath,
 	]);
 
-	const [stderr, _exitCode] = await Promise.all([
+	const [stderr, exitCode] = await Promise.all([
 		new Response(proc.stderr).text(),
 		proc.exited,
 	]);
-	if (_exitCode !== 0) {
+
+	if (exitCode !== 0) {
 		console.error("  Concat error:", stderr);
-		throw new Error(`Concat failed (exit ${_exitCode})`);
+		throw new Error(`Concat failed (exit ${exitCode})`);
 	}
 }
 
