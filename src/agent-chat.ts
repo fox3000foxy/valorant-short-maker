@@ -27,12 +27,12 @@ export class AgentChat {
 			messages: [
 				{
 					role: "system",
-					content: `${this._persona.systemPrompt}\n\nAgent lore:\n${this._allLore}\n\nUse this lore to inform your speech and personality. Keep responses very short — 1 to 2 sentences maximum.`,
+					content: `${this._persona.systemPrompt}\n\nAgent lore:\n${this._allLore}`,
 				},
 				{ role: "user", content: sceneContext },
 			],
 			// biome-ignore lint/style/useNamingConvention: Groq SDK uses snake_case
-			max_tokens: 80,
+			max_tokens: 120,
 		});
 		return res.choices[0]?.message.content ?? "";
 	}
