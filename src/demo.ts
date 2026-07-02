@@ -4,17 +4,17 @@ import { readFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { Buffer } from "node:buffer";
 
-interface Phrase {
+export interface Phrase {
 	agent: string;
 	text: string;
 	duration?: number;
 }
 
-function parseScript(): Phrase[] {
-const raw = readFileSync(
-	join(import.meta.dirname, "..", "demo_script.txt"),
-	"utf-8",
-);
+export function parseScript(): Phrase[] {
+	const raw = readFileSync(
+		join(import.meta.dirname, "..", "demo_script.txt"),
+		"utf-8"
+	);
 	return raw
 		.split("\n")
 		.map((line) => line.trim())
@@ -33,22 +33,22 @@ const raw = readFileSync(
 		});
 }
 
-const PHRASES = parseScript();
+export const PHRASES = parseScript();
 
-const OUT_DIR = join(import.meta.dirname, "..", "demo_outputs");
+export const OUT_DIR = join(import.meta.dirname, "..", "demo_outputs");
 if (!existsSync(OUT_DIR)) {
 	mkdirSync(OUT_DIR, { recursive: true });
 }
-const FONT_NAME = "Montserrat";
-const FONT_SIZE = 100;
-const INPUT_SIZE = 484;
-const CIRCLE_SIZE = 400;
-const CIRCLE_BASE_SCALE = CIRCLE_SIZE / INPUT_SIZE;
-const CIRCLE_CENTER_Y = 500;
-const FPS = 25;
-const MAX_ZOOM_VARIATION = 0.2;
+export const FONT_NAME = "Montserrat";
+export const FONT_SIZE = 100;
+export const INPUT_SIZE = 484;
+export const CIRCLE_SIZE = 400;
+export const CIRCLE_BASE_SCALE = CIRCLE_SIZE / INPUT_SIZE;
+export const CIRCLE_CENTER_Y = 500;
+export const FPS = 25;
+export const MAX_ZOOM_VARIATION = 0.2;
 
-interface SegmentInfo {
+export interface SegmentInfo {
 	agent: string;
 	audioPath: string;
 	duration: number;
@@ -58,7 +58,7 @@ interface SegmentInfo {
 	scaleExpr: string | null;
 }
 
-async function getAudioDuration(path: string): Promise<number> {
+export async function getAudioDuration(path: string): Promise<number> {
 	const proc = Bun.spawn([
 		"ffprobe",
 		"-v",
@@ -73,7 +73,7 @@ async function getAudioDuration(path: string): Promise<number> {
 	return Number.parseFloat(out.trim());
 }
 
-async function computeScaleExpr(
+export async function computeScaleExpr(
 	wavPath: string,
 	duration: number
 ): Promise<string> {
@@ -133,7 +133,7 @@ async function computeScaleExpr(
 	return expr;
 }
 
-async function processPhrase(
+export async function processPhrase(
 	phrase: Phrase,
 	index: number
 ): Promise<SegmentInfo> {
@@ -151,9 +151,7 @@ async function processPhrase(
 
 	if (isPause) {
 		const duration = phrase.duration ?? 1.0;
-		console.log(
-			`[${index + 1}/${PHRASES.length}] pause ${duration.toFixed(1)}s`
-		);
+		console.log(`  pause ${duration.toFixed(1)}s`);
 		const proc = Bun.spawn([
 			"ffmpeg",
 			"-y",
@@ -180,7 +178,7 @@ async function processPhrase(
 		};
 	}
 
-	console.log(`[${index + 1}/${PHRASES.length}] TTS ${phrase.agent}...`);
+	console.log(`  TTS ${phrase.agent}...`);
 	const tts = new ValorantTTS(phrase.agent, phrase.text);
 	await tts.generate(audioPath);
 
@@ -235,7 +233,7 @@ async function processPhrase(
 	};
 }
 
-async function renderSegment(info: SegmentInfo): Promise<void> {
+export async function renderSegment(info: SegmentInfo): Promise<void> {
 	const totalFrames = Math.ceil(info.duration * FPS);
 
 	let filterGraph: string;
@@ -313,6 +311,16 @@ async function main() {
 
 	console.log("\nMuxing final video with audio...");
 
+	const outputPath = join(OUT_DIR, "demo.mp4");
+	await concatSegments(segments, outputPath);
+
+	console.log(`\nDone: ${outputPath}`);
+}
+
+export async function concatSegments(
+	segments: SegmentInfo[],
+	outputPath: string
+): Promise<void> {
 	const inputs: string[] = [];
 	const filterParts: string[] = [];
 	for (const seg of segments) {
@@ -329,7 +337,6 @@ async function main() {
 		`${filterParts.join("")}concat=n=${segCount}:v=1:a=1[vid][aud];` +
 		"[aud]volume=0.4[aud_out]";
 
-	const outputPath = join(OUT_DIR, "demo.mp4");
 	const proc = Bun.spawn([
 		"ffmpeg",
 		"-y",
@@ -363,11 +370,11 @@ async function main() {
 		proc.exited,
 	]);
 	if (_exitCode !== 0) {
-		console.error("  Mux error:", stderr);
-		throw new Error(`Mux failed (exit ${_exitCode})`);
+		console.error("  Concat error:", stderr);
+		throw new Error(`Concat failed (exit ${_exitCode})`);
 	}
-
-	console.log(`\nDone: ${outputPath}`);
 }
 
-main().catch(console.error);
+if (import.meta.main) {
+	main().catch(console.error);
+}

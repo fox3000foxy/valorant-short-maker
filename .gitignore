@@ -7,6 +7,10 @@ demo_outputs/
 dist
 *.tgz
 
+# temp / generated
+sounds/
+bg-video/
+
 # code coverage
 coverage
 *.lcov
