@@ -213,6 +213,8 @@ ${events}`;
 		const defaultTextColor = _assColor("#FFFFFF");
 		const fontSize = this.options.fontSize;
 		const marginV = Math.round(this.options.height * 0.4);
+		const targetY = this.options.height - marginV;
+		const animTags = `{\\move(${this.options.width / 2}\\,${this.options.height + 80}\\,${this.options.width / 2}\\,${targetY}\\,0\\,200)}{\\fad(120\\,80)}`;
 
 		const events: string[] = [];
 
@@ -223,6 +225,7 @@ ${events}`;
 				const eventEnd = nextWord ? nextWord.startTime : chunk.endTime;
 
 				const textParts: string[] = [];
+				textParts.push(animTags);
 				for (let j = 0; j < chunk.words.length; j++) {
 					const cur = chunk.words[j]!;
 					const escaped = cur.text
@@ -230,9 +233,13 @@ ${events}`;
 						.replace(/}/g, "\\}")
 						.replace(/\n/g, "\\N");
 					if (j === idx) {
-						textParts.push(`{\\c${highlightColor}}${escaped}{\\r}`);
+						const boldTag = cur.bold ? "{\\b1}" : "";
+						textParts.push(
+							`${boldTag}{\\c${highlightColor}}${escaped}{\\c${defaultTextColor}}`
+						);
 					} else {
-						textParts.push(escaped);
+						const boldTag = cur.bold ? "{\\b1}" : "";
+						textParts.push(`${boldTag}${escaped}`);
 					}
 				}
 				events.push(

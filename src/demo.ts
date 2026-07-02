@@ -48,6 +48,19 @@ export const CIRCLE_CENTER_Y = 500;
 export const FPS = 25;
 export const MAX_ZOOM_VARIATION = 0.2;
 
+export const BG_VIDEO_PATH = join(
+	import.meta.dirname,
+	"..",
+	"bg-video",
+	"no_voice_005.mp4",
+);
+export const BG_MUSIC_PATH = join(
+	import.meta.dirname,
+	"..",
+	"bg-video",
+	"background_music.mp3",
+);
+
 export interface SegmentInfo {
 	agent: string;
 	audioPath: string;
@@ -244,36 +257,55 @@ export async function processPhrase(
 	};
 }
 
-export async function renderSegment(info: SegmentInfo): Promise<void> {
+export async function renderSegment(
+	info: SegmentInfo,
+	bgOffset = 0,
+): Promise<void> {
 	const totalFrames = Math.ceil(info.duration * FPS);
 
-	let filterGraph: string;
-	if (info.scaleExpr === null) {
-		filterGraph = "[0:v]null[vid]";
-	} else {
-		const scaleExpr = info.scaleExpr;
+	const trimFilter =
+		`[0:v]trim=start=${bgOffset}:duration=${info.duration},setpts=PTS-STARTPTS,scale=1080:1920[bg];` +
+		`[0:a]atrim=start=${bgOffset}:duration=${info.duration},asetpts=PTS-STARTPTS[bga]`;
+
+	const isPause = info.agent === "pause";
+	const hasTTS = !isPause;
+
+	let vidLabel = "bg";
+	let circlePart = "";
+
+	if (info.scaleExpr !== null) {
+		vidLabel = "vid";
 		const circleFilter =
 			"[1:v]format=rgba," +
 			`loop=loop=${totalFrames - 1}:size=1:start=0,` +
-			`scale='trunc(iw*${scaleExpr}/2)*2':'trunc(ih*${scaleExpr}/2)*2':eval=frame,` +
+			`scale='trunc(iw*${info.scaleExpr}/2)*2':'trunc(ih*${info.scaleExpr}/2)*2':eval=frame,` +
 			"setpts=PTS-STARTPTS[circle]";
 		const assPart = info.assPath
 			? `[base]ass=${info.assPath}[vid]`
 			: "[base]null[vid]";
-		filterGraph =
-			`${circleFilter};` +
-			`[0:v][circle]overlay=(W-w)/2:${CIRCLE_CENTER_Y}-h/2:format=auto[base];` +
-			assPart;
+		circlePart =
+			`${circleFilter};[bg][circle]overlay=(W-w)/2:${CIRCLE_CENTER_Y}-h/2:format=auto[base];${assPart}`;
 	}
 
-	const inputs = [
-		"-f",
-		"lavfi",
-		"-i",
-		`color=c=black:s=1080x1920:r=${FPS}:d=${info.duration}`,
-	];
+	let mixFilter: string;
+	if (hasTTS) {
+		mixFilter =
+			`[2:a]volume=0.4[tts];[bga]volume=0.5[bga_v];[tts][bga_v]amix=inputs=2:duration=first[aud]`;
+	} else {
+		mixFilter = `[bga]volume=0.5[aud]`;
+	}
+
+	const parts = [trimFilter];
+	if (circlePart) parts.push(circlePart);
+	parts.push(mixFilter);
+	const filterGraph = parts.join(";");
+
+	const ffInputs: string[] = ["-i", BG_VIDEO_PATH];
 	if (info.scaleExpr !== null) {
-		inputs.push("-i", info.iconPath);
+		ffInputs.push("-i", info.iconPath);
+	}
+	if (hasTTS) {
+		ffInputs.push("-i", info.audioPath);
 	}
 
 	const proc = Bun.spawn([
@@ -282,17 +314,23 @@ export async function renderSegment(info: SegmentInfo): Promise<void> {
 		"-hide_banner",
 		"-loglevel",
 		"error",
-		...inputs,
+		...ffInputs,
 		"-filter_complex",
 		filterGraph,
 		"-map",
-		"[vid]",
+		`[${vidLabel}]`,
+		"-map",
+		"[aud]",
 		"-c:v",
 		"libx264",
 		"-preset",
 		"fast",
 		"-crf",
 		"23",
+		"-c:a",
+		"libmp3lame",
+		"-b:a",
+		"192k",
 		info.videoPath,
 	]);
 
@@ -315,22 +353,26 @@ async function main() {
 		segments.push(info);
 	}
 
+	let bgOffset = 0;
 	for (const info of segments) {
 		console.log(`  Rendering ${info.agent} (${info.duration.toFixed(2)}s)...`);
-		await renderSegment(info);
+		await renderSegment(info, bgOffset);
+		bgOffset += info.duration;
 	}
 
 	console.log("\nMuxing final video with audio...");
 
+	const bgMusic = existsSync(BG_MUSIC_PATH) ? BG_MUSIC_PATH : undefined;
 	const outputPath = join(OUT_DIR, "demo.mp4");
-	await concatSegments(segments, outputPath);
+	await concatSegments(segments, outputPath, bgMusic);
 
 	console.log(`\nDone: ${outputPath}`);
 }
 
 export async function concatSegments(
 	segments: SegmentInfo[],
-	outputPath: string
+	outputPath: string,
+	bgMusicPath?: string,
 ): Promise<void> {
 	const inputs: string[] = [];
 	const filterParts: string[] = [];
@@ -344,9 +386,18 @@ export async function concatSegments(
 	}
 
 	const segCount = segments.length;
-	const filterGraph =
-		`${filterParts.join("")}concat=n=${segCount}:v=1:a=1[vid][aud];` +
-		"[aud]volume=0.4[aud_out]";
+	const hasMusic = bgMusicPath !== undefined && existsSync(bgMusicPath);
+
+	let filterGraph: string;
+	if (hasMusic) {
+		inputs.push("-i", bgMusicPath!);
+		filterGraph =
+			`${filterParts.join("")}concat=n=${segCount}:v=1:a=1[vid][aud];` +
+			`[${segCount * 2}:a]volume=0.73[bgm];` +
+			"[aud][bgm]amix=inputs=2:duration=first[aud_out]";
+	} else {
+		filterGraph = `${filterParts.join("")}concat=n=${segCount}:v=1:a=1[vid][aud_out]`;
+	}
 
 	const proc = Bun.spawn([
 		"ffmpeg",
