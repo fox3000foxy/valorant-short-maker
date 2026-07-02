@@ -416,7 +416,7 @@ export async function concatSegments(
 		inputs.push("-i", bgMusicPath!);
 		filterGraph =
 			`${filterParts.join("")}concat=n=${segCount}:v=1:a=1[vid][aud];` +
-			`[${segCount * 2}:a]volume=0.73[bgm];` +
+			`[${segCount * 2}:a]volume=0.33[bgm];` +
 			"[aud][bgm]amix=inputs=2:duration=first[aud_out]";
 	} else {
 		filterGraph = `${filterParts.join("")}concat=n=${segCount}:v=1:a=1[vid][aud_out]`;
