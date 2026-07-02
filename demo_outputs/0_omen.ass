@@ -11,7 +11,7 @@ Style: Default,Montserrat,100,&HFFFFFF&,&HFFFFFF&,&H402000&,&H00000000,-1,0,0,0,
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 Dialogue: 0,0:00:00.00,0:00:00.31,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}Can{\c&HFFFFFF&} anyone
-Dialogue: 0,0:00:00.31,0:00:00.61,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} Can {\c&HC08060&}anyone{\c&HFFFFFF&}
-Dialogue: 0,0:00:00.61,0:00:00.92,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}plant{\c&HFFFFFF&} in
-Dialogue: 0,0:00:00.92,0:00:01.22,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} plant {\c&HC08060&}in{\c&HFFFFFF&}
-Dialogue: 0,0:00:01.22,0:00:01.83,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}B{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.31,0:00:00.62,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} Can {\c&HC08060&}anyone{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.62,0:00:00.92,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}plant{\c&HFFFFFF&} in
+Dialogue: 0,0:00:00.92,0:00:01.23,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} plant {\c&HC08060&}in{\c&HFFFFFF&}
+Dialogue: 0,0:00:01.23,0:00:01.85,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}B{\c&HFFFFFF&}
