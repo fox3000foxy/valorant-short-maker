@@ -1,12 +1,4 @@
 omen: You should not be here.
-jett: Excuse me?
+jett: Excuse me??
 pause: 1.0
-phoenix: He's right. We need to focus.
-omen: The shadows are restless. Something is coming.
-pause: 0.8
-jett: Great. Another cryptic warning. Spill it.
-omen: I cannot see clearly. Only fragments.
-phoenix: Let the guy breathe, yeah? What do you need, mate?
-omen: Watch the flanks. Stay close.
-pause: 0.5
-jett: Finally, something useful.
+phoenix: I agree with this guy tho.
