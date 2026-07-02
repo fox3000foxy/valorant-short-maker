@@ -68,7 +68,7 @@ export class ValorantTTS {
 			".tmp",
 			`tts_${this.agent}_${Date.now()}`
 		);
-		const rawWav = join(tmpDir, "seg.wav");
+		// const rawWav = join(tmpDir, "seg.wav");
 
 		try {
 			await Bun.$`mkdir -p ${tmpDir}`;
@@ -82,7 +82,7 @@ export class ValorantTTS {
 					"-m",
 					this._modelPath,
 					"--output_file",
-					rawWav,
+					outputPath,
 					"--noise_scale",
 					String(this.options.noiseScale),
 					"--noise_w",
@@ -106,31 +106,31 @@ export class ValorantTTS {
 				throw new Error(`Piper TTS failed with exit code ${piperExit}`);
 			}
 
-			const ffmpeg = Bun.spawn(
-				[
-					process.cwd() + "/bin/ffmpeg/ffmpeg",
-					"-i",
-					rawWav,
-					"-af",
-					this.options.filterChain,
-					"-ar",
-					String(this.sampleRate),
-					outputPath,
-					"-y",
-				],
-				{
-					stdout: "ignore",
-					stderr: "ignore",
-				}
-			);
+			// const ffmpeg = Bun.spawn(
+			// 	[
+			// 		process.cwd() + "/bin/ffmpeg/ffmpeg",
+			// 		"-i",
+			// 		rawWav,
+			// 		"-af",
+			// 		this.options.filterChain,
+			// 		"-ar",
+			// 		String(this.sampleRate),
+			// 		outputPath,
+			// 		"-y",
+			// 	],
+			// 	{
+			// 		stdout: "ignore",
+			// 		stderr: "ignore",
+			// 	}
+			// );
 
-			const ffmpegExit = await ffmpeg.exited;
+			// const ffmpegExit = await ffmpeg.exited;
 
-			if (ffmpegExit !== 0) {
-				throw new Error(
-					`FFmpeg processing failed with exit code ${ffmpegExit}`
-				);
-			}
+			// if (ffmpegExit !== 0) {
+			// 	throw new Error(
+			// 		`FFmpeg processing failed with exit code ${ffmpegExit}`
+			// 	);
+			// }
 
 			return Bun.file(outputPath);
 		} finally {

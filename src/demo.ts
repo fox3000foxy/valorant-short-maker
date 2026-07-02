@@ -314,9 +314,9 @@ export async function renderSegment(
 	let mixFilter: string;
 	if (hasTTS) {
 		mixFilter =
-			`[2:a]volume=0.4[tts];[bga]volume=0.5[bga_v];[tts][bga_v]amix=inputs=2:duration=first[aud]`;
+			`[2:a]volume=0.7[tts];[bga]volume=0.95[bga_v];[tts][bga_v]amix=inputs=2:duration=first[aud]`;
 	} else {
-		mixFilter = `[bga]volume=0.5[aud]`;
+		mixFilter = `[bga]volume=0.95[aud]`;
 	}
 
 	const parts = [trimFilter];
@@ -331,9 +331,9 @@ export async function renderSegment(
 	if (hasTTS) {
 		ffInputs.push("-i", info.audioPath);
 	}
-	if (useCachedFiles) {
-		console.log(`  Rendering ${info.agent}... (cached)`);
-	} else {
+	// if (useCachedFiles) {
+	// 	console.log(`  Rendering ${info.agent}... (cached)`);
+	// } else {
 		console.log(`  Rendering ${info.agent}...`);
 
 
@@ -359,7 +359,7 @@ export async function renderSegment(
 			"-c:a",
 			"libmp3lame",
 			"-b:a",
-			"192k",
+			"384k",
 			info.videoPath,
 		]);
 
@@ -372,7 +372,7 @@ export async function renderSegment(
 			console.error("  FFmpeg error:", stderr);
 			throw new Error(`Render failed (exit ${_exitCode})`);
 		}
-	}
+	// }
 }
 
 async function main() {
@@ -407,23 +407,21 @@ export async function concatSegments(
 	const inputs: string[] = [];
 	const filterParts: string[] = [];
 
-	// Chaque segment MP4 contient déjà la vidéo + l'audio mixé
 	for (const seg of segments) {
 		inputs.push("-i", seg.videoPath);
 	}
 
-	for (let i = 0; i < segments.length; i++) {
-		filterParts.push(`[${i}:v]`);
-		filterParts.push(`[${i}:a]`);
+	const segCount = segments.length;
+
+	for (let i = 0; i < segCount; i++) {
+		filterParts.push(`[${i}:v][${i}:a]`);
 	}
 
-	const segCount = segments.length;
 	const hasMusic = bgMusicPath !== undefined && existsSync(bgMusicPath);
 
 	let filterGraph: string;
 
 	if (hasMusic) {
-		// La musique de fond est ajoutée en dernière entrée
 		inputs.push("-i", bgMusicPath);
 
 		filterGraph =
@@ -435,33 +433,45 @@ export async function concatSegments(
 			`${filterParts.join("")}concat=n=${segCount}:v=1:a=1[vid][aud_out]`;
 	}
 
-	const proc = Bun.spawn([
+	const ffmpegArgs = [
 		process.cwd() + "/bin/ffmpeg/ffmpeg",
 		"-y",
 		"-hide_banner",
 		"-loglevel",
 		"error",
+
 		...inputs,
+
 		"-filter_complex",
 		filterGraph,
+
 		"-map",
 		"[vid]",
 		"-map",
 		"[aud_out]",
+
+		"-threads",
+		"0",
+
 		"-c:v",
 		"libx264",
 		"-preset",
-		"fast",
+		"veryfast",
 		"-crf",
 		"23",
+
 		"-c:a",
 		"libmp3lame",
 		"-b:a",
 		"192k",
+
 		"-movflags",
 		"+faststart",
+
 		outputPath,
-	]);
+	];
+
+	const proc = Bun.spawn(ffmpegArgs);
 
 	const [stderr, exitCode] = await Promise.all([
 		new Response(proc.stderr).text(),
@@ -469,7 +479,7 @@ export async function concatSegments(
 	]);
 
 	if (exitCode !== 0) {
-		console.error("  Concat error:", stderr);
+		console.error("Concat error:", stderr);
 		throw new Error(`Concat failed (exit ${exitCode})`);
 	}
 }
