@@ -27,7 +27,19 @@ export class AgentChat {
 			messages: [
 				{
 					role: "system",
-					content: `${this._persona.systemPrompt}\n\nAgent lore:\n${this._allLore}`,
+					content: [
+						this._persona.systemPrompt,
+						"",
+						"Agent lore:",
+						this._allLore,
+						"",
+						"Rules:",
+						"- Output ONLY the spoken dialogue, nothing else.",
+						"- No stage directions, no actions in asterisks or parentheses, no descriptions.",
+						"- No character names, no colons, no formatting.",
+						"- Just the raw words the character would say out loud.",
+						"- One or two sentences maximum. Short and natural.",
+					].join("\n"),
 				},
 				{ role: "user", content: sceneContext },
 			],
