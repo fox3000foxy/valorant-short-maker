@@ -207,6 +207,55 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 ${events}`;
 	}
 
+	generateTikTokASS(chunks: ChunkCaptions[], agentColors: string[]): string {
+		const outlineColor = _assColor(agentColors[1] ?? "#000000");
+		const highlightColor = _assColor(agentColors[0] ?? "#FFFFFF");
+		const defaultTextColor = _assColor("#FFFFFF");
+		const fontSize = this.options.fontSize;
+		const marginV = Math.round(this.options.height * 0.4);
+
+		const events: string[] = [];
+
+		for (const chunk of chunks) {
+			for (let idx = 0; idx < chunk.words.length; idx++) {
+				const word = chunk.words[idx]!;
+				const nextWord = chunk.words[idx + 1];
+				const eventEnd = nextWord ? nextWord.startTime : chunk.endTime;
+
+				const textParts: string[] = [];
+				for (let j = 0; j < chunk.words.length; j++) {
+					const cur = chunk.words[j]!;
+					const escaped = cur.text
+						.replace(/{/g, "\\{")
+						.replace(/}/g, "\\}")
+						.replace(/\n/g, "\\N");
+					if (j === idx) {
+						textParts.push(`{\\c${highlightColor}}${escaped}{\\r}`);
+					} else {
+						textParts.push(escaped);
+					}
+				}
+				events.push(
+					`Dialogue: 0,${_formatTime(word.startTime)},${_formatTime(eventEnd)},Default,,0,0,${marginV},,${textParts.join(" ")}`
+				);
+			}
+		}
+
+		return `[Script Info]
+ScriptType: v4.00+
+PlayResX: ${this.options.width}
+PlayResY: ${this.options.height}
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,${this.options.fontName},${fontSize},${defaultTextColor},${defaultTextColor},${outlineColor},&H00000000,-1,0,0,0,100,100,0,0,1,${this.options.borderSize + 1},0,2,10,10,${marginV},1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+${events.join("\n")}`;
+	}
+
 	generateKaraokeASS(captions: WordCaption[], agentColors: string[]): string {
 		const outlineColor = _assColor(agentColors[1] ?? "#000000");
 		const highlightColor = _assColor(agentColors[0] ?? "#FFFFFF");
@@ -375,4 +424,10 @@ export interface WordCaption {
 	startTime: number;
 	endTime: number;
 	bold?: boolean;
+}
+
+export interface ChunkCaptions {
+	words: WordCaption[];
+	startTime: number;
+	endTime: number;
 }
