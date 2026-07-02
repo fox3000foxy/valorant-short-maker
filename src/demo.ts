@@ -39,6 +39,10 @@ export function parseScript(): Phrase[] {
 
 export const PHRASES = parseScript();
 
+function stripPauseMarkers(text: string): string {
+	return text.replace(/\[\d+\.?\d*\]/g, "").trim();
+}
+
 export const WHOOSH_PATH = join(import.meta.dirname, "..", "sounds", "whoosh.mp3");
 
 const OUT_DIR = join(import.meta.dirname, "..", "demo_outputs");
@@ -141,7 +145,7 @@ export async function computeScaleExpr(
 		smoothed[frame] = sum / count;
 	}
 
-	const STEP = 8;
+	const STEP = 4;
 	const numGroups = Math.ceil(totalFrames / STEP);
 	const groupVals = new Float64Array(numGroups);
 	for (let g = 0; g < numGroups; g++) {
@@ -241,7 +245,7 @@ export async function processPhrase(
 		};
 	}
 
-	const words = phrase.text.split(/\s+/).filter(Boolean);
+	const words = stripPauseMarkers(phrase.text).split(/\s+/).filter(Boolean);
 	const numChunks = Math.min(3, words.length);
 	const chunkSize = Math.ceil(words.length / numChunks);
 	const chunks: string[][] = [];

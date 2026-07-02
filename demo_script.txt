@@ -5,7 +5,8 @@ phoenix: Okay, [0.3] maybe 1v4?
 jett: I just saw you whiff an entire magazine, [0.3] on a Sage wall.
 phoenix: It was a warning shot!
 killjoy: At what, [0.4] the map geometry?
-raze: Let me show you how it's done! [0.3] BOOM!
+raze: Let me show you how it's done!
+pause: 3.0
 raze: They're all still alive.
 omen: Your boom was, [0.3] in fact, [0.3] a quiet tickle.
 jett: I'm going in. [0.4] Try not to spectate me for once.
