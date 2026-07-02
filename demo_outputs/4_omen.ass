@@ -11,9 +11,9 @@ Style: Default,Montserrat,100,&HFFFFFF&,&HFFFFFF&,&H402000&,&H00000000,-1,0,0,0,
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 Dialogue: 0,0:00:00.00,0:00:00.44,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}The{\c&HFFFFFF&} shadows are
-Dialogue: 0,0:00:00.44,0:00:00.87,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} The {\c&HC08060&}shadows{\c&HFFFFFF&} are
-Dialogue: 0,0:00:00.87,0:00:01.31,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} The shadows {\c&HC08060&}are{\c&HFFFFFF&}
-Dialogue: 0,0:00:01.31,0:00:01.75,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}restless.{\c&HFFFFFF&} Something is
-Dialogue: 0,0:00:01.75,0:00:02.19,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} restless. {\c&HC08060&}Something{\c&HFFFFFF&} is
-Dialogue: 0,0:00:02.19,0:00:02.62,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} restless. Something {\c&HC08060&}is{\c&HFFFFFF&}
-Dialogue: 0,0:00:02.62,0:00:03.94,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}coming.{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.44,0:00:00.88,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} The {\c&HC08060&}shadows{\c&HFFFFFF&} are
+Dialogue: 0,0:00:00.88,0:00:01.32,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} The shadows {\c&HC08060&}are{\c&HFFFFFF&}
+Dialogue: 0,0:00:01.32,0:00:01.76,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}restless.{\c&HFFFFFF&} Something is
+Dialogue: 0,0:00:01.76,0:00:02.20,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} restless. {\c&HC08060&}Something{\c&HFFFFFF&} is
+Dialogue: 0,0:00:02.20,0:00:02.64,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} restless. Something {\c&HC08060&}is{\c&HFFFFFF&}
+Dialogue: 0,0:00:02.64,0:00:03.96,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&HC08060&}coming.{\c&HFFFFFF&}
