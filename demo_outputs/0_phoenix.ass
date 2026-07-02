@@ -1,0 +1,21 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Montserrat,100,&HFFFFFF&,&HFFFFFF&,&H4060E0&,&H00000000,-1,0,0,0,100,100,0,0,1,3,0,2,10,10,768,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:00.49,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H4080E0&}Alright{\c&HFFFFFF&} lads, watch
+Dialogue: 0,0:00:00.49,0:00:00.99,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} Alright {\c&H4080E0&}lads,{\c&HFFFFFF&} watch
+Dialogue: 0,0:00:00.99,0:00:01.48,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} Alright lads, {\c&H4080E0&}watch{\c&HFFFFFF&}
+Dialogue: 0,0:00:01.48,0:00:01.98,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H4080E0&}and{\c&HFFFFFF&} learn I'm
+Dialogue: 0,0:00:01.98,0:00:02.47,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} and {\c&H4080E0&}learn{\c&HFFFFFF&} I'm
+Dialogue: 0,0:00:02.47,0:00:02.97,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} and learn {\c&H4080E0&}I'm{\c&HFFFFFF&}
+Dialogue: 0,0:00:02.97,0:00:03.46,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H4080E0&}gonna{\c&HFFFFFF&} 1v5 them
+Dialogue: 0,0:00:03.46,0:00:03.95,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} gonna {\c&H4080E0&}1v5{\c&HFFFFFF&} them
+Dialogue: 0,0:00:03.95,0:00:04.45,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} gonna 1v5 {\c&H4080E0&}them{\c&HFFFFFF&}
