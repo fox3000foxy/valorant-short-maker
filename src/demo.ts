@@ -49,7 +49,7 @@ export const INPUT_SIZE = 484;
 export const CIRCLE_SIZE = 400;
 export const CIRCLE_BASE_SCALE = CIRCLE_SIZE / INPUT_SIZE;
 export const CIRCLE_CENTER_Y = 500;
-export const FPS = 25;
+export const FPS = 60;
 export const MAX_ZOOM_VARIATION = 0.2;
 
 export const BG_VIDEO_PATH = join(
@@ -62,7 +62,7 @@ export const BG_MUSIC_PATH = join(
 	import.meta.dirname,
 	"..",
 	"bg-video",
-	"background_musici.mp3",
+	"background_music.mp3",
 );
 
 export interface SegmentInfo {
@@ -288,7 +288,7 @@ export async function renderSegment(
 	const totalFrames = Math.ceil(info.duration * FPS);
 
 	const trimFilter =
-		`[0:v]trim=start=${bgOffset}:duration=${info.duration},setpts=PTS-STARTPTS,scale=1080:1920[bg];` +
+		`[0:v]trim=start=${bgOffset}:duration=${info.duration},setpts=PTS-STARTPTS,scale=1080:1920,setsar=1,fps=fps=60[bg];` +
 		`[0:a]atrim=start=${bgOffset}:duration=${info.duration},asetpts=PTS-STARTPTS[bga]`;
 
 	const isPause = info.agent === "pause";
@@ -300,7 +300,7 @@ export async function renderSegment(
 	if (info.scaleExpr !== null) {
 		vidLabel = "vid";
 		const circleFilter =
-			"[1:v]format=rgba," +
+			"[1:v]format=rgba,fps=fps=60," +
 			`loop=loop=${totalFrames - 1}:size=1:start=0,` +
 			`scale='trunc(iw*${info.scaleExpr}/2)*2':'trunc(ih*${info.scaleExpr}/2)*2':eval=frame,` +
 			"setpts=PTS-STARTPTS[circle]";
@@ -353,13 +353,15 @@ export async function renderSegment(
 			"-c:v",
 			"libx264",
 			"-preset",
-			"fast",
+			"ultrafast",
 			"-crf",
-			"23",
+			"28",
 			"-c:a",
 			"libmp3lame",
 			"-b:a",
 			"384k",
+			"-r:v",
+			"60",
 			info.videoPath,
 		]);
 
@@ -419,11 +421,13 @@ export async function concatSegments(
 
 	const hasMusic = bgMusicPath !== undefined && existsSync(bgMusicPath);
 
+	if (hasMusic) {
+		inputs.push("-i", bgMusicPath);
+	}
+
 	let filterGraph: string;
 
 	if (hasMusic) {
-		inputs.push("-i", bgMusicPath);
-
 		filterGraph =
 			`${filterParts.join("")}concat=n=${segCount}:v=1:a=1[vid][aud];` +
 			`[${segCount}:a]volume=0.33[bgm];` +
@@ -450,15 +454,12 @@ export async function concatSegments(
 		"-map",
 		"[aud_out]",
 
-		"-threads",
-		"0",
-
 		"-c:v",
 		"libx264",
 		"-preset",
-		"veryfast",
+		"ultrafast",
 		"-crf",
-		"23",
+		"28",
 
 		"-c:a",
 		"libmp3lame",
