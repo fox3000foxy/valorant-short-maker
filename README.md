@@ -41,6 +41,8 @@ bun run src/demo.ts
 
 Le rendu final est dans `demo_outputs/demo.mp4`.
 
+[Voir la video de demo](https://github.com/fox3000foxy/valorant-short-maker/blob/main/demo_outputs/demo.mp4)
+
 ## Fonctionnement
 
 ### Pipeline
