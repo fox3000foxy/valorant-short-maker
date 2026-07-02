@@ -4,6 +4,10 @@ import { join } from "node:path";
 import { ValorantSubtitle, type ChunkCaptions } from "./subtitle.ts";
 import { ValorantTTS } from "./tts.ts";
 
+import * as dotenv from 'dotenv';
+dotenv.config();
+const useCachedFiles = process.env.CACHED_DEMO_FILES === "1";
+
 export interface Phrase {
 	agent: string;
 	text: string;
@@ -346,7 +350,6 @@ export async function renderSegment(
 
 async function main() {
 	console.log("=== Demo ===\n");
-
 	const segments: SegmentInfo[] = [];
 	for (let i = 0; i < PHRASES.length; i++) {
 		const info = await processPhrase(PHRASES[i]!, i);
