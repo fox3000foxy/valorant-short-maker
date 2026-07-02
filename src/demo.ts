@@ -206,9 +206,16 @@ export async function processPhrase(
 		};
 	}
 
-	console.log(`  TTS ${phrase.agent}...`);
-	const tts = new ValorantTTS(phrase.agent, phrase.text);
-	await tts.generate(audioPath);
+	const cachedAudioOk = useCachedFiles && existsSync(audioPath);
+	const cachedAssOk = useCachedFiles && assPath !== null && existsSync(assPath);
+
+	if (cachedAudioOk) {
+		console.log(`  TTS ${phrase.agent}... (cached)`);
+	} else {
+		console.log(`  TTS ${phrase.agent}...`);
+		const tts = new ValorantTTS(phrase.agent, phrase.text);
+		await tts.generate(audioPath);
+	}
 
 	const duration = await getAudioDuration(audioPath);
 	console.log(`  ${duration.toFixed(2)}s`);
@@ -218,6 +225,19 @@ export async function processPhrase(
 		fontSize: FONT_SIZE,
 	});
 	const colors = await sub.getColors();
+
+	if (cachedAssOk) {
+		const scaleExpr = await computeScaleExpr(audioPath, duration);
+		return {
+			agent: phrase.agent,
+			audioPath,
+			duration,
+			assPath,
+			iconPath,
+			videoPath,
+			scaleExpr,
+		};
+	}
 
 	const words = phrase.text.split(/\s+/).filter(Boolean);
 	const numChunks = Math.min(3, words.length);
