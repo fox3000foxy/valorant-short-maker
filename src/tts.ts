@@ -23,7 +23,7 @@ export interface TTSOptions {
 const DEFAULT_OPTIONS: Required<TTSOptions> = {
 	noiseScale: 0.333,
 	noiseW: 0.1,
-	lengthScale: 1.1,
+	lengthScale: 1.3,
 	pause: 0.3,
 	filterChain:
 		"highpass=f=80,lowpass=f=14000,anlmdn=s=0.0001:p=0.002:r=0.002,loudnorm=I=-20:TP=-2:LRA=7",

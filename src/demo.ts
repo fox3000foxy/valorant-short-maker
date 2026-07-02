@@ -122,13 +122,24 @@ export async function computeScaleExpr(
 		smoothed[frame] = sum / count;
 	}
 
-	let expr = `${(CIRCLE_BASE_SCALE * (1 + smoothed[totalFrames - 1]! * MAX_ZOOM_VARIATION)).toFixed(6)}`;
-	for (let idx = totalFrames - 2; idx >= 0; idx--) {
-		const val = (
-			CIRCLE_BASE_SCALE *
-			(1 + smoothed[idx]! * MAX_ZOOM_VARIATION)
-		).toFixed(6);
-		expr = `if(eq(n\\,${idx})\\,${val}\\,${expr})`;
+	const STEP = 8;
+	const numGroups = Math.ceil(totalFrames / STEP);
+	const groupVals = new Float64Array(numGroups);
+	for (let g = 0; g < numGroups; g++) {
+		let mx = 0;
+		const start = g * STEP;
+		const end = Math.min(start + STEP, totalFrames);
+		for (let f = start; f < end; f++) {
+			if (smoothed[f]! > mx) mx = smoothed[f]!;
+		}
+		groupVals[g] = CIRCLE_BASE_SCALE * (1 + mx * MAX_ZOOM_VARIATION);
+	}
+
+	let expr = `${groupVals[numGroups - 1]!.toFixed(6)}`;
+	for (let g = numGroups - 2; g >= 0; g--) {
+		const start = g * STEP;
+		const end = Math.min(start + STEP - 1, totalFrames - 1);
+		expr = `if(between(n\\,${start}\\,${end})\\,${groupVals[g]!.toFixed(6)}\\,${expr})`;
 	}
 	return expr;
 }
