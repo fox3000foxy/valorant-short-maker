@@ -1,4 +1,5 @@
-omen: You should not be here.
-jett: Excuse me??
+omen: Can anyone plant in B
+jett: I'm on it right now
 pause: 1.0
-phoenix: I agree with this guy tho.
+phoenix: Don't forget to check for enemies Jett.
+jett: I know what i'm doing!!

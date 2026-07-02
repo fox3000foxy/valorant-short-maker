@@ -10,5 +10,8 @@ Style: Default,Montserrat,100,&HFFFFFF&,&HFFFFFF&,&H604000&,&H00000000,-1,0,0,0,
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.00,0:00:00.37,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}Excuse{\c&HFFFFFF&}
-Dialogue: 0,0:00:00.37,0:00:00.74,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}me??{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.00,0:00:00.17,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}I'm{\c&HFFFFFF&} on
+Dialogue: 0,0:00:00.17,0:00:00.34,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} I'm {\c&H604020&}on{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.34,0:00:00.52,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}it{\c&HFFFFFF&} right
+Dialogue: 0,0:00:00.52,0:00:00.69,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} it {\c&H604020&}right{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.69,0:00:01.03,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}now{\c&HFFFFFF&}

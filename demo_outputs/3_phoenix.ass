@@ -10,9 +10,10 @@ Style: Default,Montserrat,100,&HFFFFFF&,&HFFFFFF&,&H4060E0&,&H00000000,-1,0,0,0,
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.00,0:00:00.23,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H4080E0&}I{\c&HFFFFFF&} agree
-Dialogue: 0,0:00:00.23,0:00:00.46,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} I {\c&H4080E0&}agree{\c&HFFFFFF&}
-Dialogue: 0,0:00:00.46,0:00:00.68,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H4080E0&}with{\c&HFFFFFF&} this
-Dialogue: 0,0:00:00.68,0:00:00.91,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} with {\c&H4080E0&}this{\c&HFFFFFF&}
-Dialogue: 0,0:00:00.91,0:00:01.14,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H4080E0&}guy{\c&HFFFFFF&} tho.
-Dialogue: 0,0:00:01.14,0:00:01.37,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} guy {\c&H4080E0&}tho.{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.00,0:00:00.23,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H4080E0&}Don't{\c&HFFFFFF&} forget to
+Dialogue: 0,0:00:00.23,0:00:00.46,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} Don't {\c&H4080E0&}forget{\c&HFFFFFF&} to
+Dialogue: 0,0:00:00.46,0:00:00.69,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} Don't forget {\c&H4080E0&}to{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.69,0:00:00.92,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H4080E0&}check{\c&HFFFFFF&} for enemies
+Dialogue: 0,0:00:00.92,0:00:01.15,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} check {\c&H4080E0&}for{\c&HFFFFFF&} enemies
+Dialogue: 0,0:00:01.15,0:00:01.38,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} check for {\c&H4080E0&}enemies{\c&HFFFFFF&}
+Dialogue: 0,0:00:01.38,0:00:02.07,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H4080E0&}Jett.{\c&HFFFFFF&}
