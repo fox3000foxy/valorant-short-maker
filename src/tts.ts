@@ -75,9 +75,10 @@ export class ValorantTTS {
 
 			const piper = Bun.spawn(
 				[
-					"python3",
-					"-m",
-					"piper",
+					// "python3",
+					// "-m",
+					// "piper",
+					process.cwd() + "/.venv/bin/piper",
 					"-m",
 					this._modelPath,
 					"--output_file",
@@ -107,7 +108,7 @@ export class ValorantTTS {
 
 			const ffmpeg = Bun.spawn(
 				[
-					"ffmpeg",
+					process.cwd() + "/bin/ffmpeg/ffmpeg",
 					"-i",
 					rawWav,
 					"-af",

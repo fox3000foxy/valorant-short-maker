@@ -1,8 +1,8 @@
-import { ValorantTTS } from "./tts.ts";
-import { ValorantSubtitle, type ChunkCaptions } from "./subtitle.ts";
-import { readFileSync, existsSync, mkdirSync } from "node:fs";
-import { join } from "node:path";
 import { Buffer } from "node:buffer";
+import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { ValorantSubtitle, type ChunkCaptions } from "./subtitle.ts";
+import { ValorantTTS } from "./tts.ts";
 
 export interface Phrase {
 	agent: string;
@@ -73,7 +73,7 @@ export interface SegmentInfo {
 
 export async function getAudioDuration(path: string): Promise<number> {
 	const proc = Bun.spawn([
-		"ffprobe",
+		process.cwd() + "/bin/ffmpeg/ffprobe",
 		"-v",
 		"error",
 		"-show_entries",
@@ -177,7 +177,7 @@ export async function processPhrase(
 		const duration = phrase.duration ?? 1.0;
 		console.log(`  pause ${duration.toFixed(1)}s`);
 		const proc = Bun.spawn([
-			"ffmpeg",
+			process.cwd() + "/bin/ffmpeg/ffmpeg",
 			"-y",
 			"-hide_banner",
 			"-loglevel",
@@ -309,7 +309,7 @@ export async function renderSegment(
 	}
 
 	const proc = Bun.spawn([
-		"ffmpeg",
+		process.cwd() + "/bin/ffmpeg/ffmpeg",
 		"-y",
 		"-hide_banner",
 		"-loglevel",
@@ -401,7 +401,7 @@ export async function concatSegments(
 	}
 
 	const proc = Bun.spawn([
-		"ffmpeg",
+		process.cwd() + "/bin/ffmpeg/ffmpeg",
 		"-y",
 		"-hide_banner",
 		"-loglevel",
