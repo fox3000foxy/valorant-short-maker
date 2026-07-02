@@ -1,14 +1,11 @@
 import "dotenv/config";
 import { AgentChat } from "./agent-chat.ts";
-import { PERSONA as RAZE, LORE as RAZE_LORE } from "./lore/raze.ts";
-import { PERSONA as JETT, LORE as JETT_LORE } from "./lore/jett.ts";
-import { PERSONA as PHOENIX, LORE as PHOENIX_LORE } from "./lore/phoenix.ts";
+import { PERSONA as RAZE } from "./lore/raze.ts";
+import { PERSONA as JETT } from "./lore/jett.ts";
+import { PERSONA as PHOENIX } from "./lore/phoenix.ts";
 
 async function main() {
-	console.log("=== Loading lore... ===\n");
-	await AgentChat.addLoreBatch("raze", RAZE_LORE);
-	await AgentChat.addLoreBatch("jett", JETT_LORE);
-	await AgentChat.addLoreBatch("phoenix", PHOENIX_LORE);
+	console.log("=== Valorant Agent Chat Demo ===\n");
 
 	const raze = new AgentChat(RAZE);
 	const jett = new AgentChat(JETT);
@@ -22,25 +19,17 @@ async function main() {
 		"An ally is pinned down by heavy fire and needs an opening.",
 	];
 
-	console.log("=== Raze ===\n");
-	for (const ctx of contexts) {
-		const line = await raze.genLine(ctx);
-		console.log(`  > ${ctx}`);
-		console.log(`  ${line}\n`);
-	}
-
-	console.log("=== Jett ===\n");
-	for (const ctx of contexts) {
-		const line = await jett.genLine(ctx);
-		console.log(`  > ${ctx}`);
-		console.log(`  ${line}\n`);
-	}
-
-	console.log("=== Phoenix ===\n");
-	for (const ctx of contexts) {
-		const line = await phoenix.genLine(ctx);
-		console.log(`  > ${ctx}`);
-		console.log(`  ${line}\n`);
+	for (const [name, chat] of [
+		["Raze", raze],
+		["Jett", jett],
+		["Phoenix", phoenix],
+	] as const) {
+		console.log(`=== ${name} ===\n`);
+		for (const ctx of contexts) {
+			const line = await chat.genLine(ctx);
+			console.log(`  > ${ctx}`);
+			console.log(`  ${line}\n`);
+		}
 	}
 }
 
