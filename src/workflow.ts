@@ -1,17 +1,16 @@
+import { existsSync, mkdirSync, mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
 	type Phrase,
 	type SegmentInfo,
-	OUT_DIR,
+	concatSegments,
 	FPS,
+	OUT_DIR,
 	parseScript,
 	processPhrase,
 	renderSegment,
-	concatSegments,
 } from "./demo.ts";
-import { existsSync, mkdirSync } from "node:fs";
-import { join } from "node:path";
-import { mkdtempSync } from "node:fs";
-import { tmpdir } from "node:os";
 
 export interface WorkflowOptions {
 	demo?: boolean;
@@ -53,27 +52,27 @@ async function generateTitleCard(
 		const safe = context.replace(/'/g, "'\\\\\\'");
 		filters.push(
 			"drawtext=" +
-				`text='${safe}':` +
-				"fontcolor=white:fontsize=64:" +
-				"x=(w-text_w)/2:y=(h/2)-80:" +
-				"fontfile=/usr/share/fonts/truetype/msttcorefonts/Montserrat.ttf"
+			`text='${safe}':` +
+			"fontcolor=white:fontsize=64:" +
+			"x=(w-text_w)/2:y=(h/2)-80:" +
+			"fontfile=/usr/share/fonts/truetype/msttcorefonts/Montserrat.ttf"
 		);
 	}
 
 	if (label) {
 		filters.push(
 			"drawtext=" +
-				`text='${label}':` +
-				"fontcolor=white:fontsize=48:" +
-				"x=(w-text_w)/2:y=(h/2)+20:" +
-				"fontfile=/usr/share/fonts/truetype/msttcorefonts/Montserrat.ttf"
+			`text='${label}':` +
+			"fontcolor=white:fontsize=48:" +
+			"x=(w-text_w)/2:y=(h/2)+20:" +
+			"fontfile=/usr/share/fonts/truetype/msttcorefonts/Montserrat.ttf"
 		);
 	}
 
 	const filterGraph = filters.length ? filters.join(",") : "null";
 
 	const proc = Bun.spawn([
-		"ffmpeg",
+		process.cwd() + "/bin/ffmpeg/ffmpeg",
 		"-y",
 		"-hide_banner",
 		"-loglevel",
@@ -139,7 +138,7 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 			}
 
 			const durProc = Bun.spawn([
-				"ffprobe",
+				process.cwd() + "/bin/ffmpeg/ffprobe",
 				"-v",
 				"error",
 				"-show_entries",
@@ -224,7 +223,7 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 
 		const silencePath = join(tmpDir, `silence_${partNum}.wav`);
 		const silenceProc = Bun.spawn([
-			"ffmpeg",
+			process.cwd() + "/bin/ffmpeg/ffmpeg",
 			"-y",
 			"-hide_banner",
 			"-loglevel",

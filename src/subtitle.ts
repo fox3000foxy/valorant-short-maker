@@ -32,7 +32,7 @@ async function _extractColors(agent: string): Promise<string[]> {
 
 	const result = Bun.spawn(
 		[
-			"python3",
+			process.cwd() + "/.venv/bin/python3",
 			"-c",
 			`
 from PIL import Image
