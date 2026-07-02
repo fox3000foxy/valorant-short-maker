@@ -1,10 +1,12 @@
-raze: Bom dia, team! Ready to make some noise today?
-jett: Always. Try to keep up.
-phoenix: Oi, leave the rookie alone, yeah? We're all on the same side.
-raze: I'm just warming up! You know me, Jett.
-jett: I do. That's what worries me.
-phoenix: Alright, focus. We've got a job to do.
-raze: Vamos! Let's show them what we've got.
-jett: Just don't blow us up before they get the chance.
-raze: No promises! Haha.
-phoenix: That's my cue. Let's move.
+omen: You should not be here.
+jett: Excuse me?
+pause: 1.0
+phoenix: He's right. We need to focus.
+omen: The shadows are restless. Something is coming.
+pause: 0.8
+jett: Great. Another cryptic warning. Spill it.
+omen: I cannot see clearly. Only fragments.
+phoenix: Let the guy breathe, yeah? What do you need, mate?
+omen: Watch the flanks. Stay close.
+pause: 0.5
+jett: Finally, something useful.

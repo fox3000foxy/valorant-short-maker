@@ -1,13 +1,13 @@
 import "dotenv/config";
 import { AgentChat } from "./agent-chat.ts";
-import { PERSONA as RAZE } from "./lore/raze.ts";
+import { PERSONA as Omen } from "./lore/omen.ts";
 import { PERSONA as JETT } from "./lore/jett.ts";
 import { PERSONA as PHOENIX } from "./lore/phoenix.ts";
 
 async function main() {
 	console.log("=== Valorant Agent Chat Demo ===\n");
 
-	const raze = new AgentChat(RAZE);
+	const omen = new AgentChat(Omen);
 	const jett = new AgentChat(JETT);
 	const phoenix = new AgentChat(PHOENIX);
 
@@ -20,7 +20,7 @@ async function main() {
 	];
 
 	for (const [name, chat] of [
-		["Raze", raze],
+		["Omen", omen],
 		["Jett", jett],
 		["Phoenix", phoenix],
 	] as const) {

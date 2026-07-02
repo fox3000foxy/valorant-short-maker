@@ -1,22 +1,44 @@
 import { ValorantTTS } from "./tts.ts";
 import { ValorantSubtitle, type ChunkCaptions } from "./subtitle.ts";
-import { mkdtempSync } from "node:fs";
+import { readFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { tmpdir } from "node:os";
 import { Buffer } from "node:buffer";
 
 interface Phrase {
 	agent: string;
 	text: string;
+	duration?: number;
 }
 
-const PHRASES: Phrase[] = [
-	{ agent: "raze", text: "This video is a test of subtitle" },
-	{ agent: "jett", text: "We can switch between agents" },
-	{ agent: "phoenix", text: "Let's see how it works" },
-];
+function parseScript(): Phrase[] {
+	const raw = readFileSync(
+		join(import.meta.dirname, "..", "script.txt"),
+		"utf-8"
+	);
+	return raw
+		.split("\n")
+		.map((line) => line.trim())
+		.filter(Boolean)
+		.map((line) => {
+			const sep = line.indexOf(":");
+			if (sep === -1) {
+				throw new Error(`Invalid script line: ${line}`);
+			}
+			const agent = line.slice(0, sep).trim().toLowerCase();
+			const text = line.slice(sep + 1).trim();
+			if (agent === "pause") {
+				return { agent, text, duration: Number.parseFloat(text) || 1.0 };
+			}
+			return { agent, text };
+		});
+}
 
-const OUT_DIR = mkdtempSync(join(tmpdir(), "demo-"));
+const PHRASES = parseScript();
+
+const OUT_DIR = join(import.meta.dirname, "..", "outputs");
+if (!existsSync(OUT_DIR)) {
+	mkdirSync(OUT_DIR, { recursive: true });
+}
 const FONT_NAME = "Montserrat";
 const FONT_SIZE = 100;
 const INPUT_SIZE = 484;
@@ -30,10 +52,10 @@ interface SegmentInfo {
 	agent: string;
 	audioPath: string;
 	duration: number;
-	assPath: string;
+	assPath: string | null;
 	iconPath: string;
 	videoPath: string;
-	scaleExpr: string;
+	scaleExpr: string | null;
 }
 
 async function getAudioDuration(path: string): Promise<number> {
@@ -115,17 +137,50 @@ async function processPhrase(
 	phrase: Phrase,
 	index: number
 ): Promise<SegmentInfo> {
-	const audioPath = join(OUT_DIR, `${index}_${phrase.agent}.wav`);
-	const assPath = join(OUT_DIR, `${index}_${phrase.agent}.ass`);
+	const isPause = phrase.agent === "pause";
+	const label = isPause ? "pause" : phrase.agent;
+	const audioPath = join(OUT_DIR, `${index}_${label}.wav`);
+	const assPath = isPause ? null : join(OUT_DIR, `${index}_${label}.ass`);
 	const iconPath = join(
 		import.meta.dirname,
 		"..",
 		"icons",
 		`${phrase.agent.charAt(0).toUpperCase() + phrase.agent.slice(1)}.png`
 	);
-	const videoPath = join(OUT_DIR, `${index}_${phrase.agent}.mp4`);
+	const videoPath = join(OUT_DIR, `${index}_${label}.mp4`);
 
-	console.log(`[${index + 1}/3] TTS ${phrase.agent}...`);
+	if (isPause) {
+		const duration = phrase.duration ?? 1.0;
+		console.log(
+			`[${index + 1}/${PHRASES.length}] pause ${duration.toFixed(1)}s`
+		);
+		const proc = Bun.spawn([
+			"ffmpeg",
+			"-y",
+			"-hide_banner",
+			"-loglevel",
+			"error",
+			"-f",
+			"lavfi",
+			"-i",
+			"anullsrc=r=22050:cl=mono",
+			"-t",
+			String(duration),
+			audioPath,
+		]);
+		await proc.exited;
+		return {
+			agent: "pause",
+			audioPath,
+			duration,
+			assPath: null,
+			iconPath,
+			videoPath,
+			scaleExpr: null,
+		};
+	}
+
+	console.log(`[${index + 1}/${PHRASES.length}] TTS ${phrase.agent}...`);
 	const tts = new ValorantTTS(phrase.agent, phrase.text);
 	await tts.generate(audioPath);
 
@@ -165,7 +220,7 @@ async function processPhrase(
 		});
 	}
 
-	await Bun.write(assPath, sub.generateTikTokASS(chunkedCaptions, colors));
+	await Bun.write(assPath!, sub.generateTikTokASS(chunkedCaptions, colors));
 
 	const scaleExpr = await computeScaleExpr(audioPath, duration);
 
@@ -182,11 +237,35 @@ async function processPhrase(
 
 async function renderSegment(info: SegmentInfo): Promise<void> {
 	const totalFrames = Math.ceil(info.duration * FPS);
-	const circleFilter =
-		"[1:v]format=rgba," +
-		`loop=loop=${totalFrames - 1}:size=1:start=0,` +
-		`scale='trunc(iw*${info.scaleExpr}/2)*2':'trunc(ih*${info.scaleExpr}/2)*2':eval=frame,` +
-		"setpts=PTS-STARTPTS[circle]";
+
+	let filterGraph: string;
+	if (info.scaleExpr === null) {
+		filterGraph = "[0:v]null[vid]";
+	} else {
+		const scaleExpr = info.scaleExpr;
+		const circleFilter =
+			"[1:v]format=rgba," +
+			`loop=loop=${totalFrames - 1}:size=1:start=0,` +
+			`scale='trunc(iw*${scaleExpr}/2)*2':'trunc(ih*${scaleExpr}/2)*2':eval=frame,` +
+			"setpts=PTS-STARTPTS[circle]";
+		const assPart = info.assPath
+			? `[base]ass=${info.assPath}[vid]`
+			: "[base]null[vid]";
+		filterGraph =
+			`${circleFilter};` +
+			`[0:v][circle]overlay=(W-w)/2:${CIRCLE_CENTER_Y}-h/2:format=auto[base];` +
+			assPart;
+	}
+
+	const inputs = [
+		"-f",
+		"lavfi",
+		"-i",
+		`color=c=black:s=1080x1920:r=${FPS}:d=${info.duration}`,
+	];
+	if (info.scaleExpr !== null) {
+		inputs.push("-i", info.iconPath);
+	}
 
 	const proc = Bun.spawn([
 		"ffmpeg",
@@ -194,16 +273,9 @@ async function renderSegment(info: SegmentInfo): Promise<void> {
 		"-hide_banner",
 		"-loglevel",
 		"error",
-		"-f",
-		"lavfi",
-		"-i",
-		`color=c=black:s=1080x1920:r=${FPS}:d=${info.duration}`,
-		"-i",
-		info.iconPath,
+		...inputs,
 		"-filter_complex",
-		`${circleFilter};` +
-			`[0:v][circle]overlay=(W-w)/2:${CIRCLE_CENTER_Y}-h/2:format=auto[base];` +
-			`[base]ass=${info.assPath}[vid]`,
+		filterGraph,
 		"-map",
 		"[vid]",
 		"-c:v",
