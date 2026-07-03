@@ -1,5 +1,5 @@
 import { Buffer } from "node:buffer";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ValorantSubtitle, type ChunkCaptions } from "./subtitle.ts";
 import { ValorantTTS } from "./tts.ts";
@@ -78,6 +78,9 @@ export const CIRCLE_BASE_SCALE = CIRCLE_SIZE / INPUT_SIZE;
 export const CIRCLE_CENTER_Y = 500;
 export const FPS = 60;
 export const MAX_ZOOM_VARIATION = 0.2;
+const EXPORT_VIDEO_PRESET = "medium";
+const EXPORT_VIDEO_CRF = "30";
+const EXPORT_AUDIO_BITRATE = "128k";
 
 export let BG_VIDEO_PATH = join(
 	import.meta.dirname,
@@ -243,7 +246,7 @@ export async function processPhrase(
 		console.log(`  TTS ${phrase.agent}... (cached)`);
 	} else {
 		console.log(`  TTS ${phrase.agent}...`);
-		const ttsText = phrase.text.replace(/[,;]/g, ".");
+		const ttsText = phrase.text.replace(/\//g, " ").replace(/[,;]/g, ".");
 		const tts = new ValorantTTS(phrase.agent, ttsText);
 		await tts.generate(audioPath);
 	}
@@ -344,8 +347,8 @@ export async function renderSegment(
 			"-y", "-hide_banner", "-loglevel", "error",
 			"-f", "lavfi", "-i", `color=c=black:s=1080x1920:r=60:d=${info.duration}`,
 			"-f", "lavfi", "-i", "anullsrc=r=22050:cl=mono",
-			"-c:v", "libx264", "-preset", "ultrafast", "-crf", "28",
-			"-c:a", "libmp3lame", "-b:a", "192k",
+			"-c:v", "libx264", "-preset", EXPORT_VIDEO_PRESET, "-crf", EXPORT_VIDEO_CRF,
+			"-c:a", "libmp3lame", "-b:a", EXPORT_AUDIO_BITRATE,
 			"-t", String(info.duration),
 			info.videoPath,
 		]);
@@ -387,7 +390,7 @@ export async function renderSegment(
 	const filterGraph = parts.join(";");
 
 	const ffInputs: string[] = [
-		"-ss", String(seek), "-t", String(info.duration), "-i", BG_VIDEO_PATH
+		"-ss", String(seek), "-t", String(info.duration), "-i", BG_VIDEO_PATH,
 	];
 	if (info.scaleExpr !== null) {
 		ffInputs.push("-i", info.iconPath);
@@ -410,15 +413,15 @@ export async function renderSegment(
 		"-c:v",
 		"libx264",
 		"-preset",
-		"ultrafast",
+		EXPORT_VIDEO_PRESET,
 		"-crf",
-		"28",
+		EXPORT_VIDEO_CRF,
 		"-r:v",
 		"60",
 		"-c:a",
 		"libmp3lame",
 		"-b:a",
-		"192k",
+		EXPORT_AUDIO_BITRATE,
 		info.videoPath,
 	]);
 
@@ -505,13 +508,13 @@ export async function applyFisheyeTransition(inputPath: string, outputPath: stri
 		"-c:v",
 		"libx264",
 		"-preset",
-		"ultrafast",
+		EXPORT_VIDEO_PRESET,
 		"-crf",
-		"28",
+		EXPORT_VIDEO_CRF,
 		"-c:a",
 		"libmp3lame",
 		"-b:a",
-		"192k",
+		EXPORT_AUDIO_BITRATE,
 		"-r:v",
 		"60",
 		outputPath,
@@ -538,22 +541,29 @@ export async function concatSegments(
 	const tmp = join(OUT_DIR, ".concat");
 	mkdirSync(tmp, { recursive: true });
 
-	const vidList = join(tmp, "videos.txt");
-	writeFileSync(
-		vidList,
-		segments.map((s) => `file '${s.videoPath}'`).join("\n") + "\n",
-	);
-
 	const videoTemp = join(tmp, "vid.mp4");
+	const videoInputs: string[] = [];
+	for (let i = 0; i < segCount; i++) {
+		videoInputs.push("-i", segments[i]!.videoPath);
+	}
+	const videoLabels = segments.map((_, i) => `[${i}:v:0]`).join("");
+	const videoGraph = `${videoLabels}concat=n=${segCount}:v=1:a=0[vid_out]`;
 	const vidProc = Bun.spawn([
 		process.cwd() + "/bin/ffmpeg/ffmpeg",
 		"-y", "-hide_banner", "-loglevel", "error",
-		"-fflags", "+genpts",
-		"-f", "concat",
-		"-safe", "0",
-		"-i", vidList,
-		"-c", "copy",
-		"-an",
+		...videoInputs,
+		"-filter_complex",
+		videoGraph,
+		"-map",
+		"[vid_out]",
+		"-c:v",
+		"libx264",
+		"-preset",
+		EXPORT_VIDEO_PRESET,
+		"-crf",
+		EXPORT_VIDEO_CRF,
+		"-pix_fmt",
+		"yuv420p",
 		videoTemp,
 	]);
 	const [vidStderr, vidExit] = await Promise.all([
@@ -567,7 +577,7 @@ export async function concatSegments(
 
 	const audioInputs: string[] = [];
 	for (let i = 0; i < segCount; i++) {
-		audioInputs.push("-i", segments[i]!.videoPath);
+		audioInputs.push("-i", segments[i]!.audioPath);
 	}
 	const audioLabels = segments.map((_, i) => `[${i}:a]`);
 
@@ -596,7 +606,7 @@ export async function concatSegments(
 		"-filter_complex", audioGraph,
 		"-map", audMap,
 		"-c:a", "libmp3lame",
-		"-b:a", "192k",
+		"-b:a", EXPORT_AUDIO_BITRATE,
 		audioTemp,
 	]);
 	const [audStderr, audExit] = await Promise.all([
@@ -613,7 +623,10 @@ export async function concatSegments(
 		"-y", "-hide_banner", "-loglevel", "error",
 		"-i", videoTemp,
 		"-i", audioTemp,
-		"-c", "copy",
+		"-map", "0:v:0",
+		"-map", "1:a:0",
+		"-c:v", "copy",
+		"-c:a", "copy",
 		"-movflags", "+faststart",
 		outputPath,
 	]);

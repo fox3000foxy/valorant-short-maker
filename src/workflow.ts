@@ -1,23 +1,23 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { randomBytes } from "node:crypto";
-import { join } from "node:path";
-import { cpus } from "node:os";
 import Groq from "groq-sdk";
+import { randomBytes } from "node:crypto";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { cpus } from "node:os";
+import { join } from "node:path";
 import {
+	BG_MUSIC_PATH,
 	type Phrase,
 	type SegmentInfo,
-	parseScript,
-	expandPhrases,
+	applyFisheyeTransition,
 	concatSegments,
+	expandPhrases,
+	parseScript,
 	processPhrase,
 	renderSegment,
-	applyFisheyeTransition,
 	setBgVideoPath,
 	setOutDir,
 } from "./core.ts";
 import { ALL_PERSONAS } from "./lore/index.ts";
 import { ALL_RELATIONS } from "./lore/relations.ts";
-import { BG_MUSIC_PATH } from "./core.ts";
 
 const BG_CLIPS = [
 	"clip_000.mp4",
@@ -74,9 +74,9 @@ async function generateScript(context: string, agentNames: string[], sessionDir:
 	const characters = actors.map((a) => compactPersona(a, actors)).join("\n\n---\n\n");
 
 	const inlinePauseExamples = [
-		"  killjoy: No one yet[0.5]but I've got a plan.",
-		"  fade: I need coffee to face my fears[0.5]not a briefing.",
-		"  chamber: This is embarrassing.[0.5]Radiant indeed.",
+		"  killjoy: No one yet[0.3]but I've got a plan.",
+		"  fade: I need coffee to face my fears[0.3]not a briefing.",
+		"  chamber: This is embarrassing.[0.3]Radiant indeed.",
 	].join("\n");
 
 	const systemPrompt = [
@@ -98,10 +98,10 @@ async function generateScript(context: string, agentNames: string[], sessionDir:
 		"- No semicolons or ellipses. A few commas are okay for subtitle flow but keep them natural.",
 		"",
 		"PAUSES (CRITICAL — natural speech flow):",
-		"  - Add [0.5] INSIDE a character's line for a natural beat mid-speech (circle stays visible):",
+		"  - Add [0.3] INSIDE a character's line for a natural beat mid-speech (circle stays visible):",
 		inlinePauseExamples,
-		"  - Write pause: 0.5 or pause: 1.0 as its OWN LINE for a full beat between speakers (circle hides).",
-		"  - Always include INLINE pauses [0.5] in at least 3-4 lines per script for natural cadence.",
+		"  - Write pause: 0.3 or pause: 1.0 as its OWN LINE for a full beat between speakers (circle hides).",
+		"  - Always include INLINE pauses [0.3] in at least 3-4 lines per script for natural cadence.",
 		"  - Keep inline pauses minimal: ONE per line at most, placed at a natural speech break.",
 	].join("\n");
 
@@ -304,7 +304,10 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 	for (let pi = 0; pi < partGroups.length; pi++) {
 		const group = partGroups[pi]!;
 		const partNum = pi + 1;
-		const partPath = join(sessionDir, "output.mp4");
+		const partPath =
+			partGroups.length === 1
+				? join(sessionDir, "output.mp4")
+				: join(sessionDir, `output_part${partNum}.mp4`);
 
 		console.log(`\n  Part ${partNum}/${partGroups.length}...`);
 
@@ -314,7 +317,6 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 			console.log("  Applying fisheye intro...");
 			await applyFisheyeTransition(group[0]!.videoPath, firstPath);
 			group[0]!.videoPath = firstPath;
-			group[0]!.audioPath = "";
 			console.log(`  [${now()}] Fisheye done (${((Date.now() - t3) / 1000).toFixed(1)}s)`);
 		}
 
