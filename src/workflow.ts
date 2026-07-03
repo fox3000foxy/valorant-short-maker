@@ -13,9 +13,7 @@ import {
 	setOutDir,
 } from "./core.ts";
 import { AgentChat } from "./agent-chat.ts";
-import { PERSONA as Omen } from "./lore/omen.ts";
-import { PERSONA as JETT } from "./lore/jett.ts";
-import { PERSONA as PHOENIX } from "./lore/phoenix.ts";
+import { ALL_PERSONAS } from "./lore/index.ts";
 
 const WHOOSH_PATH = join(import.meta.dirname, "..", "sounds", "whoosh.mp3");
 
@@ -33,23 +31,22 @@ function pickRandomBgVideo(): string {
 	return join(import.meta.dirname, "..", "bg-video", clip);
 }
 
-const AGENTS = [
-	["Omen", Omen],
-	["Jett", JETT],
-	["Phoenix", PHOENIX],
-] as const;
+const ALL_AGENT_NAMES = Object.keys(ALL_PERSONAS);
 
 function generateSessionId(): string {
 	return randomBytes(8).toString("hex");
 }
 
-async function generateScript(context: string): Promise<Phrase[]> {
+async function generateScript(context: string, agentNames: string[]): Promise<Phrase[]> {
 	console.log("  Generating script with LLM...");
-	const actors = AGENTS.toSorted(() => Math.random() - 0.5).slice(0, 3 + Math.floor(Math.random() * 2));
+	const shuffled = agentNames.toSorted(() => Math.random() - 0.5);
+	const selectedCount = Math.min(3 + Math.floor(Math.random() * 2), shuffled.length);
+	const actors = shuffled.slice(0, selectedCount);
 	const phrases: Phrase[] = [];
 
-	for (const [_, persona] of actors) {
-		const chat = new AgentChat(persona);
+	for (const name of actors) {
+		const persona = ALL_PERSONAS[name]!;
+		const chat = new AgentChat(persona, agentNames);
 		const line = await chat.genLine(context);
 		if (line.trim()) {
 			phrases.push({ agent: persona.agent, text: line.trim() });
@@ -89,6 +86,7 @@ function saveScript(phrases: Phrase[], path: string) {
 export interface WorkflowOptions {
 	demo?: boolean;
 	context?: string;
+	agents?: string[];
 	parts?: number;
 	output?: string;
 }
@@ -103,6 +101,8 @@ function parseFlags(): WorkflowOptions {
 			opts.demo = true;
 		} else if (args[i] === "--context" && i + 1 < args.length) {
 			opts.context = args[++i]!;
+		} else if (args[i] === "--agents" && i + 1 < args.length) {
+			opts.agents = args[++i]!.split(",").map((a) => a.trim().toLowerCase());
 		} else if (args[i] === "--parts" && i + 1 < args.length) {
 			opts.parts = Number.parseInt(args[++i]!, 10);
 		} else if (args[i] === "--output" && i + 1 < args.length) {
@@ -121,9 +121,18 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 		phrases = parseScript();
 		console.log("=== Workflow (demo) ===\n");
 	} else if (options.context) {
+		const agentNames = options.agents ?? ALL_AGENT_NAMES;
+
+		const invalid = agentNames.filter((a) => !ALL_PERSONAS[a]);
+		if (invalid.length > 0) {
+			console.error(`  Unknown agents: ${invalid.join(", ")}`);
+			console.error(`  Available: ${ALL_AGENT_NAMES.join(", ")}`);
+			throw new Error("Invalid agent names");
+		}
+
 		console.log("=== Workflow (generate) ===\n");
 		setBgVideoPath(pickRandomBgVideo());
-		phrases = await generateScript(options.context);
+		phrases = await generateScript(options.context, agentNames);
 	} else {
 		throw new Error("Use --demo or --context <topic>");
 	}

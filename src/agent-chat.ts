@@ -4,14 +4,17 @@ export interface AgentPersona {
 	agent: string;
 	systemPrompt: string;
 	lore: string[];
+	relations?: Record<string, string>;
+	wikiLore?: string;
 }
 
 export class AgentChat {
 	private _groq: Groq;
 	private _persona: AgentPersona;
 	private _allLore: string;
+	private _allRelations: string;
 
-	constructor(persona: AgentPersona) {
+	constructor(persona: AgentPersona, selectedAgents?: string[]) {
 		const apiKey = process.env.GROQ_API_KEY;
 		if (!apiKey) {
 			throw new Error("GROQ_API_KEY not set in environment");
@@ -19,29 +22,50 @@ export class AgentChat {
 		this._groq = new Groq({ apiKey });
 		this._persona = persona;
 		this._allLore = persona.lore.join("\n");
+
+		if (persona.relations && selectedAgents) {
+			const relevant = selectedAgents
+				.filter((a) => a !== persona.agent && persona.relations![a])
+				.map((a) => `  ${a}: ${persona.relations![a]}`);
+			this._allRelations = relevant.length > 0
+				? "Relations with other agents:\n" + relevant.join("\n")
+				: "";
+		} else {
+			this._allRelations = "";
+		}
 	}
 
 	async genLine(sceneContext: string): Promise<string> {
+		const parts: string[] = [
+			this._persona.systemPrompt,
+			"",
+			"Agent lore:",
+			this._allLore,
+		];
+		if (this._allRelations) {
+			parts.push("", this._allRelations);
+		}
+		if (this._persona.wikiLore) {
+			parts.push("", "Background:", this._persona.wikiLore);
+		}
+		parts.push(
+			"",
+			"Rules:",
+			"- Output ONLY the spoken dialogue, nothing else.",
+			"- No stage directions, no actions in asterisks or parentheses, no descriptions.",
+			"- No character names, no colons, no formatting.",
+			"- Just the raw words the character would say out loud.",
+			"- One or two sentences maximum. Short and natural.",
+			"- Reply in English, regardless of the input language.",
+			"- You may optionally add pauses like [0.5] between phrases for pacing (e.g. 'Watch this [0.3] I got them right where I want them.').",
+		);
+
 		const res = await this._groq.chat.completions.create({
 			model: "llama-3.3-70b-versatile",
 			messages: [
 				{
 					role: "system",
-					content: [
-						this._persona.systemPrompt,
-						"",
-						"Agent lore:",
-						this._allLore,
-						"",
-						"Rules:",
-						"- Output ONLY the spoken dialogue, nothing else.",
-						"- No stage directions, no actions in asterisks or parentheses, no descriptions.",
-						"- No character names, no colons, no formatting.",
-						"- Just the raw words the character would say out loud.",
-						"- One or two sentences maximum. Short and natural.",
-						"- Reply in English, regardless of the input language.",
-						"- You may optionally add pauses like [0.5] between phrases for pacing (e.g. 'Watch this [0.3] I got them right where I want them.').",
-					].join("\n"),
+					content: parts.join("\n"),
 				},
 				{ role: "user", content: sceneContext },
 			],
