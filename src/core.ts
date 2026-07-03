@@ -449,9 +449,25 @@ function wrapText(text: string, maxCharsPerLine: number): string {
 export async function generateIntroVideo(context: string, agentNames: string[], outputPath: string): Promise<void> {
 	const clip = BG_CLIPS[Math.floor(Math.random() * BG_CLIPS.length)]!;
 	const bgPath = join(BG_CLIPS_DIR, clip);
-	const esc = (s: string) => s.replace(/'/g, "'\\\\\\''").replace(/:/g, '\\\\:');
+	const esc = (s: string) => s.replace(/'/g, "'\\\\\\''").replace(/:/g, '\\\\:').replace(/\\/g, "\\\\");
 	const agents = agentNames.map(a => a.charAt(0).toUpperCase() + a.slice(1)).join(", ");
-	const wrappedContext = wrapText(context, 22);
+	const contextLines = wrapText(context, 22);
+	const lines = contextLines.split("\\n");
+	const lineH = 80;
+	const totalH = lines.length * lineH;
+	const startY = Math.round((1920 - totalH) / 2 - 60);
+
+	const drawtexts = lines
+		.map(
+			(line, i) =>
+				`drawtext=` +
+				`fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:` +
+				`text='${esc(line)}':` +
+				`fontcolor=red:fontsize=62:` +
+				`x=(w-text_w)/2:y=${startY + i * lineH}:` +
+				`bordercolor=white:borderw=4`
+		)
+		.join(",");
 
 	const proc = Bun.spawn([
 		process.cwd() + "/bin/ffmpeg-drawtext/ffmpeg",
@@ -460,14 +476,7 @@ export async function generateIntroVideo(context: string, agentNames: string[], 
 		"-f", "lavfi", "-i", "anullsrc=r=22050:cl=mono",
 		"-filter_complex",
 		`[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=20:5[bg];` +
-		`[bg]drawtext=` +
-		`fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:` +
-		`text='${esc(wrappedContext)}':` +
-		`fontcolor=red:fontsize=72:` +
-		`x=(w-text_w)/2:y=(h-text_h)/2-60:` +
-		`bordercolor=white:borderw=4:` +
-		`line_spacing=20,` +
-		`setsar=1[fg]`,
+		`[bg]${drawtexts},setsar=1[fg]`,
 		"-map", "[fg]", "-map", "1:a", "-shortest",
 		"-c:v", "libx264", "-preset", "fast", "-crf", "23",
 		"-c:a", "aac", "-b:a", "128k",
