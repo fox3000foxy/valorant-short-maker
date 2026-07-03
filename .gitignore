@@ -10,6 +10,7 @@ dist
 # temp / generated
 # sounds/
 # bg-video/
+workflow_outputs/
 
 # code coverage
 coverage

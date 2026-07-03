@@ -39,6 +39,8 @@ export class AgentChat {
 						"- No character names, no colons, no formatting.",
 						"- Just the raw words the character would say out loud.",
 						"- One or two sentences maximum. Short and natural.",
+						"- Reply in English, regardless of the input language.",
+						"- You may optionally add pauses like [0.5] between phrases for pacing (e.g. 'Watch this [0.3] I got them right where I want them.').",
 					].join("\n"),
 				},
 				{ role: "user", content: sceneContext },

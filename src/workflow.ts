@@ -1,15 +1,17 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { randomBytes } from "node:crypto";
 import { join } from "node:path";
 import {
 	type Phrase,
 	type SegmentInfo,
-	concatSegments,
-	OUT_DIR,
 	parseScript,
+	concatSegments,
 	processPhrase,
 	renderSegment,
+	applyFisheyeTransition,
 	setBgVideoPath,
-} from "./demo.ts";
+	setOutDir,
+} from "./core.ts";
 import { AgentChat } from "./agent-chat.ts";
 import { PERSONA as Omen } from "./lore/omen.ts";
 import { PERSONA as JETT } from "./lore/jett.ts";
@@ -36,6 +38,10 @@ const AGENTS = [
 	["Jett", JETT],
 	["Phoenix", PHOENIX],
 ] as const;
+
+function generateSessionId(): string {
+	return randomBytes(8).toString("hex");
+}
 
 async function generateScript(context: string): Promise<Phrase[]> {
 	console.log("  Generating script with LLM...");
@@ -70,105 +76,21 @@ async function generateScript(context: string): Promise<Phrase[]> {
 	return phrases;
 }
 
-async function applyFisheyeTransition(inputPath: string, outputPath: string): Promise<void> {
-	const inputInfo = Bun.spawnSync([
-		process.cwd() + "/bin/ffmpeg/ffprobe",
-		"-v", "error",
-		"-select_streams", "v:0",
-		"-show_entries", "stream=r_frame_rate,nb_frames",
-		"-of", "csv=p=0",
-		inputPath,
-	]);
-	const [fpsStr, nbFramesStr] = inputInfo.stdout.toString().trim().split(",");
-	const fps = Number.parseInt(fpsStr!.split("/")[0]!, 10);
-	const totalFrames = Number.parseInt(nbFramesStr!, 10) || Math.ceil(Number.parseFloat(
-		Bun.spawnSync([
-			process.cwd() + "/bin/ffmpeg/ffprobe",
-			"-v", "error",
-			"-show_entries", "format=duration",
-			"-of", "default=noprint_wrappers=1:nokey=1",
-			inputPath,
-		]).stdout.toString().trim()
-	) * fps);
-
-	const transitionFrames = Math.floor(0.2 * fps);
-	const splitOut = Array.from({ length: transitionFrames + 1 }, (_, i) => `[v${i}]`).join("");
-	const splitLine = `[0:v]split=${transitionFrames + 1}${splitOut}`;
-
-	const fishParts: string[] = [splitLine];
-	const overlayChain: string[] = [];
-
-	for (let i = 0; i < transitionFrames; i++) {
-		const k1 = -(0.5 * (1 - i / transitionFrames));
-		const inLabel = `w${i}`;
-		const outLabel = `f${i}`;
-		const prevLabel = i === 0 ? "base" : `f${i - 1}`;
-		fishParts.push(
-			`[v${i}]select=eq(n\\,${i}),setpts=PTS-STARTPTS,lenscorrection=cx=0.5:cy=0.25:k1=${k1.toFixed(3)}:k2=0[${inLabel}]`
-		);
-		overlayChain.push(
-			`[${prevLabel}][${inLabel}]overlay=0:0:enable='eq(n\\,${i})'[${outLabel}]`
-		);
-	}
-
-	const filterGraph = [
-		...fishParts,
-		`[v${transitionFrames}]null[base]`,
-		...overlayChain,
-		`[f${transitionFrames - 1}]split=2[tmix_src][tail_src]`,
-		`[tmix_src]select=lt(n\\,${transitionFrames}),setpts=PTS-STARTPTS[tmix_in]`,
-		`[tmix_in]tmix=frames=3[tmix_out]`,
-		`[tail_src]select=gte(n\\,${transitionFrames}),setpts=PTS-STARTPTS[tail_out]`,
-		`[tmix_out][tail_out]concat=n=2:v=1:a=0[vid]`,
-		`[0:a][1:a]amix=inputs=2:duration=first:weights=1 0.6[aud]`,
-	].join(";\n");
-
-	const proc = Bun.spawn([
-		process.cwd() + "/bin/ffmpeg/ffmpeg",
-		"-y",
-		"-hide_banner",
-		"-loglevel",
-		"error",
-		"-i",
-		inputPath,
-		"-i",
-		WHOOSH_PATH,
-		"-filter_complex",
-		filterGraph,
-		"-map",
-		"[vid]",
-		"-map",
-		"[aud]",
-		"-c:v",
-		"libx264",
-		"-preset",
-		"ultrafast",
-		"-crf",
-		"28",
-		"-c:a",
-		"libmp3lame",
-		"-b:a",
-		"192k",
-		"-r:v",
-		"60",
-		outputPath,
-	]);
-
-	const [stderr, code] = await Promise.all([
-		new Response(proc.stderr).text(),
-		proc.exited,
-	]);
-	if (code !== 0) {
-		console.error("  Fisheye transition error:", stderr);
-		throw new Error(`Fisheye transition failed (exit ${code})`);
-	}
+function saveScript(phrases: Phrase[], path: string) {
+	const lines = phrases.map((p) => {
+		if (p.agent === "pause") {
+			return `pause: ${p.duration!.toFixed(1)}`;
+		}
+		return `${p.agent}: ${p.text}`;
+	});
+	writeFileSync(path, lines.join("\n") + "\n");
 }
 
 export interface WorkflowOptions {
 	demo?: boolean;
 	context?: string;
 	parts?: number;
-	outputDir?: string;
+	output?: string;
 }
 
 const DEFAULT_PARTS = 1;
@@ -184,7 +106,7 @@ function parseFlags(): WorkflowOptions {
 		} else if (args[i] === "--parts" && i + 1 < args.length) {
 			opts.parts = Number.parseInt(args[++i]!, 10);
 		} else if (args[i] === "--output" && i + 1 < args.length) {
-			opts.outputDir = args[++i]!;
+			opts.output = args[++i]!;
 		}
 	}
 	return opts;
@@ -206,92 +128,31 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 		throw new Error("Use --demo or --context <topic>");
 	}
 
-	const outDir = options.outputDir ?? OUT_DIR;
-	if (!existsSync(outDir)) {
-		mkdirSync(outDir, { recursive: true });
-	}
+	const baseDir = options.output ?? join(import.meta.dirname, "..", "workflow_outputs");
+	const sessionId = generateSessionId();
+	const sessionDir = join(baseDir, sessionId);
+	const assetsDir = join(sessionDir, "assets");
+
+	mkdirSync(assetsDir, { recursive: true });
+	setOutDir(assetsDir);
+
+	saveScript(phrases, join(sessionDir, "script.txt"));
 
 	const segments: SegmentInfo[] = [];
 
-	if (options.demo) {
-		let allCached = true;
+	console.log("  Generating segments...\n");
+	segments.length = 0;
 	for (let i = 0; i < phrases.length; i++) {
-			const phrase = phrases[i]!;
-			const label = phrase.agent === "pause" ? "pause" : phrase.agent;
-			const videoPath = join(outDir, `${i}_${label}.mp4`);
-			const audioPath = join(outDir, `${i}_${label}.wav`);
-			const assPath =
-				phrase.agent === "pause" ? null : join(outDir, `${i}_${label}.ass`);
-
-			if (!(existsSync(videoPath) && existsSync(audioPath)) || (assPath && !existsSync(assPath))) {
-				allCached = false;
-				break;
-			}
-
-			const durProc = Bun.spawn([
-				process.cwd() + "/bin/ffmpeg/ffprobe",
-				"-v",
-				"error",
-				"-show_entries",
-				"format=duration",
-				"-of",
-				"default=noprint_wrappers=1:nokey=1",
-				audioPath,
-			]);
-			const durOut = await new Response(durProc.stdout).text();
-			const duration = Number.parseFloat(durOut.trim());
-
-			const iconPath = join(
-				import.meta.dirname,
-				"..",
-				"icons",
-				`${phrase.agent.charAt(0).toUpperCase() + phrase.agent.slice(1)}.png`
-			);
-
-			segments.push({
-				agent: phrase.agent,
-				audioPath,
-				duration,
-				assPath,
-				iconPath,
-				videoPath,
-				scaleExpr: null,
-			});
-		}
-
-		if (allCached) {
-			console.log(`  Using ${segments.length} cached segments\n`);
-		} else {
-			console.log("  Cached segments not found, generating...\n");
-			segments.length = 0;
-			for (let i = 0; i < phrases.length; i++) {
-				const info = await processPhrase(phrases[i]!, i);
-				segments.push(info);
-			}
-			let bgOffset = 0;
-			for (const info of segments) {
-				console.log(
-					`  Rendering ${info.agent} (${info.duration.toFixed(2)}s)...`
-				);
-				await renderSegment(info, bgOffset);
-				bgOffset += info.duration;
-			}
-		}
-	} else {
-		console.log("  Generating segments...\n");
-		segments.length = 0;
-		for (let i = 0; i < phrases.length; i++) {
-			const info = await processPhrase(phrases[i]!, i);
-			segments.push(info);
-		}
-		let bgOffset = 0;
-		for (const info of segments) {
-			console.log(
-				`  Rendering ${info.agent} (${info.duration.toFixed(2)}s)...`
-			);
-			await renderSegment(info, bgOffset);
-			bgOffset += info.duration;
-		}
+		const info = await processPhrase(phrases[i]!, i);
+		segments.push(info);
+	}
+	let bgOffset = 0;
+	for (const info of segments) {
+		console.log(
+			`  Rendering ${info.agent} (${info.duration.toFixed(2)}s)...`
+		);
+		await renderSegment(info, bgOffset);
+		bgOffset += info.duration;
 	}
 
 	const totalDur = segments.reduce((s, seg) => s + seg.duration, 0);
@@ -308,15 +169,12 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 	for (let pi = 0; pi < partGroups.length; pi++) {
 		const group = partGroups[pi]!;
 		const partNum = pi + 1;
-		const partPath = join(
-			outDir,
-			`part_${String(partNum).padStart(2, "0")}.mp4`
-		);
+		const partPath = join(sessionDir, "output.mp4");
 
 		console.log(`\n  Part ${partNum}/${partGroups.length}...`);
 
 		if (pi === 0 && group[0]) {
-			const firstPath = join(outDir, "00_intro.mp4");
+			const firstPath = join(assetsDir, "00_intro.mp4");
 			console.log("  Applying fisheye intro...");
 			await applyFisheyeTransition(group[0]!.videoPath, firstPath);
 			group[0]!.videoPath = firstPath;
@@ -327,8 +185,7 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 		if (firstSeg) {
 			const assContent = readFileSync(firstSeg.assPath!, "utf-8");
 			const fadeDuration = Math.min(1, firstSeg.duration * 0.3);
-			const partLabel =
-				partGroups.length > 1 ? `Part ${partNum}` : options.context ?? "Demo";
+			const partLabel = options.context ?? "Demo";
 
 			const totalSec = Math.round(firstSeg.duration * 100) / 100;
 			const cs = Math.round((totalSec % 1) * 100);
