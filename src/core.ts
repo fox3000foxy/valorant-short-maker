@@ -341,22 +341,6 @@ export async function renderSegment(
 
 	console.log(`  Rendering ${info.agent}...`);
 
-	if (isPause) {
-		const p = Bun.spawn([
-			process.cwd() + "/bin/ffmpeg/ffmpeg",
-			"-y", "-hide_banner", "-loglevel", "error",
-			"-f", "lavfi", "-i", `color=c=black:s=1080x1920:r=60:d=${info.duration}`,
-			"-f", "lavfi", "-i", "anullsrc=r=22050:cl=mono",
-			"-c:v", "libx264", "-preset", EXPORT_VIDEO_PRESET, "-crf", EXPORT_VIDEO_CRF,
-			"-c:a", "libmp3lame", "-b:a", EXPORT_AUDIO_BITRATE,
-			"-t", String(info.duration),
-			info.videoPath,
-		]);
-		const [stderr, code] = await Promise.all([new Response(p.stderr).text(), p.exited]);
-		if (code !== 0) { console.error("  FFmpeg error:", stderr); throw new Error(`Render failed (exit ${code})`); }
-		return;
-	}
-
 	const vdur = await getBgVideoDuration();
 	const seek = bgOffset % vdur;
 
@@ -367,7 +351,7 @@ export async function renderSegment(
 	let vidLabel = "bg";
 	let circlePart = "";
 
-	if (info.scaleExpr !== null) {
+	if (info.scaleExpr !== null && !isPause) {
 		vidLabel = "vid";
 		const circleFilter =
 			"[1:v]format=rgba,fps=fps=60," +
@@ -381,8 +365,9 @@ export async function renderSegment(
 			`${circleFilter};[bg][circle]overlay=(W-w)/2:${CIRCLE_CENTER_Y}-h/2:format=auto[base];${assPart}`;
 	}
 
+	const audioIdx = info.scaleExpr !== null && !isPause ? 2 : 1;
 	const mixFilter =
-		`[2:a]volume=2.5[tts];[bga]volume=0.5[bga_v];[tts][bga_v]amix=inputs=2:duration=first[aud]`;
+		`[${audioIdx}:a]volume=2.5[tts];[bga]volume=0.5[bga_v];[tts][bga_v]amix=inputs=2:duration=first[aud]`;
 
 	const parts = [bgFilter];
 	if (circlePart) parts.push(circlePart);
@@ -392,7 +377,7 @@ export async function renderSegment(
 	const ffInputs: string[] = [
 		"-ss", String(seek), "-t", String(info.duration), "-i", BG_VIDEO_PATH,
 	];
-	if (info.scaleExpr !== null) {
+	if (info.scaleExpr !== null && !isPause) {
 		ffInputs.push("-i", info.iconPath);
 	}
 	ffInputs.push("-i", info.audioPath);
@@ -546,8 +531,9 @@ export async function concatSegments(
 	for (let i = 0; i < segCount; i++) {
 		videoInputs.push("-i", segments[i]!.videoPath);
 	}
-	const videoLabels = segments.map((_, i) => `[${i}:v:0]`).join("");
-	const videoGraph = `${videoLabels}concat=n=${segCount}:v=1:a=0[vid_out]`;
+	const videoSarLabels = segments.map((_, i) => `[${i}:v:0]setsar=1[s${i}]`).join(";");
+	const videoLabels = segments.map((_, i) => `[s${i}]`).join("");
+	const videoGraph = `${videoSarLabels};${videoLabels}concat=n=${segCount}:v=1:a=0[vid_out]`;
 	const vidProc = Bun.spawn([
 		process.cwd() + "/bin/ffmpeg/ffmpeg",
 		"-y", "-hide_banner", "-loglevel", "error",
