@@ -11,9 +11,9 @@ Style: Default,Montserrat,100,&HFFFFFF&,&HFFFFFF&,&H406080&,&H00000000,-1,0,0,0,
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 Dialogue: 0,0:00:00.00,0:00:00.24,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H0060E0&}Let{\c&HFFFFFF&} me show
-Dialogue: 0,0:00:00.24,0:00:00.49,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} Let {\c&H0060E0&}me{\c&HFFFFFF&} show
-Dialogue: 0,0:00:00.49,0:00:00.73,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} Let me {\c&H0060E0&}show{\c&HFFFFFF&}
-Dialogue: 0,0:00:00.73,0:00:00.97,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H0060E0&}you{\c&HFFFFFF&} how it's
-Dialogue: 0,0:00:00.97,0:00:01.21,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} you {\c&H0060E0&}how{\c&HFFFFFF&} it's
-Dialogue: 0,0:00:01.21,0:00:01.46,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} you how {\c&H0060E0&}it's{\c&HFFFFFF&}
-Dialogue: 0,0:00:01.46,0:00:02.18,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H0060E0&}done!{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.24,0:00:00.48,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} Let {\c&H0060E0&}me{\c&HFFFFFF&} show
+Dialogue: 0,0:00:00.48,0:00:00.72,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} Let me {\c&H0060E0&}show{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.72,0:00:00.96,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H0060E0&}you{\c&HFFFFFF&} how it's
+Dialogue: 0,0:00:00.96,0:00:01.21,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} you {\c&H0060E0&}how{\c&HFFFFFF&} it's
+Dialogue: 0,0:00:01.21,0:00:01.45,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} you how {\c&H0060E0&}it's{\c&HFFFFFF&}
+Dialogue: 0,0:00:01.45,0:00:02.17,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H0060E0&}done!{\c&HFFFFFF&}

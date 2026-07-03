@@ -10,7 +10,7 @@ Style: Default,Montserrat,100,&HFFFFFF&,&HFFFFFF&,&H604000&,&H00000000,-1,0,0,0,
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.00,0:00:00.26,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}Okay{\c&HFFFFFF&} I
-Dialogue: 0,0:00:00.26,0:00:00.53,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} Okay {\c&H604020&}I{\c&HFFFFFF&}
-Dialogue: 0,0:00:00.53,0:00:00.79,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}got{\c&HFFFFFF&} two!
-Dialogue: 0,0:00:00.79,0:00:01.06,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} got {\c&H604020&}two!{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.00,0:00:00.27,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}Okay{\c&HFFFFFF&} I
+Dialogue: 0,0:00:00.27,0:00:00.53,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} Okay {\c&H604020&}I{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.53,0:00:00.80,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}got{\c&HFFFFFF&} two!
+Dialogue: 0,0:00:00.80,0:00:01.07,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} got {\c&H604020&}two!{\c&HFFFFFF&}

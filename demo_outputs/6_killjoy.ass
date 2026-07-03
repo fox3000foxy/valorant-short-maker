@@ -11,7 +11,7 @@ Style: Default,Montserrat,100,&HFFFFFF&,&HFFFFFF&,&H20C0E0&,&H00000000,-1,0,0,0,
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 Dialogue: 0,0:00:00.00,0:00:00.35,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H40A0E0&}At{\c&HFFFFFF&} what,
-Dialogue: 0,0:00:00.35,0:00:00.71,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} At {\c&H40A0E0&}what,{\c&HFFFFFF&}
-Dialogue: 0,0:00:00.71,0:00:01.06,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H40A0E0&}the{\c&HFFFFFF&} map
-Dialogue: 0,0:00:01.06,0:00:01.42,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} the {\c&H40A0E0&}map{\c&HFFFFFF&}
-Dialogue: 0,0:00:01.42,0:00:02.13,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H40A0E0&}geometry?{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.35,0:00:00.70,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} At {\c&H40A0E0&}what,{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.70,0:00:01.05,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H40A0E0&}the{\c&HFFFFFF&} map
+Dialogue: 0,0:00:01.05,0:00:01.40,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} the {\c&H40A0E0&}map{\c&HFFFFFF&}
+Dialogue: 0,0:00:01.40,0:00:02.11,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H40A0E0&}geometry?{\c&HFFFFFF&}
