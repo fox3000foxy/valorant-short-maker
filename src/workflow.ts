@@ -5,10 +5,13 @@ import { cpus } from "node:os";
 import { join } from "node:path";
 import {
 	BG_MUSIC_PATH,
+	WHOOSH_PATH,
 	type Phrase,
 	type SegmentInfo,
 	concatSegments,
+	createIntroTransition,
 	expandPhrases,
+	generateIntroVideo,
 	parseScript,
 	processPhrase,
 	renderSegment,
@@ -310,13 +313,40 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 
 		console.log(`\n  Part ${partNum}/${partGroups.length}...`);
 
-		if (pi === 0 && group[0]) {
+		if (pi === 0) {
 			const t3 = Date.now();
-			const firstPath = join(assetsDir, "00_intro.mp4");
-			console.log("  Applying fisheye intro...");
-			// await applyFisheyeTransition(group[0]!.videoPath, firstPath);
-			group[0]!.videoPath = firstPath;
-			console.log(`  [${now()}] Fisheye done (${((Date.now() - t3) / 1000).toFixed(1)}s)`);
+			const introPath = join(assetsDir, "00_intro.mp4");
+			const combinedPath = join(assetsDir, "00_combined.mp4");
+			const partLabel = options.context ?? "Demo";
+			const allAgentNames = options.agents ?? Object.keys(ALL_PERSONAS);
+			console.log("  Generating intro...");
+			await generateIntroVideo(partLabel, allAgentNames, introPath);
+
+			if (group.length > 0) {
+				console.log("  Creating slide transition...");
+				await createIntroTransition(introPath, group[0]!.videoPath, WHOOSH_PATH, combinedPath);
+				const combinedDur = 3 + group[0]!.duration - 0.3;
+				group[0] = {
+					agent: "intro+" + group[0]!.agent,
+					audioPath: combinedPath,
+					duration: combinedDur,
+					assPath: group[0]!.assPath,
+					iconPath: group[0]!.iconPath,
+					videoPath: combinedPath,
+					scaleExpr: group[0]!.scaleExpr,
+				};
+			} else {
+				group.unshift({
+					agent: "intro",
+					audioPath: introPath,
+					duration: 3,
+					assPath: null,
+					iconPath: "",
+					videoPath: introPath,
+					scaleExpr: null,
+				});
+			}
+			console.log(`  [${now()}] Intro done (${((Date.now() - t3) / 1000).toFixed(1)}s)`);
 		}
 
 		const firstSeg = group.find((s) => s.assPath !== null);

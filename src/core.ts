@@ -421,6 +421,93 @@ export async function renderSegment(
 	}
 }
 
+const BG_CLIPS_DIR = join(import.meta.dirname, "..", "bg-video");
+const BG_CLIPS = [
+	"clip_000.mp4", "clip_001.mp4", "clip_002.mp4", "clip_003.mp4",
+	"clip_004_new_audio.mp4", "clip_005_new_audio.mp4",
+];
+
+export async function generateIntroVideo(context: string, agentNames: string[], outputPath: string): Promise<void> {
+	const clip = BG_CLIPS[Math.floor(Math.random() * BG_CLIPS.length)]!;
+	const bgPath = join(BG_CLIPS_DIR, clip);
+	const esc = (s: string) => s.replace(/'/g, "'\\\\\\''").replace(/:/g, '\\\\:');
+	const agents = agentNames.map(a => a.charAt(0).toUpperCase() + a.slice(1)).join(", ");
+
+	const proc = Bun.spawn([
+		process.cwd() + "/bin/ffmpeg-drawtext/ffmpeg",
+		"-y", "-hide_banner", "-loglevel", "error",
+		"-ss", "0", "-t", "3", "-i", bgPath,
+		"-f", "lavfi", "-i", "anullsrc=r=22050:cl=mono",
+		"-filter_complex",
+		`[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=20:5[bg];` +
+		`[bg]drawtext=` +
+		`fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:` +
+		`text='${esc(context)}':` +
+		`fontcolor=red:fontsize=72:` +
+		`x=(w-text_w)/2:y=(h-text_h)/2-60:` +
+		`bordercolor=white:borderw=4,` +
+		`setsar=1[fg]`,
+		"-map", "[fg]", "-map", "1:a", "-shortest",
+		"-c:v", "libx264", "-preset", "fast", "-crf", "23",
+		"-c:a", "aac", "-b:a", "128k",
+		outputPath,
+	]);
+
+	const [stderr, code] = await Promise.all([
+		new Response(proc.stderr).text(),
+		proc.exited,
+	]);
+	if (code !== 0) {
+		console.error("  Intro ffmpeg error:", stderr);
+		throw new Error(`Intro generation failed (exit ${code})`);
+	}
+}
+
+export async function createIntroTransition(
+	introPath: string,
+	segPath: string,
+	whooshPath: string,
+	outputPath: string,
+): Promise<void> {
+	const TRANSITION_DUR = 0.3;
+	const introDur = 3;
+	const whooshDur = 0.57;
+
+	const proc = Bun.spawn([
+		process.cwd() + "/bin/ffmpeg/ffmpeg",
+		"-y", "-hide_banner", "-loglevel", "error",
+		"-i", introPath,
+		"-i", segPath,
+		"-i", whooshPath,
+		"-filter_complex",
+		`[0:v]trim=0:${introDur - TRANSITION_DUR},setpts=PTS-STARTPTS,fps=${FPS},setsar=1[intro_pre];` +
+		`[0:v]trim=${introDur - TRANSITION_DUR}:${introDur},setpts=PTS-STARTPTS,fps=${FPS}[intro_tail];` +
+		`[1:v]trim=0:${TRANSITION_DUR},setpts=PTS-STARTPTS,fps=${FPS}[seg_head];` +
+		`[1:v]trim=${TRANSITION_DUR},setpts=PTS-STARTPTS,fps=${FPS},setsar=1[seg_rest];` +
+		`[intro_tail][seg_head]xfade=transition=slideleft:duration=${TRANSITION_DUR}:offset=0[trans];` +
+		`[intro_pre][trans][seg_rest]concat=n=3:v=1:a=0[vid];` +
+		`[0:a]atrim=0:${introDur - TRANSITION_DUR},asetpts=PTS-STARTPTS[aud_pre];` +
+		`[2:a]adelay=${(introDur - TRANSITION_DUR) * 1000}|${(introDur - TRANSITION_DUR) * 1000}[whoosh];` +
+		`[1:a]atrim=${TRANSITION_DUR},asetpts=PTS-STARTPTS[aud_post];` +
+		`[aud_pre][whoosh]amix=inputs=2:duration=first[aud_mid];` +
+		`[aud_mid][aud_post]concat=n=2:v=0:a=1[aud]`,
+		"-map", "[vid]",
+		"-map", "[aud]",
+		"-c:v", "libx264", "-preset", EXPORT_VIDEO_PRESET, "-crf", EXPORT_VIDEO_CRF,
+		"-c:a", "libmp3lame", "-b:a", EXPORT_AUDIO_BITRATE,
+		outputPath,
+	]);
+
+	const [stderr, code] = await Promise.all([
+		new Response(proc.stderr).text(),
+		proc.exited,
+	]);
+	if (code !== 0) {
+		console.error("  Transition ffmpeg error:", stderr);
+		throw new Error(`Intro transition failed (exit ${code})`);
+	}
+}
+
 export async function applyFisheyeTransition(inputPath: string, outputPath: string): Promise<void> {
 	const inputInfo = Bun.spawnSync([
 		process.cwd() + "/bin/ffmpeg/ffprobe",
