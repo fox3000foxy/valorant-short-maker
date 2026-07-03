@@ -1,33 +1,20 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import {
-	type Phrase,
 	type SegmentInfo,
-	parseScript,
-	concatSegments,
-	processPhrase,
-	renderSegment,
 	applyFisheyeTransition,
-	OUT_DIR,
 	BG_MUSIC_PATH,
+	concatSegments,
+	OUT_DIR,
+	parseScript,
+	processPhrase,
+	renderSegment
 } from "./core.ts";
 
 export {
-	type Phrase,
-	type SegmentInfo,
-	parseScript,
-	concatSegments,
-	processPhrase,
-	renderSegment,
-	applyFisheyeTransition,
-	OUT_DIR,
-	BG_MUSIC_PATH,
-	setOutDir,
-	setBgVideoPath,
-	BG_VIDEO_PATH,
-	FPS,
-	computeScaleExpr,
-	getAudioDuration,
+	applyFisheyeTransition, BG_MUSIC_PATH, BG_VIDEO_PATH, computeScaleExpr, concatSegments, FPS, getAudioDuration, OUT_DIR, parseScript, processPhrase,
+	renderSegment, setBgVideoPath, setOutDir, type Phrase,
+	type SegmentInfo
 } from "./core.ts";
 
 export const PHRASES = parseScript();
