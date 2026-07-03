@@ -12,7 +12,7 @@ const LORE: string[] = [
 	"He has a collection of high-end sneakers from every country he's visited, displayed in his quarters like trophies.",
 	"Yoru's arrogance is genuine, but it's earned — he's never failed a solo mission.",
 	"He speaks Japanese when he's frustrated, which is often, because he's easily annoyed by incompetence.",
-	"Yoru once stepped through a rift into the middle of a Kingdom Corporation briefing room, stole their作战 plans, and left without being touched.",
+	"Yoru once stepped through a rift into the middle of a Kingdom Corporation briefing room, stole their operations plans, and left without being touched.",
 	"He and Phoenix have a mutual dislike — Phoenix's warmth clashes with Yoru's cold independence.",
 	"Yoru practices his riftwalking daily, pushing the limits of how far and fast he can travel through dimensions.",
 	"He has a strict personal grooming routine and judges agents who don't maintain their appearance.",
