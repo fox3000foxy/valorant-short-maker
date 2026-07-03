@@ -19,7 +19,7 @@ export function parseScript(): Phrase[] {
 		join(import.meta.dirname, "..", "demo_script.txt"),
 		"utf-8"
 	);
-	return raw
+	const lines = raw
 		.split("\n")
 		.map((line) => line.trim())
 		.filter(Boolean)
@@ -35,6 +35,11 @@ export function parseScript(): Phrase[] {
 			}
 			return { agent, text };
 		});
+	return expandPhrases(lines);
+}
+
+export function expandPhrases(phrases: Phrase[]): Phrase[] {
+	return phrases;
 }
 
 export interface SegmentInfo {
@@ -48,7 +53,7 @@ export interface SegmentInfo {
 }
 
 function stripPauseMarkers(text: string): string {
-	return text.replace(/\[\d+\.?\d*\]/g, "").trim();
+	return text.replace(/\[\d+\.?\d*\]/g, " ").replace(/\s+/g, " ").trim();
 }
 
 export const WHOOSH_PATH = join(import.meta.dirname, "..", "sounds", "whoosh.mp3");
@@ -156,7 +161,7 @@ export async function computeScaleExpr(
 		smoothed[frame] = sum / count;
 	}
 
-	const STEP = 8;
+	const STEP = 1;
 	const numGroups = Math.ceil(totalFrames / STEP);
 	const groupVals = new Float64Array(numGroups);
 	for (let g = 0; g < numGroups; g++) {
@@ -238,7 +243,8 @@ export async function processPhrase(
 		console.log(`  TTS ${phrase.agent}... (cached)`);
 	} else {
 		console.log(`  TTS ${phrase.agent}...`);
-		const tts = new ValorantTTS(phrase.agent, phrase.text);
+		const ttsText = phrase.text.replace(/[,;]/g, "");
+		const tts = new ValorantTTS(phrase.agent, ttsText);
 		await tts.generate(audioPath);
 	}
 
@@ -521,7 +527,7 @@ export async function concatSegments(
 		filterGraph =
 			`${filterParts.join("")}concat=n=${segCount}:v=1:a=1[vid][aud];` +
 			`[aud]asplit=2[voice][sc_side];` +
-			`[${segCount}:a]volume=0.6[bgm];` +
+			`[${segCount}:a]volume=0.85[bgm];` +
 			`[bgm][sc_side]sidechaincompress=threshold=0.03:ratio=4:attack=5:release=100[bgm_ducked];` +
 			`[voice][bgm_ducked]amix=inputs=2:duration=first:weights=1 0.5[aud_out]`;
 	} else {

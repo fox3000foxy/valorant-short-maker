@@ -6,6 +6,7 @@ import {
 	type Phrase,
 	type SegmentInfo,
 	parseScript,
+	expandPhrases,
 	concatSegments,
 	processPhrase,
 	renderSegment,
@@ -53,8 +54,8 @@ function compactPersona(agent: string, sceneAgents: string[]): string {
 	const relevantRels = sceneAgents
 		.filter((a) => a !== agent && relations[a])
 		.map((a) => `  - ${a}: ${relations[a]}`);
-	const voice = p.systemPrompt.split("\n").filter(Boolean).slice(0, 2).join(" ");
-	const facts = p.lore.slice(0, 4).join(" ");
+	const voice = p.systemPrompt.split("\n").filter(Boolean).slice(0, 4).join(" ");
+	const facts = p.lore.slice(0, 8).join(" ");
 	let out = `${agent.toUpperCase()}: ${voice}`;
 	out += `\n  Facts: ${facts}`;
 	if (relevantRels.length > 0) out += `\n  Relations:\n${relevantRels.join("\n")}`;
@@ -78,15 +79,18 @@ async function generateScript(context: string, agentNames: string[], sessionDir:
 		characters,
 		"",
 		"Rules:",
-		"- Output a dialogue scene with EXACTLY 25 lines.",
+		"- Output EXACTLY 25 lines.",
 		"- Format: AgentName: dialogue text (e.g. Breach: I built my arms from scrap.).",
 		"- Use the exact agent names as shown above.",
+		"- You can also write pause: 0.5 or pause: 1.0 as its own line for a beat between speakers.",
 		"- HUMOR is top priority — witty, sarcastic, playful.",
 		"- Each character speaks in their unique voice.",
 		"- Rotate through all characters evenly (no monologues).",
 		"- Short, punchy lines for video shorts.",
 		"- No stage directions, no descriptions, no formatting.",
 		"- Reply in English.",
+		"- No semicolons or ellipses. A few commas are okay for subtitle flow but keep them natural.",
+		"- Inline pauses [0.5] are for natural beats only — \"No one yet[0.5]but\" not \"No one[0.5]yet[0.5]but\".",
 	].join("\n");
 
 	const groq = new Groq({ apiKey: process.env.GROQ_API_KEY! });
@@ -110,8 +114,13 @@ async function generateScript(context: string, agentNames: string[], sessionDir:
 		if (m) {
 			const agent = m[1]!.toLowerCase();
 			const text = m[2]!.trim();
-			if (ALL_PERSONAS[agent] && text) {
-				history.push({ agent, text });
+			if (text) {
+				if (agent === "pause") {
+					const dur = Number.parseFloat(text);
+					if (dur > 0) history.push({ agent: "pause", text: String(dur) });
+				} else if (ALL_PERSONAS[agent]) {
+					history.push({ agent, text });
+				}
 			}
 		}
 	}
@@ -128,7 +137,14 @@ async function generateScript(context: string, agentNames: string[], sessionDir:
 		].join("\n") + "\n",
 	);
 
-	const phrases: Phrase[] = history.map((h) => ({ agent: h.agent, text: h.text }));
+	const phrases = expandPhrases(
+		history.map((h) => {
+			if (h.agent === "pause") {
+				return { agent: "pause", text: h.text, duration: Number.parseFloat(h.text) || 1.0 };
+			}
+			return { agent: h.agent, text: h.text };
+		}),
+	);
 
 	console.log(`  Generated ${history.length} lines across ${actors.length} agents\n`);
 	for (const h of history) {

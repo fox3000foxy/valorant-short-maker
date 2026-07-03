@@ -1,18 +1,5 @@
-phoenix: Alright lads, [0.4] watch and learn [0.6] I'm gonna 1v5 them
-brimstone: Phoenix, [0.3] you're already dead.
-omen: I can see you peeking from spawn.
-phoenix: Okay, [0.3] maybe 1v4?
-jett: I just saw you whiff an entire magazine, [0.3] on a Sage wall.
-phoenix: It was a warning shot!
-killjoy: At what, [0.4] the map geometry?
-raze: Let me show you how it's done!
-pause: 3.0
-raze: They're all still alive.
-omen: Your boom was, [0.3] in fact, [0.3] a quiet tickle.
-jett: I'm going in. [0.4] Try not to spectate me for once.
+fade: Just woke up[0.5]who died?
+killjoy: No one yet[0.5]but your bedhead, honestly, might be a war crime
+harbor: Let the waves settle
 pause: 1.0
-jett: Okay I got two!
-phoenix: Nice!
-jett: And I fell off the map.
-brimstone: Sigh... [0.5] I'm too old for this.
-sage: Okay, [0.4] fine. [0.6] I'll go rez.
+harbor: You both need coffee, don't you?
