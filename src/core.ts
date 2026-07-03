@@ -1,5 +1,5 @@
 import { Buffer } from "node:buffer";
-import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { ValorantSubtitle, type ChunkCaptions } from "./subtitle.ts";
 import { ValorantTTS } from "./tts.ts";
@@ -243,7 +243,7 @@ export async function processPhrase(
 		console.log(`  TTS ${phrase.agent}... (cached)`);
 	} else {
 		console.log(`  TTS ${phrase.agent}...`);
-		const ttsText = phrase.text.replace(/[,;]/g, "");
+		const ttsText = phrase.text.replace(/[,;]/g, ".");
 		const tts = new ValorantTTS(phrase.agent, ttsText);
 		await tts.generate(audioPath);
 	}
@@ -312,18 +312,54 @@ export async function processPhrase(
 	};
 }
 
+let _bgVideoDuration: number | null = null;
+
+async function getBgVideoDuration(): Promise<number> {
+	if (_bgVideoDuration !== null) return _bgVideoDuration;
+	const p = Bun.spawn([
+		process.cwd() + "/bin/ffmpeg/ffprobe",
+		"-v", "error",
+		"-show_entries", "format=duration",
+		"-of", "default=noprint_wrappers=1:nokey=1",
+		BG_VIDEO_PATH,
+	]);
+	const out = await new Response(p.stdout).text();
+	_bgVideoDuration = Number.parseFloat(out.trim());
+	return _bgVideoDuration!;
+}
+
 export async function renderSegment(
 	info: SegmentInfo,
 	bgOffset = 0,
 ): Promise<void> {
-	const totalFrames = Math.ceil(info.duration * FPS);
-
-	const trimFilter =
-		`[0:v]trim=start=${bgOffset}:duration=${info.duration},setpts=PTS-STARTPTS,scale=1080:1920,setsar=1,fps=fps=60[bg];` +
-		`[0:a]atrim=start=${bgOffset}:duration=${info.duration},asetpts=PTS-STARTPTS[bga]`;
-
 	const isPause = info.agent === "pause";
 	const hasTTS = !isPause;
+	const totalFrames = hasTTS ? Math.ceil(info.duration * FPS) : 0;
+
+	console.log(`  Rendering ${info.agent}...`);
+
+	if (isPause) {
+		const p = Bun.spawn([
+			process.cwd() + "/bin/ffmpeg/ffmpeg",
+			"-y", "-hide_banner", "-loglevel", "error",
+			"-f", "lavfi", "-i", `color=c=black:s=1080x1920:r=60:d=${info.duration}`,
+			"-f", "lavfi", "-i", "anullsrc=r=22050:cl=mono",
+			"-c:v", "libx264", "-preset", "ultrafast", "-crf", "28",
+			"-c:a", "libmp3lame", "-b:a", "192k",
+			"-t", String(info.duration),
+			info.videoPath,
+		]);
+		const [stderr, code] = await Promise.all([new Response(p.stderr).text(), p.exited]);
+		if (code !== 0) { console.error("  FFmpeg error:", stderr); throw new Error(`Render failed (exit ${code})`); }
+		return;
+	}
+
+	const vdur = await getBgVideoDuration();
+	const seek = bgOffset % vdur;
+
+	const bgFilter =
+		`[0:v]setpts=PTS-STARTPTS,scale=1080:1920,fps=fps=60[bg];` +
+		`[0:a]asetpts=PTS-STARTPTS[bga]`;
 
 	let vidLabel = "bg";
 	let circlePart = "";
@@ -342,27 +378,21 @@ export async function renderSegment(
 			`${circleFilter};[bg][circle]overlay=(W-w)/2:${CIRCLE_CENTER_Y}-h/2:format=auto[base];${assPart}`;
 	}
 
-	let mixFilter: string;
-	if (hasTTS) {
-		mixFilter =
-			`[2:a]volume=2.5[tts];[bga]volume=0.5[bga_v];[tts][bga_v]amix=inputs=2:duration=first[aud]`;
-	} else {
-		mixFilter = `[bga]volume=0.95[aud]`;
-	}
+	const mixFilter =
+		`[2:a]volume=2.5[tts];[bga]volume=0.5[bga_v];[tts][bga_v]amix=inputs=2:duration=first[aud]`;
 
-	const parts = [trimFilter];
+	const parts = [bgFilter];
 	if (circlePart) parts.push(circlePart);
 	parts.push(mixFilter);
 	const filterGraph = parts.join(";");
 
-	const ffInputs: string[] = ["-stream_loop", "-1", "-i", BG_VIDEO_PATH];
+	const ffInputs: string[] = [
+		"-ss", String(seek), "-t", String(info.duration), "-i", BG_VIDEO_PATH
+	];
 	if (info.scaleExpr !== null) {
 		ffInputs.push("-i", info.iconPath);
 	}
-	if (hasTTS) {
-		ffInputs.push("-i", info.audioPath);
-	}
-	console.log(`  Rendering ${info.agent}...`);
+	ffInputs.push("-i", info.audioPath);
 
 	const proc = Bun.spawn([
 		process.cwd() + "/bin/ffmpeg/ffmpeg",
@@ -383,12 +413,12 @@ export async function renderSegment(
 		"ultrafast",
 		"-crf",
 		"28",
+		"-r:v",
+		"60",
 		"-c:a",
 		"libmp3lame",
 		"-b:a",
-		"384k",
-		"-r:v",
-		"60",
+		"192k",
 		info.videoPath,
 	]);
 
@@ -502,83 +532,97 @@ export async function concatSegments(
 	outputPath: string,
 	bgMusicPath?: string,
 ): Promise<void> {
-	const inputs: string[] = [];
-	const filterParts: string[] = [];
-
-	for (const seg of segments) {
-		inputs.push("-i", seg.videoPath);
-	}
-
 	const segCount = segments.length;
-
-	for (let i = 0; i < segCount; i++) {
-		filterParts.push(`[${i}:v][${i}:a]`);
-	}
-
 	const hasMusic = bgMusicPath !== undefined && existsSync(bgMusicPath);
 
-	if (hasMusic) {
-		inputs.push("-i", bgMusicPath);
+	const tmp = join(OUT_DIR, ".concat");
+	mkdirSync(tmp, { recursive: true });
+
+	const vidList = join(tmp, "videos.txt");
+	writeFileSync(
+		vidList,
+		segments.map((s) => `file '${s.videoPath}'`).join("\n") + "\n",
+	);
+
+	const videoTemp = join(tmp, "vid.mp4");
+	const vidProc = Bun.spawn([
+		process.cwd() + "/bin/ffmpeg/ffmpeg",
+		"-y", "-hide_banner", "-loglevel", "error",
+		"-fflags", "+genpts",
+		"-f", "concat",
+		"-safe", "0",
+		"-i", vidList,
+		"-c", "copy",
+		"-an",
+		videoTemp,
+	]);
+	const [vidStderr, vidExit] = await Promise.all([
+		new Response(vidProc.stderr).text(),
+		vidProc.exited,
+	]);
+	if (vidExit !== 0) {
+		console.error("Concat video error:", vidStderr);
+		throw new Error(`Video concat failed (exit ${vidExit})`);
 	}
 
-	let filterGraph: string;
+	const audioInputs: string[] = [];
+	for (let i = 0; i < segCount; i++) {
+		audioInputs.push("-i", segments[i]!.videoPath);
+	}
+	const audioLabels = segments.map((_, i) => `[${i}:a]`);
+
+	let audioGraph: string;
+	let audMap: string;
 
 	if (hasMusic) {
-		filterGraph =
-			`${filterParts.join("")}concat=n=${segCount}:v=1:a=1[vid][aud];` +
-			`[aud]asplit=2[voice][sc_side];` +
+		audioInputs.push("-i", bgMusicPath!);
+		audioGraph =
+			`${audioLabels.join("")}concat=n=${segCount}:v=0:a=1[voice];` +
+			`[voice]asplit=2[voice_out][sc_side];` +
 			`[${segCount}:a]volume=0.85[bgm];` +
 			`[bgm][sc_side]sidechaincompress=threshold=0.03:ratio=4:attack=5:release=100[bgm_ducked];` +
-			`[voice][bgm_ducked]amix=inputs=2:duration=first:weights=1 0.5[aud_out]`;
+			`[voice_out][bgm_ducked]amix=inputs=2:duration=first:weights=1 0.5[aud_out]`;
+		audMap = "[aud_out]";
 	} else {
-		filterGraph =
-			`${filterParts.join("")}concat=n=${segCount}:v=1:a=1[vid][aud_out]`;
+		audioGraph = `${audioLabels.join("")}concat=n=${segCount}:v=0:a=1[aud_out]`;
+		audMap = "[aud_out]";
 	}
 
-	const ffmpegArgs = [
+	const audioTemp = join(tmp, "aud.mp3");
+	const audProc = Bun.spawn([
 		process.cwd() + "/bin/ffmpeg/ffmpeg",
-		"-y",
-		"-hide_banner",
-		"-loglevel",
-		"error",
-
-		...inputs,
-
-		"-filter_complex",
-		filterGraph,
-
-		"-map",
-		"[vid]",
-		"-map",
-		"[aud_out]",
-
-		"-c:v",
-		"libx264",
-		"-preset",
-		"ultrafast",
-		"-crf",
-		"28",
-
-		"-c:a",
-		"libmp3lame",
-		"-b:a",
-		"192k",
-
-		"-movflags",
-		"+faststart",
-
-		outputPath,
-	];
-
-	const proc = Bun.spawn(ffmpegArgs);
-
-	const [stderr, exitCode] = await Promise.all([
-		new Response(proc.stderr).text(),
-		proc.exited,
+		"-y", "-hide_banner", "-loglevel", "error",
+		...audioInputs,
+		"-filter_complex", audioGraph,
+		"-map", audMap,
+		"-c:a", "libmp3lame",
+		"-b:a", "192k",
+		audioTemp,
 	]);
+	const [audStderr, audExit] = await Promise.all([
+		new Response(audProc.stderr).text(),
+		audProc.exited,
+	]);
+	if (audExit !== 0) {
+		console.error("Concat audio error:", audStderr);
+		throw new Error(`Audio concat failed (exit ${audExit})`);
+	}
 
-	if (exitCode !== 0) {
-		console.error("Concat error:", stderr);
-		throw new Error(`Concat failed (exit ${exitCode})`);
+	const mux = Bun.spawn([
+		process.cwd() + "/bin/ffmpeg/ffmpeg",
+		"-y", "-hide_banner", "-loglevel", "error",
+		"-i", videoTemp,
+		"-i", audioTemp,
+		"-c", "copy",
+		"-movflags", "+faststart",
+		outputPath,
+	]);
+	const [muxStderr, muxCode] = await Promise.all([
+		new Response(mux.stderr).text(),
+		mux.exited,
+	]);
+	if (muxCode !== 0) {
+		console.error("Mux error:", muxStderr);
+		throw new Error(`Mux failed (exit ${muxCode})`);
 	}
 }

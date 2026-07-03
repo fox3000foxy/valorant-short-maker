@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 import { join } from "node:path";
+import { cpus } from "node:os";
 import Groq from "groq-sdk";
 import {
 	type Phrase,
@@ -72,6 +73,12 @@ async function generateScript(context: string, agentNames: string[], sessionDir:
 
 	const characters = actors.map((a) => compactPersona(a, actors)).join("\n\n---\n\n");
 
+	const inlinePauseExamples = [
+		"  killjoy: No one yet[0.5]but I've got a plan.",
+		"  fade: I need coffee to face my fears[0.5]not a briefing.",
+		"  chamber: This is embarrassing.[0.5]Radiant indeed.",
+	].join("\n");
+
 	const systemPrompt = [
 		"You write humorous dialogue for Valorant agents.",
 		"",
@@ -82,7 +89,6 @@ async function generateScript(context: string, agentNames: string[], sessionDir:
 		"- Output EXACTLY 25 lines.",
 		"- Format: AgentName: dialogue text (e.g. Breach: I built my arms from scrap.).",
 		"- Use the exact agent names as shown above.",
-		"- You can also write pause: 0.5 or pause: 1.0 as its own line for a beat between speakers.",
 		"- HUMOR is top priority — witty, sarcastic, playful.",
 		"- Each character speaks in their unique voice.",
 		"- Rotate through all characters evenly (no monologues).",
@@ -90,7 +96,13 @@ async function generateScript(context: string, agentNames: string[], sessionDir:
 		"- No stage directions, no descriptions, no formatting.",
 		"- Reply in English.",
 		"- No semicolons or ellipses. A few commas are okay for subtitle flow but keep them natural.",
-		"- Inline pauses [0.5] are for natural beats only — \"No one yet[0.5]but\" not \"No one[0.5]yet[0.5]but\".",
+		"",
+		"PAUSES (CRITICAL — natural speech flow):",
+		"  - Add [0.5] INSIDE a character's line for a natural beat mid-speech (circle stays visible):",
+		inlinePauseExamples,
+		"  - Write pause: 0.5 or pause: 1.0 as its OWN LINE for a full beat between speakers (circle hides).",
+		"  - Always include INLINE pauses [0.5] in at least 3-4 lines per script for natural cadence.",
+		"  - Keep inline pauses minimal: ONE per line at most, placed at a natural speech break.",
 	].join("\n");
 
 	const groq = new Groq({ apiKey: process.env.GROQ_API_KEY! });
@@ -174,6 +186,10 @@ export interface WorkflowOptions {
 
 const DEFAULT_PARTS = 1;
 
+function now(): string {
+	return ((Date.now() / 1000) % 60).toFixed(1) + "s";
+}
+
 function parseFlags(): WorkflowOptions {
 	const args = Bun.argv.slice(2);
 	const opts: WorkflowOptions = {};
@@ -194,6 +210,7 @@ function parseFlags(): WorkflowOptions {
 }
 
 export async function run(options: WorkflowOptions): Promise<string[]> {
+	const wallStart = Date.now();
 	const parts = options.parts ?? DEFAULT_PARTS;
 
 	let phrases: Phrase[];
@@ -210,6 +227,7 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 		phrases = parseScript();
 		console.log("=== Workflow (demo) ===\n");
 	} else {
+		const t0 = Date.now();
 		const agentNames = options.agents?.length
 			? options.agents
 			: (() => {
@@ -231,26 +249,46 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 		console.log(`  Context: ${context}\n`);
 		setBgVideoPath(pickRandomBgVideo());
 		phrases = await generateScript(context, agentNames, sessionDir);
+		console.log(`  [${now()}] Script generated (${((Date.now() - t0) / 1000).toFixed(1)}s)`);
 	}
 
 	saveScript(phrases, join(sessionDir, "script.txt"));
 
+	const C_TTS = Math.min(2, cpus().length);
+	const C = cpus().length;
 	const segments: SegmentInfo[] = [];
 
+	const t1 = Date.now();
 	console.log("  Generating segments...\n");
-	segments.length = 0;
-	for (let i = 0; i < phrases.length; i++) {
-		const info = await processPhrase(phrases[i]!, i);
-		segments.push(info);
-	}
-	let bgOffset = 0;
-	for (const info of segments) {
-		console.log(
-			`  Rendering ${info.agent} (${info.duration.toFixed(2)}s)...`
+	for (let i = 0; i < phrases.length; i += C_TTS) {
+		const batch = phrases.slice(i, i + C_TTS);
+		const results = await Promise.all(
+			batch.map((p, j) => processPhrase(p, i + j))
 		);
-		await renderSegment(info, bgOffset);
-		bgOffset += info.duration;
+		segments.push(...results);
 	}
+	console.log(`  [${now()}] TTS + ASS done (${((Date.now() - t1) / 1000).toFixed(1)}s)`);
+
+	const t2 = Date.now();
+	let acc = 0;
+	const offsets = segments.map((s) => {
+		const off = acc;
+		acc += s.duration;
+		return off;
+	});
+	for (let i = 0; i < segments.length; i += C) {
+		const batchSegs = segments.slice(i, i + C);
+		const batchOffs = offsets.slice(i, i + C);
+		await Promise.all(
+			batchSegs.map((info, j) => {
+				console.log(
+					`  Rendering ${info.agent} (${info.duration.toFixed(2)}s)...`
+				);
+				return renderSegment(info, batchOffs[j]!);
+			})
+		);
+	}
+	console.log(`  [${now()}] Rendering done (${((Date.now() - t2) / 1000).toFixed(1)}s)`);
 
 	const totalDur = segments.reduce((s, seg) => s + seg.duration, 0);
 	console.log(`\n  Total: ${totalDur.toFixed(1)}s (${segments.length} segments)`);
@@ -271,11 +309,13 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 		console.log(`\n  Part ${partNum}/${partGroups.length}...`);
 
 		if (pi === 0 && group[0]) {
+			const t3 = Date.now();
 			const firstPath = join(assetsDir, "00_intro.mp4");
 			console.log("  Applying fisheye intro...");
 			await applyFisheyeTransition(group[0]!.videoPath, firstPath);
 			group[0]!.videoPath = firstPath;
 			group[0]!.audioPath = "";
+			console.log(`  [${now()}] Fisheye done (${((Date.now() - t3) / 1000).toFixed(1)}s)`);
 		}
 
 		const firstSeg = group.find((s) => s.assPath !== null);
@@ -314,9 +354,13 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 			writeFileSync(firstSeg.assPath!, modified + "\n");
 		}
 
+		const t4 = Date.now();
 		await concatSegments(group, partPath, BG_MUSIC_PATH);
+		console.log(`  [${now()}] Concat + mux done (${((Date.now() - t4) / 1000).toFixed(1)}s)`);
 		outputPaths.push(partPath);
 	}
+
+	console.log(`  [${now()}] Total wall time: ${((Date.now() - wallStart) / 1000).toFixed(1)}s`);
 
 	for (const path of outputPaths) {
 		console.log(`  ${path}`);
