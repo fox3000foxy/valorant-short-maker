@@ -8,6 +8,9 @@
 - [x] Audio ducking (sidechain compression)
 - [x] Generation LLM de scripts (`--context`)
 - [x] Selection aleatoire du clip de fond (workflow)
+
+- [ ] Split les vidéos plus longues qu'une minute en plusieurs parties avec marqué sur les vidéos "Part x/y" 
+
 - [ ] Normalisation audio (loudnorm) sur le rendu final
 - [ ] Mode batch avec plusieurs contextes
 - [ ] Overlay taux de victoire / carte / infos partie
