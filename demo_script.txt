@@ -10,6 +10,7 @@ pause: 3.0
 raze: They're all still alive.
 omen: Your boom was, [0.3] in fact, [0.3] a quiet tickle.
 jett: I'm going in. [0.4] Try not to spectate me for once.
+pause: 1.0
 jett: Okay I got two!
 phoenix: Nice!
 jett: And I fell off the map.

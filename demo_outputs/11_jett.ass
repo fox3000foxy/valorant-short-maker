@@ -11,12 +11,12 @@ Style: Default,Montserrat,100,&HFFFFFF&,&HFFFFFF&,&H604000&,&H00000000,-1,0,0,0,
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 Dialogue: 0,0:00:00.00,0:00:00.23,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}I'm{\c&HFFFFFF&} going in. Try
-Dialogue: 0,0:00:00.23,0:00:00.46,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} I'm {\c&H604020&}going{\c&HFFFFFF&} in. Try
-Dialogue: 0,0:00:00.46,0:00:00.69,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} I'm going {\c&H604020&}in.{\c&HFFFFFF&} Try
-Dialogue: 0,0:00:00.69,0:00:00.92,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} I'm going in. {\c&H604020&}Try{\c&HFFFFFF&}
-Dialogue: 0,0:00:00.92,0:00:01.15,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}not{\c&HFFFFFF&} to spectate me
-Dialogue: 0,0:00:01.15,0:00:01.38,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} not {\c&H604020&}to{\c&HFFFFFF&} spectate me
-Dialogue: 0,0:00:01.38,0:00:01.61,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} not to {\c&H604020&}spectate{\c&HFFFFFF&} me
-Dialogue: 0,0:00:01.61,0:00:01.85,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} not to spectate {\c&H604020&}me{\c&HFFFFFF&}
-Dialogue: 0,0:00:01.85,0:00:02.31,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}for{\c&HFFFFFF&} once.
-Dialogue: 0,0:00:02.31,0:00:02.77,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} for {\c&H604020&}once.{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.23,0:00:00.47,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} I'm {\c&H604020&}going{\c&HFFFFFF&} in. Try
+Dialogue: 0,0:00:00.47,0:00:00.70,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} I'm going {\c&H604020&}in.{\c&HFFFFFF&} Try
+Dialogue: 0,0:00:00.70,0:00:00.93,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} I'm going in. {\c&H604020&}Try{\c&HFFFFFF&}
+Dialogue: 0,0:00:00.93,0:00:01.16,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}not{\c&HFFFFFF&} to spectate me
+Dialogue: 0,0:00:01.16,0:00:01.40,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} not {\c&H604020&}to{\c&HFFFFFF&} spectate me
+Dialogue: 0,0:00:01.40,0:00:01.63,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} not to {\c&H604020&}spectate{\c&HFFFFFF&} me
+Dialogue: 0,0:00:01.63,0:00:01.86,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} not to spectate {\c&H604020&}me{\c&HFFFFFF&}
+Dialogue: 0,0:00:01.86,0:00:02.33,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} {\c&H604020&}for{\c&HFFFFFF&} once.
+Dialogue: 0,0:00:02.33,0:00:02.79,Default,,0,0,768,,{\move(540\,2000\,540\,1152\,0\,200)}{\fad(120\,80)} for {\c&H604020&}once.{\c&HFFFFFF&}
