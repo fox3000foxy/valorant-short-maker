@@ -39,7 +39,8 @@ python get-pip.py
 pip install piper-tts Pillow
 
 echo "==> Installing upload dependencies..."
-pip install instagrapi google-api-python-client google-auth-oauthlib
+pip install "instagrapi[video]" google-api-python-client google-auth-oauthlib
+pip install --no-deps "moviepy==2.2.1"
 
 deactivate
 rm -f get-pip.py

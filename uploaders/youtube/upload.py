@@ -118,7 +118,7 @@ if __name__ == "__main__":
     p.add_argument("--title", required=True)
     p.add_argument("--description", default="")
     p.add_argument("--tags", nargs="*", default=[])
-    p.add_argument("--privacy", default="private", choices=["public", "unlisted", "private"])
+    p.add_argument("--privacy", default="public", choices=["public", "unlisted", "private"])
     args = p.parse_args()
 
     upload(args.video, args.title, args.description, args.tags, args.privacy)

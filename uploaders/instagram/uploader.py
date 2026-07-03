@@ -17,16 +17,20 @@ SESSION_FILE = Path(__file__).parent / "ig_session.json"
 
 
 def load_dotenv():
-    """Load .env from project root (two levels up from uploaders/instagram/)."""
-    env_path = Path(__file__).resolve().parent.parent.parent / ".env"
-    if not env_path.exists():
-        return
-    for line in env_path.read_text().splitlines():
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, _, val = line.partition("=")
-        os.environ.setdefault(key.strip(), val.strip())
+    """Load .env from project root and set up bundled ffmpeg path."""
+    root = Path(__file__).resolve().parent.parent.parent
+    env_path = root / ".env"
+    if env_path.exists():
+        for line in env_path.read_text().splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, val = line.partition("=")
+            os.environ.setdefault(key.strip(), val.strip())
+
+    ffmpeg = root / "bin" / "ffmpeg" / "ffmpeg"
+    if ffmpeg.exists():
+        os.environ.setdefault("IMAGEIO_FFMPEG_EXE", str(ffmpeg))
 
 
 def challenge_handler(username, choice):

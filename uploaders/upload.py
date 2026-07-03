@@ -19,7 +19,7 @@ def main():
     p.add_argument("--title", default="Valorant Short", help="Video title (YouTube)")
     p.add_argument("--description", default="#valorant #gaming #shorts", help="Video description")
     p.add_argument("--tags", nargs="*", default=["valorant", "gaming", "shorts"], help="YouTube tags")
-    p.add_argument("--privacy", default="private", choices=["public", "unlisted", "private"], help="YouTube privacy")
+    p.add_argument("--privacy", default="public", choices=["public", "unlisted", "private"], help="YouTube privacy")
     p.add_argument("--caption", default="#valorant #gaming", help="Instagram caption")
     p.add_argument("--ig-only", action="store_true", help="Only upload to Instagram")
     p.add_argument("--yt-only", action="store_true", help="Only upload to YouTube")
