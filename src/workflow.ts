@@ -5,9 +5,6 @@ import { cpus } from "node:os";
 import { join } from "node:path";
 import {
 	BG_MUSIC_PATH,
-	WHOOSH_PATH,
-	type Phrase,
-	type SegmentInfo,
 	concatSegments,
 	createIntroTransition,
 	expandPhrases,
@@ -16,7 +13,10 @@ import {
 	processPhrase,
 	renderSegment,
 	setBgVideoPath,
-	setOutDir
+	setOutDir,
+	WHOOSH_PATH,
+	type Phrase,
+	type SegmentInfo
 } from "./core.ts";
 import { ALL_PERSONAS } from "./lore/index.ts";
 import { ALL_RELATIONS } from "./lore/relations.ts";
@@ -184,12 +184,36 @@ export interface WorkflowOptions {
 	agents?: string[];
 	parts?: number;
 	output?: string;
+	upload?: boolean;
+	uploadIgOnly?: boolean;
+	uploadYtOnly?: boolean;
 }
 
 const DEFAULT_PARTS = 1;
 
 function now(): string {
 	return ((Date.now() / 1000) % 60).toFixed(1) + "s";
+}
+
+async function uploadVideos(videoPath: string, options: WorkflowOptions): Promise<void> {
+	const uploadScript = join(import.meta.dirname, "..", "uploaders", "upload.py");
+	const venvPython = join(import.meta.dirname, "..", ".venv", "bin", "python3");
+	const pythonBin = Bun.spawnSync(["test", "-f", venvPython]).exitCode === 0 ? venvPython : "python3";
+	const args = [pythonBin, uploadScript, "--video", videoPath, "--title", "Valorant Short"];
+	if (options.uploadIgOnly) args.push("--ig-only");
+	if (options.uploadYtOnly) args.push("--yt-only");
+
+	console.log(`\n=== Uploading ===`);
+	const proc = Bun.spawn(args, {
+		stdio: ["inherit", "inherit", "inherit"],
+		env: { ...process.env },
+	});
+	const exitCode = await proc.exited;
+	if (exitCode === 0) {
+		console.log("=== Upload complete ===\n");
+	} else {
+		console.error(`=== Upload failed (exit code ${exitCode}) ===`);
+	}
 }
 
 function parseFlags(): WorkflowOptions {
@@ -206,6 +230,16 @@ function parseFlags(): WorkflowOptions {
 			opts.parts = Number.parseInt(args[++i]!, 10);
 		} else if (args[i] === "--output" && i + 1 < args.length) {
 			opts.output = args[++i]!;
+		} else if (args[i] === "--upload") {
+			opts.upload = true;
+		} else if (args[i] === "--upload-ig-only") {
+			opts.upload = true;
+			opts.uploadYtOnly = false;
+			opts.uploadIgOnly = true;
+		} else if (args[i] === "--upload-yt-only") {
+			opts.upload = true;
+			opts.uploadIgOnly = false;
+			opts.uploadYtOnly = true;
 		}
 	}
 	return opts;
@@ -214,6 +248,11 @@ function parseFlags(): WorkflowOptions {
 export async function run(options: WorkflowOptions): Promise<string[]> {
 	const wallStart = Date.now();
 	const parts = options.parts ?? DEFAULT_PARTS;
+
+	// console.log(`\n=== Workflow ===\n  Parts: ${parts}\n  Output dir: ${options.output ?? "workflow_outputs"}\nContext: ${options.context ?? "random"}\nAgents: ${options.agents?.join(", ") ?? "random"}\n`);
+	// process.exit()
+
+	const context = options.context ?? DEFAULT_CONTEXTS[Math.floor(Math.random() * DEFAULT_CONTEXTS.length)]!;
 
 	let phrases: Phrase[];
 
@@ -233,9 +272,9 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 		const agentNames = options.agents?.length
 			? options.agents
 			: (() => {
-					const shuffled = ALL_AGENT_NAMES.toSorted(() => Math.random() - 0.5);
-					return shuffled.slice(0, 3 + Math.floor(Math.random() * 2));
-				})();
+				const shuffled = ALL_AGENT_NAMES.toSorted(() => Math.random() - 0.5);
+				return shuffled.slice(0, 3 + Math.floor(Math.random() * 2));
+			})();
 
 		const invalid = agentNames.filter((a) => !ALL_PERSONAS[a]);
 		if (invalid.length > 0) {
@@ -243,8 +282,6 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 			console.error(`  Available: ${ALL_AGENT_NAMES.join(", ")}`);
 			throw new Error("Invalid agent names");
 		}
-
-		const context = options.context ?? DEFAULT_CONTEXTS[Math.floor(Math.random() * DEFAULT_CONTEXTS.length)]!;
 
 		console.log("=== Workflow (generate) ===\n");
 		console.log(`  Agents: ${agentNames.join(", ")}`);
@@ -317,7 +354,7 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 			const t3 = Date.now();
 			const introPath = join(assetsDir, "00_intro.mp4");
 			const combinedPath = join(assetsDir, "00_combined.mp4");
-			const partLabel = options.context ?? "Demo";
+			const partLabel = context ?? "Demo";
 			const allAgentNames = options.agents ?? Object.keys(ALL_PERSONAS);
 			console.log("  Generating intro...");
 			await generateIntroVideo(partLabel, allAgentNames, introPath);
@@ -353,9 +390,7 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 		if (firstSeg) {
 			const assContent = readFileSync(firstSeg.assPath!, "utf-8");
 			const fadeDuration = Math.min(1, firstSeg.duration * 0.3);
-			const partLabel = options.context ?? "Demo";
-			// console.log(partLabel)
-			// process.exit(1)
+			const partLabel = context ?? "Demo";
 
 			const totalSec = Math.round(firstSeg.duration * 100) / 100;
 			const cs = Math.round((totalSec % 1) * 100);
@@ -397,6 +432,10 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 
 	for (const path of outputPaths) {
 		console.log(`  ${path}`);
+	}
+
+	if (options.upload && outputPaths.length > 0) {
+		await uploadVideos(outputPaths[0]!, options);
 	}
 
 	return outputPaths;

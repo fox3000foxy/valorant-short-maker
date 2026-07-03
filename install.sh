@@ -37,6 +37,10 @@ source .venv/bin/activate
 curl -fL https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 python get-pip.py
 pip install piper-tts Pillow
+
+echo "==> Installing upload dependencies..."
+pip install instagrapi google-api-python-client google-auth-oauthlib
+
 deactivate
 rm -f get-pip.py
 
