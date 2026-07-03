@@ -8,13 +8,17 @@ export interface AgentPersona {
 	wikiLore?: string;
 }
 
+export interface DialogueLine {
+	agent: string;
+	text: string;
+}
+
 export class AgentChat {
 	private _groq: Groq;
 	private _persona: AgentPersona;
 	private _allLore: string;
 	private _allRelations: string;
 	private _lastPrompt: string = "";
-	private _sessionDir: string = "";
 
 	constructor(persona: AgentPersona, selectedAgents?: string[]) {
 		const apiKey = process.env.GROQ_API_KEY;
@@ -42,46 +46,54 @@ export class AgentChat {
 		return this._lastPrompt;
 	}
 
-	setSessionDir(dir: string) {
-		this._sessionDir = dir;
-	}
-
-	async genLine(sceneContext: string): Promise<string> {
-		const parts: string[] = [
+	async genDialogueLine(sceneContext: string, history: DialogueLine[]): Promise<string> {
+		const systemParts: string[] = [
 			this._persona.systemPrompt,
 			"",
 			"Agent lore:",
 			this._allLore,
 		];
 		if (this._allRelations) {
-			parts.push("", this._allRelations);
+			systemParts.push("", this._allRelations);
 		}
 		if (this._persona.wikiLore) {
-			parts.push("", "Background:", this._persona.wikiLore);
+			systemParts.push("", "Background:", this._persona.wikiLore);
 		}
-		parts.push(
+		systemParts.push(
 			"",
 			"Rules:",
-			"- Output ONLY the spoken dialogue, nothing else.",
-			"- No stage directions, no actions in asterisks or parentheses, no descriptions.",
-			"- No character names, no colons, no formatting.",
-			"- Just the raw words the character would say out loud.",
-			"- One or two sentences maximum. Short and natural.",
-			"- Reply in English, regardless of the input language.",
-			"- You may optionally add pauses like [0.5] between phrases for pacing (e.g. 'Watch this [0.3] I got them right where I want them.').",
+			`- You are ${this._persona.agent} in a conversation with other Valorant agents.`,
+			"- Respond with a SINGLE line of dialogue — your turn in the conversation.",
+			"- Be humorous and in character.",
+			"- Output ONLY the spoken dialogue — no character names, no colons, no stage directions.",
+			"- Just the raw words. No prefixes, no labels, no formatting.",
+			"- Short and natural. One or two sentences at most.",
+			"- Reply in English.",
 		);
 
-		this._lastPrompt = parts.join("\n");
+		const systemContent = systemParts.join("\n");
+		this._lastPrompt = systemContent + "\n\n" + `Scene: ${sceneContext}`;
+
+		const messages: { role: "system" | "user" | "assistant"; content: string }[] = [
+			{ role: "system", content: systemContent },
+			{ role: "user", content: `Scene: ${sceneContext}` },
+		];
+
+		for (const h of history) {
+			messages.push({ role: "assistant", content: h.text });
+			messages.push({ role: "user", content: "Continue." });
+		}
+
+		messages.push({
+			role: "user",
+			content: history.length === 0
+				? `Start the conversation as ${this._persona.agent}.`
+				: `${this._persona.agent} responds.`,
+		});
 
 		const res = await this._groq.chat.completions.create({
 			model: "llama-3.3-70b-versatile",
-			messages: [
-				{
-					role: "system",
-					content: this._lastPrompt,
-				},
-				{ role: "user", content: sceneContext },
-			],
+			messages,
 			// biome-ignore lint/style/useNamingConvention: Groq SDK uses snake_case
 			max_tokens: 120,
 		});

@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 import { join } from "node:path";
 import {
@@ -12,10 +12,8 @@ import {
 	setBgVideoPath,
 	setOutDir,
 } from "./core.ts";
-import { AgentChat } from "./agent-chat.ts";
+import { AgentChat, type DialogueLine } from "./agent-chat.ts";
 import { ALL_PERSONAS } from "./lore/index.ts";
-
-const WHOOSH_PATH = join(import.meta.dirname, "..", "sounds", "whoosh.mp3");
 
 const BG_CLIPS = [
 	"clip_000.mp4",
@@ -33,59 +31,83 @@ function pickRandomBgVideo(): string {
 
 const ALL_AGENT_NAMES = Object.keys(ALL_PERSONAS);
 
+const DEFAULT_CONTEXTS = [
+	"casual argument during a mission debrief",
+	"trash-talking the enemy team before a round",
+	"complaining about the mission briefing being too early",
+	"who gets the last cup of coffee at the safe house",
+	"arguing over who has the best ultimate ability",
+	"giving each other nicknames and they don't stick",
+	"someone accidentally triggered the alarm, blame game",
+];
+
 function generateSessionId(): string {
 	return randomBytes(8).toString("hex");
 }
 
+function parseSingleLine(raw: string): string {
+	return raw
+		.split("\n")
+		.map((l) => l.trim())
+		.find((l) => l.length > 0 && !l.startsWith("#")) ?? "";
+}
+
 async function generateScript(context: string, agentNames: string[], sessionDir: string): Promise<Phrase[]> {
 	console.log("  Generating script with LLM...");
+
 	const shuffled = agentNames.toSorted(() => Math.random() - 0.5);
-	const selectedCount = Math.min(3 + Math.floor(Math.random() * 2), shuffled.length);
-	const actors = shuffled.slice(0, selectedCount);
+	const actorCount = Math.min(3 + Math.floor(Math.random() * 2), shuffled.length);
+	const actors = shuffled.slice(0, actorCount);
+
 	const promptsDir = join(sessionDir, "prompts");
 	mkdirSync(promptsDir, { recursive: true });
-	const phrases: Phrase[] = [];
+
+	const chats = new Map(actors.map((name) => [name, new AgentChat(ALL_PERSONAS[name]!, agentNames)]));
+	const history: DialogueLine[] = [];
 	const allPrompts: { agent: string; prompt: string; response: string }[] = [];
+	const MIN_LINES = 25;
+	let actorIdx = 0;
+
+	while (history.length < MIN_LINES) {
+		const name = actors[actorIdx % actors.length]!;
+		actorIdx++;
+		const chat = chats.get(name)!;
+		const persona = ALL_PERSONAS[name]!;
+		const raw = await chat.genDialogueLine(context, history);
+		const line = parseSingleLine(raw);
+		allPrompts.push({ agent: persona.agent, prompt: chat.lastPrompt, response: raw.trim() });
+		if (line) {
+			history.push({ agent: persona.agent, text: line });
+		}
+	}
 
 	for (const name of actors) {
 		const persona = ALL_PERSONAS[name]!;
-		const chat = new AgentChat(persona, agentNames);
-		chat.setSessionDir(sessionDir);
-		const line = await chat.genLine(context);
-		allPrompts.push({ agent: persona.agent, prompt: chat.lastPrompt, response: line.trim() });
-		writeFileSync(join(promptsDir, `${persona.agent}_prompt.txt`), chat.lastPrompt);
-		writeFileSync(join(promptsDir, `${persona.agent}_response.txt`), line.trim());
-		if (line.trim()) {
-			phrases.push({ agent: persona.agent, text: line.trim() });
-			if (Math.random() < 0.4) {
-				const pauseDur = (0.3 + Math.random() * 0.7).toFixed(1);
-				phrases.push({ agent: "pause", text: pauseDur, duration: Number.parseFloat(pauseDur) });
-			}
-		}
+		const relevant = allPrompts.filter((p) => p.agent === persona.agent);
+		const combined = relevant
+			.map((p, i) => `=== Turn ${i + 1} ===\n\nPrompt:\n${p.prompt}\n\nResponse:\n${p.response}`)
+			.join("\n\n");
+		writeFileSync(join(promptsDir, `${persona.agent}_full.txt`), combined);
 	}
 
-	if (phrases.length === 0) {
-		throw new Error("LLM generated no dialogue");
-	}
+	writeFileSync(
+		join(promptsDir, "context.txt"),
+		[
+			`Context: ${context}`,
+			`Agents: ${actors.join(", ")}`,
+			`Total lines: ${history.length}`,
+			`Generated: ${new Date().toISOString()}`,
+		].join("\n") + "\n",
+	);
 
-	const combined = allPrompts
-		.map((p) => `=== ${p.agent} ===\n\nPrompt:\n${p.prompt}\n\nResponse:\n${p.response}`)
-		.join("\n\n");
-	writeFileSync(join(promptsDir, "all_prompts.txt"), combined);
+	const finalScript = history.map((h) => `${h.agent}: ${h.text}`).join("\n");
+	writeFileSync(join(promptsDir, "final_script.txt"), finalScript + "\n");
 
-	const finalScript = phrases.map((p) => {
-		if (p.agent === "pause") return `pause: ${p.duration!.toFixed(1)}`;
-		return `${p.agent}: ${p.text}`;
-	}).join("\n");
-	writeFileSync(join(promptsDir, "final_script.txt"), finalScript);
+	const phrases: Phrase[] = history.map((h) => ({ agent: h.agent, text: h.text }));
 
-	console.log(`  Generated ${phrases.length} lines\n`);
-	for (const p of phrases) {
-		if (p.agent === "pause") {
-			console.log(`    pause ${p.duration!.toFixed(1)}s`);
-		} else {
-			console.log(`    ${p.agent}: ${p.text}`);
-		}
+	console.log(`  Generated ${history.length} lines across ${actors.length} agents\n`);
+	for (const h of history) {
+		console.log(`    ${h.agent}: ${h.text}`);
 	}
 	console.log("");
 	return phrases;
@@ -146,8 +168,13 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 	if (options.demo) {
 		phrases = parseScript();
 		console.log("=== Workflow (demo) ===\n");
-	} else if (options.context) {
-		const agentNames = options.agents ?? ALL_AGENT_NAMES;
+	} else {
+		const agentNames = options.agents?.length
+			? options.agents
+			: (() => {
+					const shuffled = ALL_AGENT_NAMES.toSorted(() => Math.random() - 0.5);
+					return shuffled.slice(0, 3 + Math.floor(Math.random() * 2));
+				})();
 
 		const invalid = agentNames.filter((a) => !ALL_PERSONAS[a]);
 		if (invalid.length > 0) {
@@ -156,11 +183,13 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 			throw new Error("Invalid agent names");
 		}
 
+		const context = options.context ?? DEFAULT_CONTEXTS[Math.floor(Math.random() * DEFAULT_CONTEXTS.length)]!;
+
 		console.log("=== Workflow (generate) ===\n");
+		console.log(`  Agents: ${agentNames.join(", ")}`);
+		console.log(`  Context: ${context}\n`);
 		setBgVideoPath(pickRandomBgVideo());
-		phrases = await generateScript(options.context, agentNames, sessionDir);
-	} else {
-		throw new Error("Use --demo or --context <topic>");
+		phrases = await generateScript(context, agentNames, sessionDir);
 	}
 
 	saveScript(phrases, join(sessionDir, "script.txt"));
