@@ -41,6 +41,14 @@ bun run src/demo.ts
 
 Le rendu final est dans `demo_outputs/demo.mp4`.
 
+### Workflow (génération LLM)
+
+```bash
+bun run src/workflow.ts --context "un combat sur le site B"
+```
+
+Génère un script humoristique entre 3-4 agents Valorant via Groq/Llama, choisit un clip de fond aléatoire et produit la vidéo.
+
 [Voir la video de demo](https://github.com/fox3000foxy/valorant-short-maker/blob/main/demo_outputs/demo.mp4)
 
 ## Fonctionnement
@@ -63,7 +71,10 @@ Le rendu final est dans `demo_outputs/demo.mp4`.
 - **60 fps** partout (vidéo, cercle, timeline)
 - **Fisheye progressif** : distorsion qui disparaît sur les 20% premiers frames (per-frame `lenscorrection` + `tmix=frames=3` pour le motion blur)
 - **Cercle audio-réactif** : l'enveloppe RMS du WAV pilote l'échelle du cercle (via `computeScaleExpr`)
+- **Audio ducking** : la musique de fond baisse automatiquement pendant les répliques (sidechain compression)
 - **Musique de fond** : Sneaky Snitch — Kevin MacLeod (incluse dans `bg-video/background_music.mp3`)
+- **Workflow LLM** : génération de scripts via `--context` (Groq + Llama 3.3)
+- **Clip aléatoire** : sélection d'un fond différent à chaque run (workflow)
 
 ### FPS & Qualité
 
