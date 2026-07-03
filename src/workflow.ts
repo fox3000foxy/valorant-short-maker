@@ -283,15 +283,67 @@ function now(): string {
 	return ((Date.now() / 1000) % 60).toFixed(1) + "s";
 }
 
-async function uploadVideos(videoPath: string, options: WorkflowOptions): Promise<void> {
+interface UploadMeta {
+	ytTitle: string;
+	ytDescription: string;
+	igCaption: string;
+}
+
+async function generateUploadMeta(context: string, phrases: Phrase[]): Promise<UploadMeta> {
+	const scriptText = phrases
+		.filter((p) => p.agent !== "pause")
+		.map((p) => `${p.agent}: ${p.text}`)
+		.join("\n");
+
+	const groq = new Groq({ apiKey: process.env.GROQ_API_KEY! });
+	const res = await groq.chat.completions.create({
+		model: "llama-3.3-70b-versatile",
+		messages: [
+			{
+				role: "system",
+				content: [
+					"Generate upload metadata for a Valorant short video.",
+					"Respond in JSON with exactly three fields:",
+					'  - "ytTitle": YouTube title (max 60 chars, catchy)',
+					'  - "ytDescription": YouTube description (1-2 sentences with hashtags)',
+					'  - "igCaption": Instagram caption (short, with emoji and hashtags)',
+					"Reply with ONLY the JSON object, no markdown.",
+				].join("\n"),
+			},
+			{
+				role: "user",
+				content: `Context: ${context}\n\nScript:\n${scriptText}`,
+			},
+		],
+		max_tokens: 200,
+		temperature: 0.7,
+	});
+
+	const raw = res.choices[0]?.message.content ?? "{}";
+	const meta: UploadMeta = JSON.parse(raw);
+	return {
+		ytTitle: meta.ytTitle ?? "Valorant Short",
+		ytDescription: meta.ytDescription ?? "#valorant #gaming #shorts",
+		igCaption: meta.igCaption ?? "#valorant #gaming",
+	};
+}
+
+async function uploadVideos(videoPath: string, options: WorkflowOptions, meta?: UploadMeta): Promise<void> {
 	const uploadScript = join(import.meta.dirname, "..", "uploaders", "upload.py");
 	const venvPython = join(import.meta.dirname, "..", ".venv", "bin", "python3");
 	const pythonBin = Bun.spawnSync(["test", "-f", venvPython]).exitCode === 0 ? venvPython : "python3";
-	const args = [pythonBin, uploadScript, "--video", videoPath, "--title", "Valorant Short"];
+	const args = [
+		pythonBin, uploadScript,
+		"--video", videoPath,
+		"--title", meta?.ytTitle ?? "Valorant Short",
+		"--description", meta?.ytDescription ?? "#valorant #gaming #shorts",
+		"--caption", meta?.igCaption ?? "#valorant #gaming",
+	];
 	if (options.uploadIgOnly) args.push("--ig-only");
 	if (options.uploadYtOnly) args.push("--yt-only");
 
 	console.log(`\n=== Uploading ===`);
+	console.log(`  Title: ${meta?.ytTitle ?? "Valorant Short"}`);
 	const proc = Bun.spawn(args, {
 		stdio: ["inherit", "inherit", "inherit"],
 		env: { ...process.env },
@@ -340,7 +392,9 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 	// console.log(`\n=== Workflow ===\n  Parts: ${parts}\n  Output dir: ${options.output ?? "workflow_outputs"}\nContext: ${options.context ?? "random"}\nAgents: ${options.agents?.join(", ") ?? "random"}\n`);
 	// process.exit()
 
-	const context = options.context ?? DEFAULT_CONTEXTS[Math.floor(Math.random() * DEFAULT_CONTEXTS.length)]!;
+	const context = options.demo
+		? "agents trash-talking each other during a heated match"
+		: (options.context ?? DEFAULT_CONTEXTS[Math.floor(Math.random() * DEFAULT_CONTEXTS.length)]!);
 
 	let phrases: Phrase[];
 
@@ -352,9 +406,18 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 	mkdirSync(assetsDir, { recursive: true });
 	setOutDir(assetsDir);
 
+	let uploadMeta: UploadMeta | undefined;
+
 	if (options.demo) {
 		phrases = parseScript();
 		console.log("=== Workflow (demo) ===\n");
+		if (options.upload) {
+			uploadMeta = await generateUploadMeta("demo", phrases);
+			writeFileSync(
+				join(sessionDir, "upload_meta.json"),
+				JSON.stringify(uploadMeta, null, 2) + "\n",
+			);
+		}
 	} else {
 		const t0 = Date.now();
 		const agentNames = options.agents?.length
@@ -377,6 +440,15 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 		setBgVideoPath(pickRandomBgVideo());
 		phrases = await generateScript(context, agentNames, sessionDir);
 		console.log(`  [${now()}] Script generated (${((Date.now() - t0) / 1000).toFixed(1)}s)`);
+
+		if (options.upload) {
+			uploadMeta = await generateUploadMeta(context, phrases);
+			writeFileSync(
+				join(sessionDir, "upload_meta.json"),
+				JSON.stringify(uploadMeta, null, 2) + "\n",
+			);
+			console.log(`  [${now()}] Upload metadata generated`);
+		}
 	}
 
 	saveScript(phrases, join(sessionDir, "script.txt"));
@@ -523,7 +595,7 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 	}
 
 	if (options.upload && outputPaths.length > 0) {
-		await uploadVideos(outputPaths[0]!, options);
+		await uploadVideos(outputPaths[0]!, options, uploadMeta);
 	}
 
 	return outputPaths;

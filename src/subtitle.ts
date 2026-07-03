@@ -214,7 +214,8 @@ ${events}`;
 		const fontSize = this.options.fontSize;
 		const marginV = Math.round(this.options.height * 0.4);
 		const targetY = this.options.height - marginV;
-		const animTags = `{\\move(${this.options.width / 2}\\,${this.options.height + 80}\\,${this.options.width / 2}\\,${targetY}\\,0\\,200)}{\\fad(120\\,80)}`;
+		const slideAnim = `{\\move(${this.options.width / 2}\\,${this.options.height + 80}\\,${this.options.width / 2}\\,${targetY}\\,0\\,200)}`;
+		const fadeAnim = "{\\fad(120\\,80)}";
 
 		const events: string[] = [];
 
@@ -224,8 +225,8 @@ ${events}`;
 				const nextWord = chunk.words[idx + 1];
 				const eventEnd = nextWord ? nextWord.startTime : chunk.endTime;
 
-				const textParts: string[] = [];
-				textParts.push(animTags);
+				const tags = idx === 0 ? slideAnim + fadeAnim : fadeAnim;
+				const textParts: string[] = [tags];
 				for (let j = 0; j < chunk.words.length; j++) {
 					const cur = chunk.words[j]!;
 					const escaped = cur.text
@@ -279,7 +280,7 @@ ${events.join("\n")}`;
 			const wordLen = word.text.replace(/\s/g, "").length;
 			if (currentChars + wordLen > maxCharsPerLine && currentLine.length > 0) {
 				lines.push({
-					text: currentLine.map((word) => word.text).join(""),
+					text: currentLine.map((word) => word.text).join(" "),
 					words: currentLine,
 				});
 				currentLine = [word];
@@ -291,7 +292,7 @@ ${events.join("\n")}`;
 		}
 		if (currentLine.length > 0) {
 			lines.push({
-				text: currentLine.map((word) => word.text).join(""),
+				text: currentLine.map((word) => word.text).join(" "),
 				words: currentLine,
 			});
 		}
