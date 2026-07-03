@@ -563,7 +563,7 @@ export async function concatSegments(
 
 	const audioInputs: string[] = [];
 	for (let i = 0; i < segCount; i++) {
-		audioInputs.push("-i", segments[i]!.audioPath);
+		audioInputs.push("-i", segments[i]!.videoPath);
 	}
 	const audioLabels = segments.map((_, i) => `[${i}:a]`);
 

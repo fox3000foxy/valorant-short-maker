@@ -1,5 +1,2 @@
 fade: Just woke up[0.5]who died?
 killjoy: No one yet[0.5]but your bedhead, honestly, might be a war crime
-harbor: Let the waves settle
-pause: 1.0
-harbor: You both need coffee, don't you?

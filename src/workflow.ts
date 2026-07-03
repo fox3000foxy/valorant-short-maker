@@ -7,14 +7,13 @@ import {
 	BG_MUSIC_PATH,
 	type Phrase,
 	type SegmentInfo,
-	applyFisheyeTransition,
 	concatSegments,
 	expandPhrases,
 	parseScript,
 	processPhrase,
 	renderSegment,
 	setBgVideoPath,
-	setOutDir,
+	setOutDir
 } from "./core.ts";
 import { ALL_PERSONAS } from "./lore/index.ts";
 import { ALL_RELATIONS } from "./lore/relations.ts";
@@ -315,7 +314,7 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 			const t3 = Date.now();
 			const firstPath = join(assetsDir, "00_intro.mp4");
 			console.log("  Applying fisheye intro...");
-			await applyFisheyeTransition(group[0]!.videoPath, firstPath);
+			// await applyFisheyeTransition(group[0]!.videoPath, firstPath);
 			group[0]!.videoPath = firstPath;
 			console.log(`  [${now()}] Fisheye done (${((Date.now() - t3) / 1000).toFixed(1)}s)`);
 		}
