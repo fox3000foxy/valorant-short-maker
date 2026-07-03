@@ -427,11 +427,31 @@ const BG_CLIPS = [
 	"clip_004_new_audio.mp4", "clip_005_new_audio.mp4",
 ];
 
+function wrapText(text: string, maxCharsPerLine: number): string {
+	const words = text.split(" ");
+	const lines: string[] = [];
+	let currentLine = "";
+
+	for (const word of words) {
+		const candidate = currentLine ? `${currentLine} ${word}` : word;
+		if (candidate.length <= maxCharsPerLine) {
+			currentLine = candidate;
+		} else {
+			if (currentLine) lines.push(currentLine);
+			currentLine = word;
+		}
+	}
+	if (currentLine) lines.push(currentLine);
+
+	return lines.join("\\n");
+}
+
 export async function generateIntroVideo(context: string, agentNames: string[], outputPath: string): Promise<void> {
 	const clip = BG_CLIPS[Math.floor(Math.random() * BG_CLIPS.length)]!;
 	const bgPath = join(BG_CLIPS_DIR, clip);
 	const esc = (s: string) => s.replace(/'/g, "'\\\\\\''").replace(/:/g, '\\\\:');
 	const agents = agentNames.map(a => a.charAt(0).toUpperCase() + a.slice(1)).join(", ");
+	const wrappedContext = wrapText(context, 22);
 
 	const proc = Bun.spawn([
 		process.cwd() + "/bin/ffmpeg-drawtext/ffmpeg",
@@ -442,10 +462,11 @@ export async function generateIntroVideo(context: string, agentNames: string[], 
 		`[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=20:5[bg];` +
 		`[bg]drawtext=` +
 		`fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:` +
-		`text='${esc(context)}':` +
+		`text='${esc(wrappedContext)}':` +
 		`fontcolor=red:fontsize=72:` +
 		`x=(w-text_w)/2:y=(h-text_h)/2-60:` +
-		`bordercolor=white:borderw=4,` +
+		`bordercolor=white:borderw=4:` +
+		`line_spacing=20,` +
 		`setsar=1[fg]`,
 		"-map", "[fg]", "-map", "1:a", "-shortest",
 		"-c:v", "libx264", "-preset", "fast", "-crf", "23",
