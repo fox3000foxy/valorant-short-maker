@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 import { join } from "node:path";
+import Groq from "groq-sdk";
 import {
 	type Phrase,
 	type SegmentInfo,
@@ -12,8 +13,9 @@ import {
 	setBgVideoPath,
 	setOutDir,
 } from "./core.ts";
-import { AgentChat, type ChatMessage } from "./agent-chat.ts";
 import { ALL_PERSONAS } from "./lore/index.ts";
+import { ALL_RELATIONS } from "./lore/relations.ts";
+import { BG_MUSIC_PATH } from "./core.ts";
 
 const BG_CLIPS = [
 	"clip_000.mp4",
@@ -45,44 +47,77 @@ function generateSessionId(): string {
 	return randomBytes(8).toString("hex");
 }
 
-function parseSingleLine(raw: string): string {
-	return raw
-		.split("\n")
-		.map((l) => l.trim())
-		.find((l) => l.length > 0 && !l.startsWith("#")) ?? "";
+function compactPersona(agent: string, sceneAgents: string[]): string {
+	const p = ALL_PERSONAS[agent]!;
+	const relations = ALL_RELATIONS[agent] ?? {};
+	const relevantRels = sceneAgents
+		.filter((a) => a !== agent && relations[a])
+		.map((a) => `  - ${a}: ${relations[a]}`);
+	const voice = p.systemPrompt.split("\n").filter(Boolean).slice(0, 2).join(" ");
+	const facts = p.lore.slice(0, 4).join(" ");
+	let out = `${agent.toUpperCase()}: ${voice}`;
+	out += `\n  Facts: ${facts}`;
+	if (relevantRels.length > 0) out += `\n  Relations:\n${relevantRels.join("\n")}`;
+	return out;
 }
 
 async function generateScript(context: string, agentNames: string[], sessionDir: string): Promise<Phrase[]> {
 	console.log("  Generating script with LLM...");
 
 	const shuffled = agentNames.toSorted(() => Math.random() - 0.5);
-	const actorCount = Math.min(3 + Math.floor(Math.random() * 2), shuffled.length);
-	const actors = shuffled.slice(0, actorCount);
-
+	const actors = shuffled.slice(0, Math.min(3 + Math.floor(Math.random() * 2), shuffled.length));
 	const promptsDir = join(sessionDir, "prompts");
 	mkdirSync(promptsDir, { recursive: true });
 
-	const chats = new Map(actors.map((n) => [n, new AgentChat(ALL_PERSONAS[n]!, agentNames)]));
-	const conversation: ChatMessage[] = [{ role: "user", content: `Scene: ${context}` }];
-	const history: { agent: string; text: string }[] = [];
-	const MIN_LINES = 25;
-	let actorIdx = 0;
+	const characters = actors.map((a) => compactPersona(a, actors)).join("\n\n---\n\n");
 
-	while (history.length < MIN_LINES) {
-		const name = actors[actorIdx % actors.length]!;
-		actorIdx++;
-		const chat = chats.get(name)!;
-		const raw = await chat.genDialogueLine(conversation);
-		const line = parseSingleLine(raw);
-		if (line) {
-			conversation.push({ role: "assistant", content: line });
-			history.push({ agent: name, text: line });
+	const systemPrompt = [
+		"You write humorous dialogue for Valorant agents.",
+		"",
+		"Characters:",
+		characters,
+		"",
+		"Rules:",
+		"- Output a dialogue scene with EXACTLY 25 lines.",
+		"- Format: AgentName: dialogue text (e.g. Breach: I built my arms from scrap.).",
+		"- Use the exact agent names as shown above.",
+		"- HUMOR is top priority — witty, sarcastic, playful.",
+		"- Each character speaks in their unique voice.",
+		"- Rotate through all characters evenly (no monologues).",
+		"- Short, punchy lines for video shorts.",
+		"- No stage directions, no descriptions, no formatting.",
+		"- Reply in English.",
+	].join("\n");
+
+	const groq = new Groq({ apiKey: process.env.GROQ_API_KEY! });
+	const res = await groq.chat.completions.create({
+		model: "llama-3.3-70b-versatile",
+		messages: [
+			{ role: "system", content: systemPrompt },
+			{ role: "user", content: `Scene: ${context}\n\nGenerate 25 lines.` },
+		],
+		max_tokens: 800,
+	});
+
+	const raw = res.choices[0]?.message.content ?? "";
+	writeFileSync(join(promptsDir, "llm_raw.txt"), raw);
+
+	const history: { agent: string; text: string }[] = [];
+	for (const line of raw.split("\n")) {
+		const t = line.trim();
+		if (!t || t.startsWith("#")) continue;
+		const m = t.match(/^(\w[\w-]*):\s*(.+)/);
+		if (m) {
+			const agent = m[1]!.toLowerCase();
+			const text = m[2]!.trim();
+			if (ALL_PERSONAS[agent] && text) {
+				history.push({ agent, text });
+			}
 		}
 	}
 
 	const finalScript = history.map((h) => `${h.agent}: ${h.text}`).join("\n");
 	writeFileSync(join(promptsDir, "final_script.txt"), finalScript + "\n");
-
 	writeFileSync(
 		join(promptsDir, "context.txt"),
 		[
@@ -263,7 +298,7 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 			writeFileSync(firstSeg.assPath!, modified + "\n");
 		}
 
-		await concatSegments(group, partPath);
+		await concatSegments(group, partPath, BG_MUSIC_PATH);
 		outputPaths.push(partPath);
 	}
 

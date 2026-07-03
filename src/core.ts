@@ -327,7 +327,7 @@ export async function renderSegment(
 		const circleFilter =
 			"[1:v]format=rgba,fps=fps=60," +
 			`loop=loop=${totalFrames - 1}:size=1:start=0,` +
-			`scale='trunc(iw*${info.scaleExpr}/2)*2':'trunc(ih*${info.scaleExpr}/2)*2':eval=frame,` +
+			`scale='trunc(iw*(${info.scaleExpr})/2)*2':'trunc(ih*(${info.scaleExpr})/2)*2':eval=frame,` +
 			"setpts=PTS-STARTPTS[circle]";
 		const assPart = info.assPath
 			? `[base]ass=${info.assPath}[vid]`
@@ -339,7 +339,7 @@ export async function renderSegment(
 	let mixFilter: string;
 	if (hasTTS) {
 		mixFilter =
-			`[2:a]volume=1.5[tts];[bga]volume=0.7[bga_v];[tts][bga_v]amix=inputs=2:duration=first[aud]`;
+			`[2:a]volume=2.5[tts];[bga]volume=0.5[bga_v];[tts][bga_v]amix=inputs=2:duration=first[aud]`;
 	} else {
 		mixFilter = `[bga]volume=0.95[aud]`;
 	}
@@ -349,7 +349,7 @@ export async function renderSegment(
 	parts.push(mixFilter);
 	const filterGraph = parts.join(";");
 
-	const ffInputs: string[] = ["-i", BG_VIDEO_PATH];
+	const ffInputs: string[] = ["-stream_loop", "-1", "-i", BG_VIDEO_PATH];
 	if (info.scaleExpr !== null) {
 		ffInputs.push("-i", info.iconPath);
 	}
