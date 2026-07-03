@@ -1,10 +1,10 @@
 import Groq from "groq-sdk";
+import { ALL_RELATIONS } from "./lore/relations.ts";
 
 export interface AgentPersona {
 	agent: string;
 	systemPrompt: string;
 	lore: string[];
-	relations?: Record<string, string>;
 	wikiLore?: string;
 }
 
@@ -13,6 +13,8 @@ export class AgentChat {
 	private _persona: AgentPersona;
 	private _allLore: string;
 	private _allRelations: string;
+	private _lastPrompt: string = "";
+	private _sessionDir: string = "";
 
 	constructor(persona: AgentPersona, selectedAgents?: string[]) {
 		const apiKey = process.env.GROQ_API_KEY;
@@ -23,16 +25,25 @@ export class AgentChat {
 		this._persona = persona;
 		this._allLore = persona.lore.join("\n");
 
-		if (persona.relations && selectedAgents) {
+		const agentRelations = ALL_RELATIONS[persona.agent];
+		if (agentRelations && selectedAgents) {
 			const relevant = selectedAgents
-				.filter((a) => a !== persona.agent && persona.relations![a])
-				.map((a) => `  ${a}: ${persona.relations![a]}`);
+				.filter((a) => a !== persona.agent && agentRelations[a])
+				.map((a) => `  ${a}: ${agentRelations[a]}`);
 			this._allRelations = relevant.length > 0
 				? "Relations with other agents:\n" + relevant.join("\n")
 				: "";
 		} else {
 			this._allRelations = "";
 		}
+	}
+
+	get lastPrompt(): string {
+		return this._lastPrompt;
+	}
+
+	setSessionDir(dir: string) {
+		this._sessionDir = dir;
 	}
 
 	async genLine(sceneContext: string): Promise<string> {
@@ -60,18 +71,21 @@ export class AgentChat {
 			"- You may optionally add pauses like [0.5] between phrases for pacing (e.g. 'Watch this [0.3] I got them right where I want them.').",
 		);
 
+		this._lastPrompt = parts.join("\n");
+
 		const res = await this._groq.chat.completions.create({
 			model: "llama-3.3-70b-versatile",
 			messages: [
 				{
 					role: "system",
-					content: parts.join("\n"),
+					content: this._lastPrompt,
 				},
 				{ role: "user", content: sceneContext },
 			],
 			// biome-ignore lint/style/useNamingConvention: Groq SDK uses snake_case
 			max_tokens: 120,
 		});
+
 		return res.choices[0]?.message.content ?? "";
 	}
 }

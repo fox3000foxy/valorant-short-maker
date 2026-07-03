@@ -169,12 +169,20 @@ export async function computeScaleExpr(
 		groupVals[g] = CIRCLE_BASE_SCALE * (1 + mx * MAX_ZOOM_VARIATION);
 	}
 
-	let expr = `${groupVals[numGroups - 1]!.toFixed(6)}`;
-	for (let g = numGroups - 2; g >= 0; g--) {
+	const parts: string[] = [];
+	for (let g = 0; g < numGroups; g++) {
 		const start = g * STEP;
-		const end = Math.min(start + STEP - 1, totalFrames - 1);
-		expr = `if(between(n\\,${start}\\,${end})\\,${groupVals[g]!.toFixed(6)}\\,${expr})`;
+		const val = groupVals[g]!.toFixed(6);
+		if (g === 0) {
+			parts.push(`lt(n\\,${STEP})*${val}`);
+		} else if (g === numGroups - 1) {
+			parts.push(`gte(n\\,${start})*${val}`);
+		} else {
+			const end = Math.min(start + STEP - 1, totalFrames - 1);
+			parts.push(`between(n\\,${start}\\,${end})*${val}`);
+		}
 	}
+	const expr = parts.join("+");
 	return expr;
 }
 

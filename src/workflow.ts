@@ -37,17 +37,24 @@ function generateSessionId(): string {
 	return randomBytes(8).toString("hex");
 }
 
-async function generateScript(context: string, agentNames: string[]): Promise<Phrase[]> {
+async function generateScript(context: string, agentNames: string[], sessionDir: string): Promise<Phrase[]> {
 	console.log("  Generating script with LLM...");
 	const shuffled = agentNames.toSorted(() => Math.random() - 0.5);
 	const selectedCount = Math.min(3 + Math.floor(Math.random() * 2), shuffled.length);
 	const actors = shuffled.slice(0, selectedCount);
+	const promptsDir = join(sessionDir, "prompts");
+	mkdirSync(promptsDir, { recursive: true });
 	const phrases: Phrase[] = [];
+	const allPrompts: { agent: string; prompt: string; response: string }[] = [];
 
 	for (const name of actors) {
 		const persona = ALL_PERSONAS[name]!;
 		const chat = new AgentChat(persona, agentNames);
+		chat.setSessionDir(sessionDir);
 		const line = await chat.genLine(context);
+		allPrompts.push({ agent: persona.agent, prompt: chat.lastPrompt, response: line.trim() });
+		writeFileSync(join(promptsDir, `${persona.agent}_prompt.txt`), chat.lastPrompt);
+		writeFileSync(join(promptsDir, `${persona.agent}_response.txt`), line.trim());
 		if (line.trim()) {
 			phrases.push({ agent: persona.agent, text: line.trim() });
 			if (Math.random() < 0.4) {
@@ -60,6 +67,17 @@ async function generateScript(context: string, agentNames: string[]): Promise<Ph
 	if (phrases.length === 0) {
 		throw new Error("LLM generated no dialogue");
 	}
+
+	const combined = allPrompts
+		.map((p) => `=== ${p.agent} ===\n\nPrompt:\n${p.prompt}\n\nResponse:\n${p.response}`)
+		.join("\n\n");
+	writeFileSync(join(promptsDir, "all_prompts.txt"), combined);
+
+	const finalScript = phrases.map((p) => {
+		if (p.agent === "pause") return `pause: ${p.duration!.toFixed(1)}`;
+		return `${p.agent}: ${p.text}`;
+	}).join("\n");
+	writeFileSync(join(promptsDir, "final_script.txt"), finalScript);
 
 	console.log(`  Generated ${phrases.length} lines\n`);
 	for (const p of phrases) {
@@ -117,6 +135,14 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 
 	let phrases: Phrase[];
 
+	const baseDir = options.output ?? join(import.meta.dirname, "..", "workflow_outputs");
+	const sessionId = generateSessionId();
+	const sessionDir = join(baseDir, sessionId);
+	const assetsDir = join(sessionDir, "assets");
+
+	mkdirSync(assetsDir, { recursive: true });
+	setOutDir(assetsDir);
+
 	if (options.demo) {
 		phrases = parseScript();
 		console.log("=== Workflow (demo) ===\n");
@@ -132,18 +158,10 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 
 		console.log("=== Workflow (generate) ===\n");
 		setBgVideoPath(pickRandomBgVideo());
-		phrases = await generateScript(options.context, agentNames);
+		phrases = await generateScript(options.context, agentNames, sessionDir);
 	} else {
 		throw new Error("Use --demo or --context <topic>");
 	}
-
-	const baseDir = options.output ?? join(import.meta.dirname, "..", "workflow_outputs");
-	const sessionId = generateSessionId();
-	const sessionDir = join(baseDir, sessionId);
-	const assetsDir = join(sessionDir, "assets");
-
-	mkdirSync(assetsDir, { recursive: true });
-	setOutDir(assetsDir);
 
 	saveScript(phrases, join(sessionDir, "script.txt"));
 
