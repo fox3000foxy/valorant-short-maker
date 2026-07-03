@@ -26,7 +26,7 @@ async function main() {
 	] as const) {
 		console.log(`=== ${name} ===\n`);
 		for (const ctx of contexts) {
-			const line = await chat.genDialogueLine(ctx, []);
+			const line = await chat.genDialogueLine([{ role: "user", content: `Scene: ${ctx}` }]);
 			console.log(`  > ${ctx}`);
 			console.log(`  ${line}\n`);
 		}

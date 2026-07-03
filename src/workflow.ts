@@ -12,7 +12,7 @@ import {
 	setBgVideoPath,
 	setOutDir,
 } from "./core.ts";
-import { AgentChat, type DialogueLine } from "./agent-chat.ts";
+import { AgentChat, type ChatMessage } from "./agent-chat.ts";
 import { ALL_PERSONAS } from "./lore/index.ts";
 
 const BG_CLIPS = [
@@ -62,9 +62,9 @@ async function generateScript(context: string, agentNames: string[], sessionDir:
 	const promptsDir = join(sessionDir, "prompts");
 	mkdirSync(promptsDir, { recursive: true });
 
-	const chats = new Map(actors.map((name) => [name, new AgentChat(ALL_PERSONAS[name]!, agentNames)]));
-	const history: DialogueLine[] = [];
-	const allPrompts: { agent: string; prompt: string; response: string }[] = [];
+	const chats = new Map(actors.map((n) => [n, new AgentChat(ALL_PERSONAS[n]!, agentNames)]));
+	const conversation: ChatMessage[] = [{ role: "user", content: `Scene: ${context}` }];
+	const history: { agent: string; text: string }[] = [];
 	const MIN_LINES = 25;
 	let actorIdx = 0;
 
@@ -72,23 +72,16 @@ async function generateScript(context: string, agentNames: string[], sessionDir:
 		const name = actors[actorIdx % actors.length]!;
 		actorIdx++;
 		const chat = chats.get(name)!;
-		const persona = ALL_PERSONAS[name]!;
-		const raw = await chat.genDialogueLine(context, history);
+		const raw = await chat.genDialogueLine(conversation);
 		const line = parseSingleLine(raw);
-		allPrompts.push({ agent: persona.agent, prompt: chat.lastPrompt, response: raw.trim() });
 		if (line) {
-			history.push({ agent: persona.agent, text: line });
+			conversation.push({ role: "assistant", content: line });
+			history.push({ agent: name, text: line });
 		}
 	}
 
-	for (const name of actors) {
-		const persona = ALL_PERSONAS[name]!;
-		const relevant = allPrompts.filter((p) => p.agent === persona.agent);
-		const combined = relevant
-			.map((p, i) => `=== Turn ${i + 1} ===\n\nPrompt:\n${p.prompt}\n\nResponse:\n${p.response}`)
-			.join("\n\n");
-		writeFileSync(join(promptsDir, `${persona.agent}_full.txt`), combined);
-	}
+	const finalScript = history.map((h) => `${h.agent}: ${h.text}`).join("\n");
+	writeFileSync(join(promptsDir, "final_script.txt"), finalScript + "\n");
 
 	writeFileSync(
 		join(promptsDir, "context.txt"),
@@ -99,9 +92,6 @@ async function generateScript(context: string, agentNames: string[], sessionDir:
 			`Generated: ${new Date().toISOString()}`,
 		].join("\n") + "\n",
 	);
-
-	const finalScript = history.map((h) => `${h.agent}: ${h.text}`).join("\n");
-	writeFileSync(join(promptsDir, "final_script.txt"), finalScript + "\n");
 
 	const phrases: Phrase[] = history.map((h) => ({ agent: h.agent, text: h.text }));
 

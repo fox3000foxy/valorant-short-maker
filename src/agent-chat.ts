@@ -8,9 +8,9 @@ export interface AgentPersona {
 	wikiLore?: string;
 }
 
-export interface DialogueLine {
-	agent: string;
-	text: string;
+export interface ChatMessage {
+	role: "user" | "assistant";
+	content: string;
 }
 
 export class AgentChat {
@@ -18,7 +18,7 @@ export class AgentChat {
 	private _persona: AgentPersona;
 	private _allLore: string;
 	private _allRelations: string;
-	private _lastPrompt: string = "";
+	private _systemCache: string = "";
 
 	constructor(persona: AgentPersona, selectedAgents?: string[]) {
 		const apiKey = process.env.GROQ_API_KEY;
@@ -42,59 +42,40 @@ export class AgentChat {
 		}
 	}
 
-	get lastPrompt(): string {
-		return this._lastPrompt;
-	}
-
-	async genDialogueLine(sceneContext: string, history: DialogueLine[]): Promise<string> {
-		const systemParts: string[] = [
+	private buildSystem(): string {
+		if (this._systemCache) return this._systemCache;
+		const parts: string[] = [
 			this._persona.systemPrompt,
 			"",
 			"Agent lore:",
 			this._allLore,
 		];
-		if (this._allRelations) {
-			systemParts.push("", this._allRelations);
-		}
-		if (this._persona.wikiLore) {
-			systemParts.push("", "Background:", this._persona.wikiLore);
-		}
-		systemParts.push(
+		if (this._allRelations) parts.push("", this._allRelations);
+		if (this._persona.wikiLore) parts.push("", "Background:", this._persona.wikiLore);
+		parts.push(
 			"",
 			"Rules:",
 			`- You are ${this._persona.agent} in a conversation with other Valorant agents.`,
-			"- Respond with a SINGLE line of dialogue — your turn in the conversation.",
+			"- Respond with a SINGLE line of dialogue — your turn.",
 			"- Be humorous and in character.",
-			"- Output ONLY the spoken dialogue — no character names, no colons, no stage directions.",
-			"- Just the raw words. No prefixes, no labels, no formatting.",
-			"- Short and natural. One or two sentences at most.",
+			"- Output ONLY the spoken dialogue — no names, colons, stage directions, or formatting.",
+			"- One or two short sentences at most.",
 			"- Reply in English.",
 		);
+		this._systemCache = parts.join("\n");
+		return this._systemCache;
+	}
 
-		const systemContent = systemParts.join("\n");
-		this._lastPrompt = systemContent + "\n\n" + `Scene: ${sceneContext}`;
-
+	async genDialogueLine(conversation: ChatMessage[]): Promise<string> {
 		const messages: { role: "system" | "user" | "assistant"; content: string }[] = [
-			{ role: "system", content: systemContent },
-			{ role: "user", content: `Scene: ${sceneContext}` },
+			{ role: "system", content: this.buildSystem() },
+			...conversation,
+			{ role: "user", content: `${this._persona.agent} speaks.` },
 		];
-
-		for (const h of history) {
-			messages.push({ role: "assistant", content: h.text });
-			messages.push({ role: "user", content: "Continue." });
-		}
-
-		messages.push({
-			role: "user",
-			content: history.length === 0
-				? `Start the conversation as ${this._persona.agent}.`
-				: `${this._persona.agent} responds.`,
-		});
 
 		const res = await this._groq.chat.completions.create({
 			model: "llama-3.3-70b-versatile",
 			messages,
-			// biome-ignore lint/style/useNamingConvention: Groq SDK uses snake_case
 			max_tokens: 120,
 		});
 
