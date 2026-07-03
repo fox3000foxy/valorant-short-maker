@@ -247,7 +247,7 @@ export async function processPhrase(
 	} else {
 		console.log(`  TTS ${phrase.agent}...`);
 		const ttsText = phrase.text.replace(/\//g, " ").replace(/[,;]/g, ".");
-		const tts = new ValorantTTS(phrase.agent, ttsText);
+		const tts = await ValorantTTS.create(phrase.agent, ttsText);
 		await tts.generate(audioPath);
 	}
 

@@ -38,6 +38,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Finder (MacOS) folder config
 .DS_Store
-bin/ffmpeg-drawtext/ffmpeg
-bin/ffmpeg-drawtext/ffprobe
-uploaders
+bin/
+uploaders/
+voices/
