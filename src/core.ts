@@ -471,7 +471,7 @@ export async function applyFisheyeTransition(inputPath: string, outputPath: stri
 		`[tmix_in]tmix=frames=3[tmix_out]`,
 		`[tail_src]select=gte(n\\,${transitionFrames}),setpts=PTS-STARTPTS[tail_out]`,
 		`[tmix_out][tail_out]concat=n=2:v=1:a=0[vid]`,
-		`[0:a][1:a]amix=inputs=2:duration=first:weights=1 0.6[aud]`,
+		`[0:a]volume=2[main];[1:a]volume=2[whoosh];[main][whoosh]amix=inputs=2:duration=first:weights=1 1[aud]`,
 	].join(";\n");
 
 	const proc = Bun.spawn([
