@@ -8,9 +8,67 @@ import {
 	parseScript,
 	processPhrase,
 	renderSegment,
+	setBgVideoPath,
 } from "./demo.ts";
+import { AgentChat } from "./agent-chat.ts";
+import { PERSONA as Omen } from "./lore/omen.ts";
+import { PERSONA as JETT } from "./lore/jett.ts";
+import { PERSONA as PHOENIX } from "./lore/phoenix.ts";
 
 const WHOOSH_PATH = join(import.meta.dirname, "..", "sounds", "whoosh.mp3");
+
+const BG_CLIPS = [
+	"clip_000.mp4",
+	"clip_001.mp4",
+	"clip_002.mp4",
+	"clip_003.mp4",
+	"clip_004_new_audio.mp4",
+	"clip_005_new_audio.mp4",
+];
+
+function pickRandomBgVideo(): string {
+	const clip = BG_CLIPS[Math.floor(Math.random() * BG_CLIPS.length)]!;
+	return join(import.meta.dirname, "..", "bg-video", clip);
+}
+
+const AGENTS = [
+	["Omen", Omen],
+	["Jett", JETT],
+	["Phoenix", PHOENIX],
+] as const;
+
+async function generateScript(context: string): Promise<Phrase[]> {
+	console.log("  Generating script with LLM...");
+	const actors = AGENTS.toSorted(() => Math.random() - 0.5).slice(0, 3 + Math.floor(Math.random() * 2));
+	const phrases: Phrase[] = [];
+
+	for (const [_, persona] of actors) {
+		const chat = new AgentChat(persona);
+		const line = await chat.genLine(context);
+		if (line.trim()) {
+			phrases.push({ agent: persona.agent, text: line.trim() });
+			if (Math.random() < 0.4) {
+				const pauseDur = (0.3 + Math.random() * 0.7).toFixed(1);
+				phrases.push({ agent: "pause", text: pauseDur, duration: Number.parseFloat(pauseDur) });
+			}
+		}
+	}
+
+	if (phrases.length === 0) {
+		throw new Error("LLM generated no dialogue");
+	}
+
+	console.log(`  Generated ${phrases.length} lines\n`);
+	for (const p of phrases) {
+		if (p.agent === "pause") {
+			console.log(`    pause ${p.duration!.toFixed(1)}s`);
+		} else {
+			console.log(`    ${p.agent}: ${p.text}`);
+		}
+	}
+	console.log("");
+	return phrases;
+}
 
 async function applyFisheyeTransition(inputPath: string, outputPath: string): Promise<void> {
 	const inputInfo = Bun.spawnSync([
@@ -142,7 +200,8 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 		console.log("=== Workflow (demo) ===\n");
 	} else if (options.context) {
 		console.log("=== Workflow (generate) ===\n");
-		throw new Error("Generation mode not implemented yet");
+		setBgVideoPath(pickRandomBgVideo());
+		phrases = await generateScript(options.context);
 	} else {
 		throw new Error("Use --demo or --context <topic>");
 	}
@@ -218,7 +277,25 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 				bgOffset += info.duration;
 			}
 		}
+	} else {
+		console.log("  Generating segments...\n");
+		segments.length = 0;
+		for (let i = 0; i < phrases.length; i++) {
+			const info = await processPhrase(phrases[i]!, i);
+			segments.push(info);
+		}
+		let bgOffset = 0;
+		for (const info of segments) {
+			console.log(
+				`  Rendering ${info.agent} (${info.duration.toFixed(2)}s)...`
+			);
+			await renderSegment(info, bgOffset);
+			bgOffset += info.duration;
+		}
 	}
+
+	const totalDur = segments.reduce((s, seg) => s + seg.duration, 0);
+	console.log(`\n  Total: ${totalDur.toFixed(1)}s (${segments.length} segments)`);
 
 	const segsPerPart = Math.max(1, Math.ceil(segments.length / parts));
 	const partGroups: SegmentInfo[][] = [];

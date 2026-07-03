@@ -58,12 +58,16 @@ export const CIRCLE_CENTER_Y = 500;
 export const FPS = 60;
 export const MAX_ZOOM_VARIATION = 0.2;
 
-export const BG_VIDEO_PATH = join(
+export let BG_VIDEO_PATH = join(
 	import.meta.dirname,
 	"..",
 	"bg-video",
 	"clip_005_new_audio.mp4",
 );
+
+export function setBgVideoPath(path: string) {
+	BG_VIDEO_PATH = path;
+}
 export const BG_MUSIC_PATH = join(
 	import.meta.dirname,
 	"..",
@@ -485,6 +489,9 @@ async function main() {
 		segments.push(info);
 	}
 
+	const totalDuration = segments.reduce((sum, s) => sum + s.duration, 0);
+	console.log(`  Total: ${totalDuration.toFixed(1)}s (${segments.length} segments)\n`);
+
 	let bgOffset = 0;
 	for (let i = 0; i < segments.length; i++) {
 		const info = segments[i]!;
@@ -536,8 +543,10 @@ export async function concatSegments(
 	if (hasMusic) {
 		filterGraph =
 			`${filterParts.join("")}concat=n=${segCount}:v=1:a=1[vid][aud];` +
+			`[aud]asplit=2[voice][sc_side];` +
 			`[${segCount}:a]volume=0.6[bgm];` +
-			`[aud][bgm]amix=inputs=2:duration=first[aud_out]`;
+			`[bgm][sc_side]sidechaincompress=threshold=0.03:ratio=4:attack=5:release=100[bgm_ducked];` +
+			`[voice][bgm_ducked]amix=inputs=2:duration=first:weights=1 0.5[aud_out]`;
 	} else {
 		filterGraph =
 			`${filterParts.join("")}concat=n=${segCount}:v=1:a=1[vid][aud_out]`;
