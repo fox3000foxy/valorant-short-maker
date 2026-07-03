@@ -324,6 +324,8 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 			const assContent = readFileSync(firstSeg.assPath!, "utf-8");
 			const fadeDuration = Math.min(1, firstSeg.duration * 0.3);
 			const partLabel = options.context ?? "Demo";
+			// console.log(partLabel)
+			// process.exit(1)
 
 			const totalSec = Math.round(firstSeg.duration * 100) / 100;
 			const cs = Math.round((totalSec % 1) * 100);
