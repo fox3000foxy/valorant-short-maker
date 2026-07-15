@@ -260,7 +260,7 @@
 		"formatter": {
 			"trailingCommas": "es5"
 		},
-		"globals": ["Bun"]
+		"globals": ["Bun", "$"]
 	},
 	"vcs": {
 		"enabled": true,

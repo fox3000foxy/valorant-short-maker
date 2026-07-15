@@ -1,6 +1,5 @@
+import { $ } from "bun";
 import Groq from "groq-sdk";
-import { randomBytes } from "node:crypto";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { cpus } from "node:os";
 import { join } from "node:path";
 import {
@@ -16,7 +15,7 @@ import {
 	setOutDir,
 	WHOOSH_PATH,
 	type Phrase,
-	type SegmentInfo
+	type SegmentInfo,
 } from "./core.ts";
 import { ALL_PERSONAS } from "./lore/index.ts";
 import { ALL_RELATIONS } from "./lore/relations.ts";
@@ -136,7 +135,7 @@ const DEFAULT_CONTEXTS = [
 ];
 
 function generateSessionId(): string {
-	return randomBytes(8).toString("hex");
+	return crypto.randomUUID().replace(/-/g, "").slice(0, 16);
 }
 
 function compactPersona(agent: string, sceneAgents: string[]): string {
@@ -145,23 +144,37 @@ function compactPersona(agent: string, sceneAgents: string[]): string {
 	const relevantRels = sceneAgents
 		.filter((a) => a !== agent && relations[a])
 		.map((a) => `  - ${a}: ${relations[a]}`);
-	const voice = p.systemPrompt.split("\n").filter(Boolean).slice(0, 4).join(" ");
+	const voice = p.systemPrompt
+		.split("\n")
+		.filter(Boolean)
+		.slice(0, 4)
+		.join(" ");
 	const facts = p.lore.slice(0, 8).join(" ");
 	let out = `${agent.toUpperCase()}: ${voice}`;
 	out += `\n  Facts: ${facts}`;
-	if (relevantRels.length > 0) out += `\n  Relations:\n${relevantRels.join("\n")}`;
+	if (relevantRels.length > 0)
+		out += `\n  Relations:\n${relevantRels.join("\n")}`;
 	return out;
 }
 
-async function generateScript(context: string, agentNames: string[], sessionDir: string): Promise<Phrase[]> {
+async function generateScript(
+	context: string,
+	agentNames: string[],
+	sessionDir: string
+): Promise<Phrase[]> {
 	console.log("  Generating script with LLM...");
 
 	const shuffled = agentNames.toSorted(() => Math.random() - 0.5);
-	const actors = shuffled.slice(0, Math.min(3 + Math.floor(Math.random() * 2), shuffled.length));
+	const actors = shuffled.slice(
+		0,
+		Math.min(3 + Math.floor(Math.random() * 2), shuffled.length)
+	);
 	const promptsDir = join(sessionDir, "prompts");
-	mkdirSync(promptsDir, { recursive: true });
+	await $`mkdir -p ${promptsDir}`;
 
-	const characters = actors.map((a) => compactPersona(a, actors)).join("\n\n---\n\n");
+	const characters = actors
+		.map((a) => compactPersona(a, actors))
+		.join("\n\n---\n\n");
 
 	const inlinePauseExamples = [
 		"  killjoy: No one yet[0.3]but I've got a plan.",
@@ -206,7 +219,7 @@ async function generateScript(context: string, agentNames: string[], sessionDir:
 	});
 
 	const raw = res.choices[0]?.message.content ?? "";
-	writeFileSync(join(promptsDir, "llm_raw.txt"), raw);
+	await Bun.write(join(promptsDir, "llm_raw.txt"), raw);
 
 	const history: { agent: string; text: string }[] = [];
 	for (const line of raw.split("\n")) {
@@ -228,27 +241,33 @@ async function generateScript(context: string, agentNames: string[], sessionDir:
 	}
 
 	const finalScript = history.map((h) => `${h.agent}: ${h.text}`).join("\n");
-	writeFileSync(join(promptsDir, "final_script.txt"), finalScript + "\n");
-	writeFileSync(
+	await Bun.write(join(promptsDir, "final_script.txt"), finalScript + "\n");
+	await Bun.write(
 		join(promptsDir, "context.txt"),
 		[
 			`Context: ${context}`,
 			`Agents: ${actors.join(", ")}`,
 			`Total lines: ${history.length}`,
 			`Generated: ${new Date().toISOString()}`,
-		].join("\n") + "\n",
+		].join("\n") + "\n"
 	);
 
 	const phrases = expandPhrases(
 		history.map((h) => {
 			if (h.agent === "pause") {
-				return { agent: "pause", text: h.text, duration: Number.parseFloat(h.text) || 1.0 };
+				return {
+					agent: "pause",
+					text: h.text,
+					duration: Number.parseFloat(h.text) || 1.0,
+				};
 			}
 			return { agent: h.agent, text: h.text };
-		}),
+		})
 	);
 
-	console.log(`  Generated ${history.length} lines across ${actors.length} agents\n`);
+	console.log(
+		`  Generated ${history.length} lines across ${actors.length} agents\n`
+	);
 	for (const h of history) {
 		console.log(`    ${h.agent}: ${h.text}`);
 	}
@@ -256,18 +275,19 @@ async function generateScript(context: string, agentNames: string[], sessionDir:
 	return phrases;
 }
 
-function saveScript(phrases: Phrase[], path: string) {
+async function saveScript(phrases: Phrase[], path: string) {
 	const lines = phrases.map((p) => {
 		if (p.agent === "pause") {
 			return `pause: ${p.duration!.toFixed(1)}`;
 		}
 		return `${p.agent}: ${p.text}`;
 	});
-	writeFileSync(path, lines.join("\n") + "\n");
+	await Bun.write(path, lines.join("\n") + "\n");
 }
 
 export interface WorkflowOptions {
 	demo?: boolean;
+	scriptPath?: string;
 	context?: string;
 	agents?: string[];
 	parts?: number;
@@ -283,13 +303,34 @@ function now(): string {
 	return ((Date.now() / 1000) % 60).toFixed(1) + "s";
 }
 
+async function parseScriptFile(path: string): Promise<Phrase[]> {
+	const raw = await Bun.file(path).text();
+	return raw
+		.split("\n")
+		.map((line) => line.trim())
+		.filter(Boolean)
+		.map((line) => {
+			const sep = line.indexOf(":");
+			if (sep === -1) throw new Error(`Invalid script line: ${line}`);
+			const agent = line.slice(0, sep).trim().toLowerCase();
+			const text = line.slice(sep + 1).trim();
+			if (agent === "pause") {
+				return { agent, text, duration: Number.parseFloat(text) || 1.0 };
+			}
+			return { agent, text };
+		});
+}
+
 interface UploadMeta {
 	ytTitle: string;
 	ytDescription: string;
 	igCaption: string;
 }
 
-async function generateUploadMeta(context: string, phrases: Phrase[]): Promise<UploadMeta> {
+async function generateUploadMeta(
+	context: string,
+	phrases: Phrase[]
+): Promise<UploadMeta> {
 	const scriptText = phrases
 		.filter((p) => p.agent !== "pause")
 		.map((p) => `${p.agent}: ${p.text}`)
@@ -328,31 +369,37 @@ async function generateUploadMeta(context: string, phrases: Phrase[]): Promise<U
 	};
 }
 
-async function uploadVideos(videoPath: string, options: WorkflowOptions, meta?: UploadMeta): Promise<void> {
-	const uploadScript = join(import.meta.dirname, "..", "uploaders", "upload.py");
+async function uploadVideos(
+	videoPath: string,
+	options: WorkflowOptions,
+	meta?: UploadMeta
+): Promise<void> {
+	const uploadScript = join(
+		import.meta.dirname,
+		"..",
+		"uploaders",
+		"upload.py"
+	);
 	const venvPython = join(import.meta.dirname, "..", ".venv", "bin", "python3");
-	const pythonBin = Bun.spawnSync(["test", "-f", venvPython]).exitCode === 0 ? venvPython : "python3";
-	const args = [
-		pythonBin, uploadScript,
-		"--video", videoPath,
-		"--title", meta?.ytTitle ?? "Valorant Short",
-		"--description", meta?.ytDescription ?? "#valorant #gaming #shorts",
-		"--caption", meta?.igCaption ?? "#valorant #gaming",
-	];
-	if (options.uploadIgOnly) args.push("--ig-only");
-	if (options.uploadYtOnly) args.push("--yt-only");
+	const { exitCode } = await $`test -f ${venvPython}`.nothrow();
+	const pythonBin = exitCode === 0 ? venvPython : "python3";
 
-	console.log(`\n=== Uploading ===`);
+	console.log("\n=== Uploading ===");
 	console.log(`  Title: ${meta?.ytTitle ?? "Valorant Short"}`);
-	const proc = Bun.spawn(args, {
-		stdio: ["inherit", "inherit", "inherit"],
-		env: { ...process.env },
-	});
-	const exitCode = await proc.exited;
-	if (exitCode === 0) {
+
+	const extraArgs = options.uploadIgOnly
+		? ["--ig-only"]
+		: options.uploadYtOnly
+			? ["--yt-only"]
+			: [];
+
+	const { exitCode: uploadExit } =
+		await $`${pythonBin} ${uploadScript} --video ${videoPath} --title ${meta?.ytTitle ?? "Valorant Short"} --description ${meta?.ytDescription ?? "#valorant #gaming #shorts"} --caption ${meta?.igCaption ?? "#valorant #gaming"} ${extraArgs}`.nothrow();
+
+	if (uploadExit === 0) {
 		console.log("=== Upload complete ===\n");
 	} else {
-		console.error(`=== Upload failed (exit code ${exitCode}) ===`);
+		console.error(`=== Upload failed (exit code ${uploadExit}) ===`);
 	}
 }
 
@@ -362,6 +409,8 @@ function parseFlags(): WorkflowOptions {
 	for (let i = 0; i < args.length; i++) {
 		if (args[i] === "--demo") {
 			opts.demo = true;
+		} else if (args[i] === "--script" && i + 1 < args.length) {
+			opts.scriptPath = args[++i]!;
 		} else if (args[i] === "--context" && i + 1 < args.length) {
 			opts.context = args[++i]!;
 		} else if (args[i] === "--agents" && i + 1 < args.length) {
@@ -389,33 +438,45 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 	const wallStart = Date.now();
 	const parts = options.parts ?? DEFAULT_PARTS;
 
-	// console.log(`\n=== Workflow ===\n  Parts: ${parts}\n  Output dir: ${options.output ?? "workflow_outputs"}\nContext: ${options.context ?? "random"}\nAgents: ${options.agents?.join(", ") ?? "random"}\n`);
-	// process.exit()
-
 	const context = options.demo
 		? "agents trash-talking each other during a heated match"
-		: (options.context ?? DEFAULT_CONTEXTS[Math.floor(Math.random() * DEFAULT_CONTEXTS.length)]!);
+		: (options.context ??
+			DEFAULT_CONTEXTS[Math.floor(Math.random() * DEFAULT_CONTEXTS.length)]!);
 
 	let phrases: Phrase[];
 
-	const baseDir = options.output ?? join(import.meta.dirname, "..", "workflow_outputs");
+	const baseDir =
+		options.output ?? join(import.meta.dirname, "..", "workflow_outputs");
 	const sessionId = generateSessionId();
 	const sessionDir = join(baseDir, sessionId);
 	const assetsDir = join(sessionDir, "assets");
 
-	mkdirSync(assetsDir, { recursive: true });
+	await $`mkdir -p ${assetsDir}`;
 	setOutDir(assetsDir);
 
 	let uploadMeta: UploadMeta | undefined;
 
 	if (options.demo) {
-		phrases = parseScript();
+		phrases = await parseScript();
 		console.log("=== Workflow (demo) ===\n");
 		if (options.upload) {
 			uploadMeta = await generateUploadMeta("demo", phrases);
-			writeFileSync(
+			await Bun.write(
 				join(sessionDir, "upload_meta.json"),
-				JSON.stringify(uploadMeta, null, 2) + "\n",
+				JSON.stringify(uploadMeta, null, 2) + "\n"
+			);
+		}
+	} else if (options.scriptPath) {
+		const ctx = options.context ?? "custom script";
+		phrases = await parseScriptFile(options.scriptPath);
+		console.log(`=== Workflow (script: ${options.scriptPath}) ===\n`);
+		console.log(`  Context: ${ctx}\n`);
+		setBgVideoPath(pickRandomBgVideo());
+		if (options.upload) {
+			uploadMeta = await generateUploadMeta(ctx, phrases);
+			await Bun.write(
+				join(sessionDir, "upload_meta.json"),
+				JSON.stringify(uploadMeta, null, 2) + "\n"
 			);
 		}
 	} else {
@@ -423,9 +484,9 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 		const agentNames = options.agents?.length
 			? options.agents
 			: (() => {
-				const shuffled = ALL_AGENT_NAMES.toSorted(() => Math.random() - 0.5);
-				return shuffled.slice(0, 3 + Math.floor(Math.random() * 2));
-			})();
+					const shuffled = ALL_AGENT_NAMES.toSorted(() => Math.random() - 0.5);
+					return shuffled.slice(0, 3 + Math.floor(Math.random() * 2));
+				})();
 
 		const invalid = agentNames.filter((a) => !ALL_PERSONAS[a]);
 		if (invalid.length > 0) {
@@ -439,34 +500,38 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 		console.log(`  Context: ${context}\n`);
 		setBgVideoPath(pickRandomBgVideo());
 		phrases = await generateScript(context, agentNames, sessionDir);
-		console.log(`  [${now()}] Script generated (${((Date.now() - t0) / 1000).toFixed(1)}s)`);
+		console.log(
+			`  [${now()}] Script generated (${((Date.now() - t0) / 1000).toFixed(1)}s)`
+		);
 
 		if (options.upload) {
 			uploadMeta = await generateUploadMeta(context, phrases);
-			writeFileSync(
+			await Bun.write(
 				join(sessionDir, "upload_meta.json"),
-				JSON.stringify(uploadMeta, null, 2) + "\n",
+				JSON.stringify(uploadMeta, null, 2) + "\n"
 			);
 			console.log(`  [${now()}] Upload metadata generated`);
 		}
 	}
 
-	saveScript(phrases, join(sessionDir, "script.txt"));
+	await saveScript(phrases, join(sessionDir, "script.txt"));
 
-	const C_TTS = Math.min(2, cpus().length);
+	const CTts = Math.min(2, cpus().length);
 	const C = cpus().length;
 	const segments: SegmentInfo[] = [];
 
 	const t1 = Date.now();
 	console.log("  Generating segments...\n");
-	for (let i = 0; i < phrases.length; i += C_TTS) {
-		const batch = phrases.slice(i, i + C_TTS);
+	for (let i = 0; i < phrases.length; i += CTts) {
+		const batch = phrases.slice(i, i + CTts);
 		const results = await Promise.all(
 			batch.map((p, j) => processPhrase(p, i + j))
 		);
 		segments.push(...results);
 	}
-	console.log(`  [${now()}] TTS + ASS done (${((Date.now() - t1) / 1000).toFixed(1)}s)`);
+	console.log(
+		`  [${now()}] TTS + ASS done (${((Date.now() - t1) / 1000).toFixed(1)}s)`
+	);
 
 	const t2 = Date.now();
 	let acc = 0;
@@ -487,10 +552,14 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 			})
 		);
 	}
-	console.log(`  [${now()}] Rendering done (${((Date.now() - t2) / 1000).toFixed(1)}s)`);
+	console.log(
+		`  [${now()}] Rendering done (${((Date.now() - t2) / 1000).toFixed(1)}s)`
+	);
 
 	const totalDur = segments.reduce((s, seg) => s + seg.duration, 0);
-	console.log(`\n  Total: ${totalDur.toFixed(1)}s (${segments.length} segments)`);
+	console.log(
+		`\n  Total: ${totalDur.toFixed(1)}s (${segments.length} segments)`
+	);
 
 	const segsPerPart = Math.max(1, Math.ceil(segments.length / parts));
 	const partGroups: SegmentInfo[][] = [];
@@ -521,7 +590,12 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 
 			if (group.length > 0) {
 				console.log("  Creating slide transition...");
-				await createIntroTransition(introPath, group[0]!.videoPath, WHOOSH_PATH, combinedPath);
+				await createIntroTransition(
+					introPath,
+					group[0]!.videoPath,
+					WHOOSH_PATH,
+					combinedPath
+				);
 				const combinedDur = 3 + group[0]!.duration - 0.3;
 				group[0] = {
 					agent: "intro+" + group[0]!.agent,
@@ -543,12 +617,14 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 					scaleExpr: null,
 				});
 			}
-			console.log(`  [${now()}] Intro done (${((Date.now() - t3) / 1000).toFixed(1)}s)`);
+			console.log(
+				`  [${now()}] Intro done (${((Date.now() - t3) / 1000).toFixed(1)}s)`
+			);
 		}
 
 		const firstSeg = group.find((s) => s.assPath !== null);
 		if (firstSeg) {
-			const assContent = readFileSync(firstSeg.assPath!, "utf-8");
+			const assContent = await Bun.file(firstSeg.assPath!).text();
 			const fadeDuration = Math.min(1, firstSeg.duration * 0.3);
 			const partLabel = context ?? "Demo";
 
@@ -563,11 +639,18 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 			const styleLine =
 				"Style: PartNum, Montserrat, 120, &H00FFFFFF, &H00000000, 1, 0, 1, 4, 0, 2, 100, 100, 100, 1";
 
-			const styleMatch = assContent.match(/^\[V4\+ Styles\]\s*\n(Format:[^\n]*\n)((?:Style:[^\n]*\n)*)/m);
+			const styleMatch = assContent.match(
+				/^\[V4\+ Styles\]\s*\n(Format:[^\n]*\n)((?:Style:[^\n]*\n)*)/m
+			);
 			let modified: string;
 			if (styleMatch) {
-				const beforeStyle = assContent.slice(0, styleMatch.index! + styleMatch[0].length);
-				const afterStyle = assContent.slice(styleMatch.index! + styleMatch[0].length);
+				const beforeStyle = assContent.slice(
+					0,
+					styleMatch.index! + styleMatch[0].length
+				);
+				const afterStyle = assContent.slice(
+					styleMatch.index! + styleMatch[0].length
+				);
 				modified = beforeStyle + styleLine + "\n" + afterStyle;
 			} else {
 				modified = assContent;
@@ -576,19 +659,27 @@ export async function run(options: WorkflowOptions): Promise<string[]> {
 			const eventsMatch = modified.match(/^\[Events\]\s*\n(Format:[^\n]*\n)/m);
 			if (eventsMatch) {
 				const insertPos = eventsMatch.index! + eventsMatch[0].length;
-				modified = modified.slice(0, insertPos) + partLine + "\n" + modified.slice(insertPos);
+				modified =
+					modified.slice(0, insertPos) +
+					partLine +
+					"\n" +
+					modified.slice(insertPos);
 			}
 
-			writeFileSync(firstSeg.assPath!, modified + "\n");
+			await Bun.write(firstSeg.assPath!, modified + "\n");
 		}
 
 		const t4 = Date.now();
 		await concatSegments(group, partPath, BG_MUSIC_PATH);
-		console.log(`  [${now()}] Concat + mux done (${((Date.now() - t4) / 1000).toFixed(1)}s)`);
+		console.log(
+			`  [${now()}] Concat + mux done (${((Date.now() - t4) / 1000).toFixed(1)}s)`
+		);
 		outputPaths.push(partPath);
 	}
 
-	console.log(`  [${now()}] Total wall time: ${((Date.now() - wallStart) / 1000).toFixed(1)}s`);
+	console.log(
+		`  [${now()}] Total wall time: ${((Date.now() - wallStart) / 1000).toFixed(1)}s`
+	);
 
 	for (const path of outputPaths) {
 		console.log(`  ${path}`);

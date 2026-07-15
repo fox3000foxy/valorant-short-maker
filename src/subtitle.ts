@@ -1,40 +1,41 @@
-import { existsSync, readdirSync } from "node:fs";
+import { $ } from "bun";
 import { join, resolve } from "node:path";
 
 const ICONS_ROOT = resolve(import.meta.dirname, "..", "icons");
 const ICON_MAP = new Map<string, string>();
 
-function _findIconPath(agent: string): string {
+const PYTHON = join(import.meta.dirname, "..", ".venv", "bin", "python3");
+
+async function _findIconPath(agent: string): Promise<string> {
 	const cachedIcon = ICON_MAP.get(agent);
 	if (cachedIcon) {
 		return cachedIcon;
 	}
-	const files = readdirSync(ICONS_ROOT);
+	const { stdout } = await $`ls ${ICONS_ROOT}`.quiet().nothrow();
+	if (!stdout) {
+		return join(ICONS_ROOT, `${agent}.png`);
+	}
+	const files = stdout.toString().trim().split("\n").filter(Boolean);
 	const match = files.find(
-		(file) => file.toLowerCase() === `${agent.toLowerCase()}.png`
+		(file: string) => file.toLowerCase() === `${agent.toLowerCase()}.png`
 	);
 	if (match) {
 		const full = join(ICONS_ROOT, match);
 		ICON_MAP.set(agent, full);
 		return full;
 	}
-
 	return join(ICONS_ROOT, `${agent}.png`);
 }
 
 const COLOR_CACHE = new Map<string, string[]>();
 
 async function _extractColors(agent: string): Promise<string[]> {
-	const iconPath = _findIconPath(agent);
-	if (!existsSync(iconPath)) {
+	const iconPath = await _findIconPath(agent);
+	if (!(await Bun.file(iconPath).exists())) {
 		return ["#ffffff", "#cccccc"];
 	}
 
-	const result = Bun.spawn(
-		[
-			process.cwd() + "/.venv/bin/python3",
-			"-c",
-			`
+	const { stdout } = await $`${PYTHON} -c ${`
 from PIL import Image
 from collections import Counter
 import json, sys
@@ -64,13 +65,8 @@ for r, g, b in top:
         vibrant.append(f"#{r:02x}{g:02x}{b:02x}")
 
 print(json.dumps(vibrant[:6] if vibrant else ["#ffffff", "#cccccc"]))
-`,
-		],
-		{ stdout: "pipe", stderr: "ignore" }
-	);
-
-	const output = await new Response(result.stdout).text();
-	const colors: string[] = JSON.parse(output.trim());
+`}`.quiet();
+	const colors: string[] = JSON.parse(stdout.toString().trim());
 	return colors;
 }
 

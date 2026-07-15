@@ -1,19 +1,40 @@
-import type { BunFile } from "bun";
-import { existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
+import { $, type BunFile } from "bun";
 import { join, resolve } from "node:path";
 
 const VOICES_ROOT = resolve(import.meta.dirname, "..", "voices");
 const RELEASE_BASE_URL =
 	"https://github.com/fox3000foxy/valorant-short-maker/releases/download/voices";
 
-// Liste statique et connue à l'avance — ne dépend PAS de ce qui est déjà
-// présent sur le disque. C'est cette liste qui sert de source de vérité
-// pour la validation des noms d'agents.
+const PIPER = join(import.meta.dirname, "..", ".venv", "bin", "piper");
+const FFMPEG = join(import.meta.dirname, "..", "bin", "ffmpeg", "ffmpeg");
+
 const KNOWN_AGENTS = [
-	"astra", "breach", "brimstone", "chamber", "clove", "cypher", "deadlock",
-	"fade", "gekko", "harbor", "iso", "jett", "kayo", "killjoy", "neon",
-	"omen", "phoenix", "raze", "reyna", "sage", "skye", "sova", "tejo",
-	"viper", "vyse", "yoru",
+	"astra",
+	"breach",
+	"brimstone",
+	"chamber",
+	"clove",
+	"cypher",
+	"deadlock",
+	"fade",
+	"gekko",
+	"harbor",
+	"iso",
+	"jett",
+	"kayo",
+	"killjoy",
+	"neon",
+	"omen",
+	"phoenix",
+	"raze",
+	"reyna",
+	"sage",
+	"skye",
+	"sova",
+	"tejo",
+	"viper",
+	"vyse",
+	"yoru",
 ] as const;
 
 export type AgentName = (typeof KNOWN_AGENTS)[number];
@@ -22,12 +43,12 @@ export function listAgents(): string[] {
 	return [...KNOWN_AGENTS];
 }
 
-/** Agents déjà présents sur le disque (dynamique, peut évoluer au runtime). */
-export function listDownloadedAgents(): string[] {
-	if (!existsSync(VOICES_ROOT)) return [];
-	return readdirSync(VOICES_ROOT, { withFileTypes: true })
-		.filter((entry) => entry.isDirectory())
-		.map((entry) => entry.name);
+export async function listDownloadedAgents(): Promise<string[]> {
+	const { stdout } = await $`ls ${VOICES_ROOT}`.quiet().nothrow();
+	if (!stdout) {
+		return [];
+	}
+	return stdout.toString().trim().split("\n").filter(Boolean);
 }
 
 function isKnownAgent(agent: string): agent is AgentName {
@@ -42,14 +63,6 @@ function configPath(agent: string): string {
 	return join(VOICES_ROOT, agent, `${agent}.onnx.json`);
 }
 
-/**
- * S'assure que la voix `agentName` est disponible localement :
- * - crée voices/ si besoin
- * - télécharge le zip depuis la release GitHub si le modèle est absent
- * - l'extrait dans voices/<agent>/
- *
- * Idempotent : si le modèle est déjà présent, ne fait rien.
- */
 export async function ensureVoice(agentName: string): Promise<void> {
 	if (!isKnownAgent(agentName)) {
 		throw new Error(
@@ -57,16 +70,18 @@ export async function ensureVoice(agentName: string): Promise<void> {
 		);
 	}
 
-	if (existsSync(modelPath(agentName)) && existsSync(configPath(agentName))) {
-		return; // déjà présent, rien à faire
+	if (
+		(await Bun.file(modelPath(agentName)).exists()) &&
+		(await Bun.file(configPath(agentName)).exists())
+	) {
+		return;
 	}
 
-	mkdirSync(VOICES_ROOT, { recursive: true });
+	await $`mkdir -p ${VOICES_ROOT}`;
 
 	const zipUrl = `${RELEASE_BASE_URL}/${agentName}.zip`;
 	const tmpZipPath = join(VOICES_ROOT, `.${agentName}.download.zip`);
 
-	// Téléchargement
 	const res = await fetch(zipUrl);
 	if (!res.ok) {
 		throw new Error(
@@ -77,22 +92,23 @@ export async function ensureVoice(agentName: string): Promise<void> {
 	await Bun.write(tmpZipPath, buf);
 
 	try {
-		// Extraction directement dans voices/ — le zip contient déjà un
-		// dossier <agent>/ à sa racine (d'après ta structure d'origine).
-		const unzip = Bun.spawn(
-			["unzip", "-o", tmpZipPath, "-d", VOICES_ROOT],
-			{ stdout: "ignore", stderr: "pipe" }
-		);
-		const exitCode = await unzip.exited;
+		const { exitCode, stderr } =
+			await $`unzip -o ${tmpZipPath} -d ${VOICES_ROOT}`.nothrow();
 		if (exitCode !== 0) {
-			const stderr = await new Response(unzip.stderr).text();
-			throw new Error(`unzip failed for "${agentName}" (exit ${exitCode}): ${stderr}`);
+			throw new Error(
+				`unzip failed for "${agentName}" (exit ${exitCode}): ${stderr.toString()}`
+			);
 		}
 	} finally {
-		rmSync(tmpZipPath, { force: true });
+		await $`rm -f ${tmpZipPath}`;
 	}
 
-	if (!existsSync(modelPath(agentName)) || !existsSync(configPath(agentName))) {
+	if (
+		!(
+			(await Bun.file(modelPath(agentName)).exists()) &&
+			(await Bun.file(configPath(agentName)).exists())
+		)
+	) {
 		throw new Error(
 			`Voice "${agentName}" downloaded and extracted, but expected files are missing. Check the zip layout on the release.`
 		);
@@ -131,12 +147,6 @@ export class ValorantTTS {
 		this._configPath = configPath(agent);
 	}
 
-	/**
-	 * Point d'entrée recommandé : garantit que la voix est téléchargée
-	 * avant de construire l'instance (le constructeur reste synchrone
-	 * et privé pour éviter d'utiliser une instance dont le modèle
-	 * n'est pas encore là).
-	 */
 	static async create(
 		agent: string,
 		text: string,
@@ -159,7 +169,7 @@ export class ValorantTTS {
 		);
 
 		try {
-			await Bun.$`mkdir -p ${tmpDir}`;
+			await $`mkdir -p ${tmpDir}`;
 
 			const segments = this.text.split(/\[(\d+\.?\d*)\]/);
 			const inputParts: string[] = [];
@@ -168,11 +178,13 @@ export class ValorantTTS {
 				const part = segments[i]!;
 				if (i % 2 === 0) {
 					const text = part.trim();
-					if (!text) continue;
+					if (!text) {
+						continue;
+					}
 					const wavPath = join(tmpDir, `seg_${i}.wav`);
-					const piper = Bun.spawn(
+					const piperProc = Bun.spawn(
 						[
-							process.cwd() + "/.venv/bin/piper",
+							PIPER,
 							"-m",
 							this._modelPath,
 							"--output_file",
@@ -184,35 +196,23 @@ export class ValorantTTS {
 							"--length_scale",
 							String(this.options.lengthScale),
 						],
-						{
-							stdin: "pipe",
-							stdout: "ignore",
-							stderr: "ignore",
-						}
+						{ stdin: "pipe", stdout: "ignore", stderr: "ignore" }
 					);
-					const writer = piper.stdin;
+					const writer = piperProc.stdin;
 					writer.write(new TextEncoder().encode(text));
 					writer.end();
-					const piperExit = await piper.exited;
+					const piperExit = await piperProc.exited;
 					if (piperExit !== 0) {
 						throw new Error(`Piper TTS failed with exit code ${piperExit}`);
 					}
 					inputParts.push(wavPath);
 				} else {
 					const dur = Number.parseFloat(part);
-					if (dur <= 0) continue;
-					const silPath = join(tmpDir, `sil_${i}.wav`);
-					const silProc = Bun.spawn([
-						process.cwd() + "/bin/ffmpeg/ffmpeg",
-						"-y", "-hide_banner", "-loglevel", "error",
-						"-f", "lavfi", "-i", `anullsrc=r=22050:cl=mono`,
-						"-t", String(dur),
-						silPath,
-					]);
-					const silExit = await silProc.exited;
-					if (silExit !== 0) {
-						throw new Error(`Silence generation failed (exit ${silExit})`);
+					if (dur <= 0) {
+						continue;
 					}
+					const silPath = join(tmpDir, `sil_${i}.wav`);
+					await $`${FFMPEG} -y -hide_banner -loglevel error -f lavfi -i anullsrc=r=22050:cl=mono -t ${String(dur)} ${silPath}`.quiet();
 					inputParts.push(silPath);
 				}
 			}
@@ -222,28 +222,17 @@ export class ValorantTTS {
 			}
 
 			if (inputParts.length === 1) {
-				await Bun.$`cp ${inputParts[0]} ${outputPath}`;
+				await $`cp ${inputParts[0]} ${outputPath}`;
 			} else {
 				const filterParts = inputParts.map((_, i) => `[${i}:a]`).join("");
 				const graph = `${filterParts}concat=n=${inputParts.length}:v=0:a=1[out]`;
-				const ffArgs = [
-					process.cwd() + "/bin/ffmpeg/ffmpeg",
-					"-y", "-hide_banner", "-loglevel", "error",
-					...inputParts.flatMap((p) => ["-i", p]),
-					"-filter_complex", graph,
-					"-map", "[out]",
-					outputPath,
-				];
-				const ff = Bun.spawn(ffArgs);
-				const ffExit = await ff.exited;
-				if (ffExit !== 0) {
-					throw new Error(`Audio concat failed (exit ${ffExit})`);
-				}
+				const inputs = inputParts.flatMap((p) => ["-i", p]);
+				await $`${FFMPEG} -y -hide_banner -loglevel error ${inputs} -filter_complex ${graph} -map [out] ${outputPath}`.quiet();
 			}
 
 			return Bun.file(outputPath);
 		} finally {
-			await Bun.$`rm -rf ${tmpDir}`;
+			await $`rm -rf ${tmpDir}`;
 		}
 	}
 }
