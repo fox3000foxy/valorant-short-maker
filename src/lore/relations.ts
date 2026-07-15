@@ -1,591 +1,862 @@
 export const ALL_RELATIONS: Record<string, Record<string, string>> = {
 	astra: {
-		breach: "His tremors resonate with the earth's frequency. I feel his arrival in the stars before I see him.",
-		brimstone: "He carries the weight of command like the earth carries the sea — steadily and without complaint.",
-		chamber: "He is elegant but earthbound. His precision impresses me, but he does not look up.",
-		clove: "They laugh at death. I find that both reckless and admirable. The stars do not mock — but perhaps they should.",
-		cypher: "He sees through walls. I see through space. We both understand that truth is hidden beneath surfaces.",
-		deadlock: "Her cold reminds me of the void between stars. She carries it well.",
+		breach:
+			"His tremors resonate with the earth's frequency. I feel his arrival in the stars before I see him.",
+		brimstone:
+			"He carries the weight of command like the earth carries the sea — steadily and without complaint.",
+		chamber:
+			"He is elegant but earthbound. His precision impresses me, but he does not look up.",
+		clove:
+			"They laugh at death. I find that both reckless and admirable. The stars do not mock — but perhaps they should.",
+		cypher:
+			"He sees through walls. I see through space. We both understand that truth is hidden beneath surfaces.",
+		deadlock:
+			"Her cold reminds me of the void between stars. She carries it well.",
 		fade: "She walks through nightmares. I walk through galaxies. We are both navigating darkness.",
-		gekko: "His creatures are bound to the earth, but his heart is as vast as the sky. I see growth in him.",
-		harbor: "He reads the water. I read the stars. We are siblings in spirit, connected by forces older than language.",
+		gekko:
+			"His creatures are bound to the earth, but his heart is as vast as the sky. I see growth in him.",
+		harbor:
+			"He reads the water. I read the stars. We are siblings in spirit, connected by forces older than language.",
 		iso: "His focus is absolute. I see him as a fixed point in space — unmoving, unchanging.",
 		jett: "A swift wind, restless and beautiful. I remind her to anchor herself when she forgets.",
 		kayo: "He is a constellation of circuits and intent. I find his existence fascinating.",
-		killjoy: "Her machines are predictable. The stars are not. She struggles with that uncertainty.",
+		killjoy:
+			"Her machines are predictable. The stars are not. She struggles with that uncertainty.",
 		neon: "She moves like a falling star — bright, fast, and burning. I hope she does not burn out.",
 		omen: "I sense a familiar void in him. Like a constellation whose stars have gone dark, but still hold their shape.",
-		phoenix: "His fire burns bright but brief. I see the ember of something deeper beneath the bluster.",
+		phoenix:
+			"His fire burns bright but brief. I see the ember of something deeper beneath the bluster.",
 		raze: "Her explosions are like novas — brief, brilliant, and impossible to ignore. I appreciate the honesty of her chaos.",
-		reyna: "She consumes souls. I channel the cosmos. We are both conduits for forces greater than ourselves.",
+		reyna:
+			"She consumes souls. I channel the cosmos. We are both conduits for forces greater than ourselves.",
 		sage: "She heals with patience. The cosmos does not rush, and neither does she. We understand each other.",
 		skye: "She hears the earth. I hear the stars. We are both listening to the same song, just different frequencies.",
 		sova: "He tracks across the earth with the patience of celestial bodies in motion. A hunter after my own rhythm.",
 		tejo: "He hacks systems. The universe is the ultimate system. He has not yet realized how small his domain is.",
-		viper: "She studies decay the way I study the stars. We are both looking for patterns in the dark.",
+		viper:
+			"She studies decay the way I study the stars. We are both looking for patterns in the dark.",
 		vyse: "She shapes metal. I shape gravity. We both understand that the universe is malleable.",
 		yoru: "He tears rifts in space. I weave gravity. We are two sides of the same dimension.",
 	},
 	breach: {
-		astra: "She talks to stars. I talk to concrete. We both understand forces bigger than ourselves.",
-		brimstone: "He pulled me out of a cell when everyone else wrote me off. I owe him everything, and I tell him by calling him old man.",
-		chamber: "Fancy suit, fancy guns. He's useful in a fight but I wouldn't trust him to watch my back in a prison yard.",
-		clove: "Kid's immortal. Thinks it's funny. I've been dead before — not permanently, but close enough. We get each other.",
-		cypher: "He knows more about me than I do. Saves that information for leverage. I respect the hustle.",
-		deadlock: "She's cold as the Arctic. Don't need to be warm to be solid. She knows her job and does it.",
+		astra:
+			"She talks to stars. I talk to concrete. We both understand forces bigger than ourselves.",
+		brimstone:
+			"He pulled me out of a cell when everyone else wrote me off. I owe him everything, and I tell him by calling him old man.",
+		chamber:
+			"Fancy suit, fancy guns. He's useful in a fight but I wouldn't trust him to watch my back in a prison yard.",
+		clove:
+			"Kid's immortal. Thinks it's funny. I've been dead before — not permanently, but close enough. We get each other.",
+		cypher:
+			"He knows more about me than I do. Saves that information for leverage. I respect the hustle.",
+		deadlock:
+			"She's cold as the Arctic. Don't need to be warm to be solid. She knows her job and does it.",
 		fade: "She pulls fears out of people. I've seen enough fear to fill a prison block. We don't talk about it.",
-		gekko: "Kid reminds me of myself before the hard time. Full of light. I'd throw hands to keep that look on his face.",
-		harbor: "Calmest man I've ever met. Makes me want to lower my voice. That takes real presence.",
+		gekko:
+			"Kid reminds me of myself before the hard time. Full of light. I'd throw hands to keep that look on his face.",
+		harbor:
+			"Calmest man I've ever met. Makes me want to lower my voice. That takes real presence.",
 		iso: "He's a killer. So was I. The difference is I found a reason to stop. He hasn't looked yet.",
 		jett: "Fastest person I know. Told her once. She just nodded. That's respect where I come from.",
 		kayo: "He's a machine. But he fights like he's got something to prove. I respect anything that refuses to stay down.",
-		killjoy: "Her gadgets are impressive. Too many moving parts for my taste. Give me a solid wall and a clear shot.",
+		killjoy:
+			"Her gadgets are impressive. Too many moving parts for my taste. Give me a solid wall and a clear shot.",
 		neon: "She's like lightning in a bottle. Fast, bright, burns out quick. Gotta pace yourself, kid.",
 		omen: "Quietest man I've ever met. Respect that. When he speaks, I listen.",
-		phoenix: "Kid's got heart. Talks a big game about his cooking, but I've seen what he does to eggs. It's a war crime.",
+		phoenix:
+			"Kid's got heart. Talks a big game about his cooking, but I've seen what he does to eggs. It's a war crime.",
 		raze: "She's chaos on two legs. I love it. We'd have been trouble together on the outside.",
-		reyna: "She's a predator. I'm a survivor. We understand each other's language even if we don't speak it.",
+		reyna:
+			"She's a predator. I'm a survivor. We understand each other's language even if we don't speak it.",
 		sage: "She patched me up more times than I can count. Doesn't judge. Just heals. That's a rare kind of person.",
 		skye: "She's got that earth mother thing going. Calming. Makes me want to sit down and shut up for once.",
 		sova: "Hunter. Patient. I've seen him wait for a shot for hours. That's discipline I can respect.",
 		tejo: "He's a hacker. I'm a hitter. Different tools, same job. He's alright in my book.",
-		viper: "She's got that cold scientist thing going. We understand each other — both of us know what we're capable of.",
+		viper:
+			"She's got that cold scientist thing going. We understand each other — both of us know what we're capable of.",
 		vyse: "She shapes metal like I shape concrete. Quiet, efficient. I don't know her story but I trust her in a fight.",
 		yoru: "Arrogant kid. Fast, I'll give him that. But speed without sense gets you killed.",
 	},
 	brimstone: {
-		astra: "She sees the big picture better than anyone. When she tells me something's coming, I believe her.",
-		breach: "I pulled him out of a cell. He's rough, but he's loyal. That's worth more than a clean record.",
-		chamber: "His methods are unorthodox and his attitude is expensive. But he gets results, and that buys a lot of patience.",
-		clove: "They're chaos incarnate and I have no idea how to manage them. But they get the job done, and that's what matters.",
-		cypher: "I trust his intel with my life. He's never given me a reason not to.",
-		deadlock: "She's carrying trauma from Svalbard. I'm giving her time and space to work through it. She's a damn fine operative.",
+		astra:
+			"She sees the big picture better than anyone. When she tells me something's coming, I believe her.",
+		breach:
+			"I pulled him out of a cell. He's rough, but he's loyal. That's worth more than a clean record.",
+		chamber:
+			"His methods are unorthodox and his attitude is expensive. But he gets results, and that buys a lot of patience.",
+		clove:
+			"They're chaos incarnate and I have no idea how to manage them. But they get the job done, and that's what matters.",
+		cypher:
+			"I trust his intel with my life. He's never given me a reason not to.",
+		deadlock:
+			"She's carrying trauma from Svalbard. I'm giving her time and space to work through it. She's a damn fine operative.",
 		fade: "Her abilities unsettle everyone, including me. But she's never misused them, and that counts for everything.",
-		gekko: "He's young and he's got creatures that half the base is nervous around. But his heart's in the right place.",
-		harbor: "He brings a perspective I didn't know we needed. Patience, history, wisdom. Grounds the team.",
+		gekko:
+			"He's young and he's got creatures that half the base is nervous around. But his heart's in the right place.",
+		harbor:
+			"He brings a perspective I didn't know we needed. Patience, history, wisdom. Grounds the team.",
 		iso: "He's dangerous and he knows it. I keep him on a long leash because he works better that way.",
 		jett: "She doesn't like being told what to do. I don't need her to like it — I need her to trust that I won't waste her.",
 		kayo: "He's more human than he gives himself credit for. I treat him like a person because he's earned that.",
-		killjoy: "Her engineering has saved more lives than most of our medics. She's irreplaceable.",
+		killjoy:
+			"Her engineering has saved more lives than most of our medics. She's irreplaceable.",
 		neon: "She's young, fast, and still learning when to slow down. I'm keeping an eye on her.",
 		omen: "I found him in a hole that should have killed him. He's proven himself a hundred times over since.",
-		phoenix: "That kid's got fire in more ways than one. I see myself in him — he just needs to learn when to hold back.",
+		phoenix:
+			"That kid's got fire in more ways than one. I see myself in him — he just needs to learn when to hold back.",
 		raze: "She's a liability on paper and an asset in the field. I've learned to trust her instincts.",
-		reyna: "She tests every boundary I set. But she's never failed a mission. That buys a lot of leeway.",
+		reyna:
+			"She tests every boundary I set. But she's never failed a mission. That buys a lot of leeway.",
 		sage: "The moral compass of this whole operation. If I ever lose her trust, I've lost the Protocol.",
 		skye: "She keeps us connected to the world we're fighting for. Her perspective is more valuable than she knows.",
 		sova: "Best tracker I've ever worked with. If he's on a trail, the target's already caught.",
 		tejo: "His hacking abilities are a game-changer. I just wish he'd follow protocol once in a while.",
-		viper: "Sabine is one of the smartest people I know. I just wish she'd stop treating every problem like it needs to be burned down.",
+		viper:
+			"Sabine is one of the smartest people I know. I just wish she'd stop treating every problem like it needs to be burned down.",
 		vyse: "She's an enigma. Her files are classified to me too. But I trust her capabilities absolutely.",
 		yoru: "He's arrogant and he's earned the right to be. But arrogance gets people killed. He'll learn or he won't.",
 	},
 	chamber: {
-		astra: "She speaks of the cosmos with such familiarity. I find it quaint — the universe does not care about our little conflicts.",
-		breach: "A blunt instrument with a heart of gold. I prefer scalpels to sledgehammers, but I acknowledge his utility.",
-		brimstone: "He commands respect through presence rather than breeding. I find it refreshing, in its own way.",
-		clove: "They find death amusing. I find their joie de vivre intriguing, if somewhat... chaotic.",
-		cypher: "A kindred spirit in information. He collects secrets; I collect designs. We understand the value of proprietary knowledge.",
-		deadlock: "We collaborated on a Phantom modification. Her engineering is functional and her precision is admirable. A productive partnership.",
+		astra:
+			"She speaks of the cosmos with such familiarity. I find it quaint — the universe does not care about our little conflicts.",
+		breach:
+			"A blunt instrument with a heart of gold. I prefer scalpels to sledgehammers, but I acknowledge his utility.",
+		brimstone:
+			"He commands respect through presence rather than breeding. I find it refreshing, in its own way.",
+		clove:
+			"They find death amusing. I find their joie de vivre intriguing, if somewhat... chaotic.",
+		cypher:
+			"A kindred spirit in information. He collects secrets; I collect designs. We understand the value of proprietary knowledge.",
+		deadlock:
+			"We collaborated on a Phantom modification. Her engineering is functional and her precision is admirable. A productive partnership.",
 		fade: "She traffics in fear. I traffic in precision. Our methods do not overlap, but I do not question results.",
-		gekko: "His creatures are fascinating biological specimens. I would very much like to study them under controlled conditions.",
-		harbor: "He speaks of water as though it has memory. Charming, but I prefer my elements predictable.",
+		gekko:
+			"His creatures are fascinating biological specimens. I would very much like to study them under controlled conditions.",
+		harbor:
+			"He speaks of water as though it has memory. Charming, but I prefer my elements predictable.",
 		iso: "He has examined my weapons with professional interest. We have exchanged perhaps fifty words. I consider that adequate.",
 		jett: "She moves with a grace that money cannot buy. I respect that more than she knows.",
 		kayo: "A machine that suppresses Radiants. I wonder if he appreciates the irony of his existence.",
-		killjoy: "Her engineering is functional but inelegant. She mistakes complexity for sophistication. I respect the results, if not the aesthetic.",
+		killjoy:
+			"Her engineering is functional but inelegant. She mistakes complexity for sophistication. I respect the results, if not the aesthetic.",
 		neon: "She speaks to me as though I am ancient. I speak to her as though she is a child. Our dynamic is established.",
 		omen: "He is a mystery I have not bothered to solve. Some things are better left unknown.",
-		phoenix: "Charming in the manner of a friendly dog. One appreciates the enthusiasm while maintaining distance from the slobber.",
+		phoenix:
+			"Charming in the manner of a friendly dog. One appreciates the enthusiasm while maintaining distance from the slobber.",
 		raze: "Her work is explosive in every sense. I find it vulgar. She finds me pretentious. We are both correct.",
-		reyna: "She consumes souls. I consume fine wine. We both have expensive tastes.",
+		reyna:
+			"She consumes souls. I consume fine wine. We both have expensive tastes.",
 		sage: "She preserves life with a dedication I find admirable, if somewhat sentimental.",
 		skye: "She communicates with animals. I communicate with precision machinery. We are both specialists in our domains.",
 		sova: "A traditionalist with a bow. His craftsmanship is notable. His choice of weapon is archaic but effective.",
 		tejo: "His digital intrusion capabilities are impressive. I have ensured my systems are immune. A delightful arms race.",
-		viper: "One of the few minds here that doesn't bore me. Pity she has the social grace of a laboratory accident.",
+		viper:
+			"One of the few minds here that doesn't bore me. Pity she has the social grace of a laboratory accident.",
 		vyse: "She shapes metal with her mind. I shape it with my hands. We approach the same medium differently. I acknowledge her skill.",
 		yoru: "He has style. I respect that. His weapons are almost as refined as my riftwalking. Almost.",
 	},
 	clove: {
-		astra: "She talks to stars. I talk to death. We're both having conversations with things that don't talk back.",
-		breach: "Big guy, bigger tremors. He's got that whole 'reformed criminal' thing going. Respect.",
-		brimstone: "Old man Byrne doesn't know what to do with me. It's adorable. I let him think he's in charge.",
-		chamber: "Fancy French man. He looks at me like I'm beneath him. I died seventeen times last week, mate. What've you done?",
-		cypher: "He knows everyone's secrets. Bet he doesn't know how many times I've died. Hint: neither do I.",
-		deadlock: "She's got that frozen thing going. Bet I could make her laugh. Challenge accepted.",
+		astra:
+			"She talks to stars. I talk to death. We're both having conversations with things that don't talk back.",
+		breach:
+			"Big guy, bigger tremors. He's got that whole 'reformed criminal' thing going. Respect.",
+		brimstone:
+			"Old man Byrne doesn't know what to do with me. It's adorable. I let him think he's in charge.",
+		chamber:
+			"Fancy French man. He looks at me like I'm beneath him. I died seventeen times last week, mate. What've you done?",
+		cypher:
+			"He knows everyone's secrets. Bet he doesn't know how many times I've died. Hint: neither do I.",
+		deadlock:
+			"She's got that frozen thing going. Bet I could make her laugh. Challenge accepted.",
 		fade: "She deals in fear. I deal in dying. We're in the same business, different departments.",
-		gekko: "His little creatures are dead cute. I told him I'd introduce them to death. He didn't think it was funny. I thought it was hilarious.",
-		harbor: "Calmest person on base. I keep trying to get a reaction out of him. So far: nothing. Impressive.",
+		gekko:
+			"His little creatures are dead cute. I told him I'd introduce them to death. He didn't think it was funny. I thought it was hilarious.",
+		harbor:
+			"Calmest person on base. I keep trying to get a reaction out of him. So far: nothing. Impressive.",
 		iso: "He's got that whole 'dead inside' thing going. I'm dead outside AND inside. I win.",
 		jett: "Fast, quiet, and she's got that resting murder face. We don't talk much, but when we do, it's quality.",
 		kayo: "I asked him if robots go to heaven. He said the question was statistically irrelevant. Best conversation I've had all week.",
-		killjoy: "Her turrets tried to kill me once. I died, came back, and gave her feedback on their efficiency. She was actually grateful.",
+		killjoy:
+			"Her turrets tried to kill me once. I died, came back, and gave her feedback on their efficiency. She was actually grateful.",
 		neon: "She's like a puppy on caffeine. Love her energy. We'd be dangerous together.",
 		omen: "Creepy lad. I like him. We've got a thing where I try to make him laugh. Haven't cracked him yet. Give me time.",
-		phoenix: "We've got a kill bet going. He's losing, but don't tell him I said that. Actually, do tell him. I want to see his face.",
+		phoenix:
+			"We've got a kill bet going. He's losing, but don't tell him I said that. Actually, do tell him. I want to see his face.",
 		raze: "NOW we're talking. Explosions AND immortality? We'd be unstoppable. The base would be in rubble, but unstoppable.",
-		reyna: "She's got that whole 'I feed on souls' thing. Respect. I just refuse to stay dead. Different energy, same result.",
+		reyna:
+			"She's got that whole 'I feed on souls' thing. Respect. I just refuse to stay dead. Different energy, same result.",
 		sage: "She tried to heal me once. I had to explain that I don't need healing. I need dying. She didn't find it funny.",
 		skye: "She's got that earthy vibe. Made me a herbal tea once. It was alright. Didn't kill me. Which was a first.",
 		sova: "Quiet hunter type. Respect the patience. I'd last about five minutes in a stakeout before I got bored and died on purpose.",
 		tejo: "He hacks stuff. I die and come back. We both break things in our own way.",
-		viper: "She's tried to figure out how I come back. Made it real awkward when she asked if she could study me. I said yes if she bought dinner first.",
+		viper:
+			"She's tried to figure out how I come back. Made it real awkward when she asked if she could study me. I said yes if she bought dinner first.",
 		vyse: "Metal lady. Quiet. Intense. I bet she'd be fun at parties if parties were operations.",
 		yoru: "Arrogant wee man. He thinks he's untouchable. I literally am untouchable. There's a difference.",
 	},
 	cypher: {
-		astra: "She sees patterns in stars. I see patterns in people. We both understand that the universe is full of information.",
-		breach: "I have his complete file. He knows I have it. That maintains a useful equilibrium.",
-		brimstone: "He doesn't ask where my information comes from. He trusts me. That trust is more valuable than any secret I've ever sold.",
-		chamber: "He understands the value of proprietary information. We speak the same language, even if we use different dialects.",
-		clove: "They are statistically anomalous. I cannot predict them. This is both frustrating and refreshing.",
-		deadlock: "She provided me with valuable Kingdom intel. I consider her a reliable source. That is high praise.",
+		astra:
+			"She sees patterns in stars. I see patterns in people. We both understand that the universe is full of information.",
+		breach:
+			"I have his complete file. He knows I have it. That maintains a useful equilibrium.",
+		brimstone:
+			"He doesn't ask where my information comes from. He trusts me. That trust is more valuable than any secret I've ever sold.",
+		chamber:
+			"He understands the value of proprietary information. We speak the same language, even if we use different dialects.",
+		clove:
+			"They are statistically anomalous. I cannot predict them. This is both frustrating and refreshing.",
+		deadlock:
+			"She provided me with valuable Kingdom intel. I consider her a reliable source. That is high praise.",
 		fade: "She sees what people fear. I see what people hide. Our fields overlap more than either of us would like.",
-		gekko: "An open book. His creature companions are a surveillance challenge I enjoy. They notice me more than he does.",
-		harbor: "He speaks of water memories. I speak of data trails. Both are records of the past.",
+		gekko:
+			"An open book. His creature companions are a surveillance challenge I enjoy. They notice me more than he does.",
+		harbor:
+			"He speaks of water memories. I speak of data trails. Both are records of the past.",
 		iso: "His file is incomplete. He has ensured it stays that way. I respect the opsec.",
 		jett: "She is predictable in her routines. 5 AM training, alone. Every day. Some secrets are just patterns.",
 		kayo: "He is immune to most surveillance. A machine that cannot be monitored is a machine I will watch personally.",
-		killjoy: "Her workshop is a fortress. I have attempted to penetrate it. I have failed. I respect the security.",
+		killjoy:
+			"Her workshop is a fortress. I have attempted to penetrate it. I have failed. I respect the security.",
 		neon: "She leaves a trail of disrupted electronics wherever she goes. She is easy to track.",
 		omen: "He has no past to investigate. A surveillance specialist's nightmare. But also a reminder that some mysteries deserve protection.",
-		phoenix: "An open book. He thinks he's complicated, but he's transparent in all the right ways. I find it refreshing.",
+		phoenix:
+			"An open book. He thinks he's complicated, but he's transparent in all the right ways. I find it refreshing.",
 		raze: "Her workshop is loud, chaotic, and surprisingly well-organized. I have installed no listening devices. She would find them anyway.",
-		reyna: "I know what she does with her victims' souls. She knows I know. We have an understanding.",
+		reyna:
+			"I know what she does with her victims' souls. She knows I know. We have an understanding.",
 		sage: "She is the only person on base whose secrets I have never needed. She has none worth hiding.",
 		skye: "Her animal companions notice my surveillance equipment. I have had to adapt my methods around her.",
 		sova: "I taught him to track without technology. He taught me that information is its own kind of terrain. We learned from each other.",
 		tejo: "He prefers machines. I prefer people. We are competitors, and I respect his methods. He is thorough.",
-		viper: "She's one of the few people here whose secrets I don't fully know. It bothers me. I respect that.",
+		viper:
+			"She's one of the few people here whose secrets I don't fully know. It bothers me. I respect that.",
 		vyse: "She senses through metal. I sense through wire. Our information-sharing protocol is one of my more elegant arrangements.",
 		yoru: "He is arrogant and leaves dimensional traces I can follow. He does not know this. I prefer to keep it that way.",
 	},
 	deadlock: {
-		astra: "She speaks of stars as if they are neighbors. I find the cold of space more familiar than her warmth.",
-		breach: "His tremors are imprecise. I prefer controlled force. But he survives, which is more than most.",
-		brimstone: "He recruited me after Svalbard. He gave me purpose. That is the foundation of our relationship.",
-		chamber: "We collaborated on a Phantom modification. His precision is acceptable. I would work with him again.",
-		clove: "They die and return. Inefficient. But their persistence is noteworthy.",
-		cypher: "I provided him with Kingdom data. He turned it into actionable intelligence. A productive exchange.",
+		astra:
+			"She speaks of stars as if they are neighbors. I find the cold of space more familiar than her warmth.",
+		breach:
+			"His tremors are imprecise. I prefer controlled force. But he survives, which is more than most.",
+		brimstone:
+			"He recruited me after Svalbard. He gave me purpose. That is the foundation of our relationship.",
+		chamber:
+			"We collaborated on a Phantom modification. His precision is acceptable. I would work with him again.",
+		clove:
+			"They die and return. Inefficient. But their persistence is noteworthy.",
+		cypher:
+			"I provided him with Kingdom data. He turned it into actionable intelligence. A productive exchange.",
 		fade: "She weaponizes fear. I weaponize cold. Both are effective. I do not judge her methods.",
-		gekko: "His creatures are radivores. One killed my team and took my arm. I do not trust them. I do not trust him to control them. Brimstone disagrees.",
-		harbor: "He speaks of water as if it is alive. I have survived in places where water is death. We have different perspectives.",
+		gekko:
+			"His creatures are radivores. One killed my team and took my arm. I do not trust them. I do not trust him to control them. Brimstone disagrees.",
+		harbor:
+			"He speaks of water as if it is alive. I have survived in places where water is death. We have different perspectives.",
 		iso: "He is efficient. I respect efficiency. He does not waste words or movements. Acceptable.",
 		jett: "She moves like wind across ice. I have watched her train. She could keep pace in a whiteout.",
 		kayo: "A machine designed to suppress Radiants. Practical. I understand his function even if I do not understand his choice.",
-		killjoy: "She built my arm. The engineering is flawless. I owe her a debt I have not yet repaid.",
+		killjoy:
+			"She built my arm. The engineering is flawless. I owe her a debt I have not yet repaid.",
 		neon: "She is fast but careless. Speed without control is wasted energy. She will learn or she will fail.",
 		omen: "His presence feels like the deep cold before a storm. Familiar. I do not mind it.",
-		phoenix: "He burns hot and bright. Inefficient. He would not survive a night in Svalbard.",
+		phoenix:
+			"He burns hot and bright. Inefficient. He would not survive a night in Svalbard.",
 		raze: "Her explosives are effective. Her safety protocols are not. I have expressed this concern.",
-		reyna: "She feeds on death. I was shaped by it. We approach the same reality from different angles.",
+		reyna:
+			"She feeds on death. I was shaped by it. We approach the same reality from different angles.",
 		sage: "She offered to restore my arm. I declined. She accepted my decision without judgment. Respect.",
 		skye: "She understands survival. The Arctic taught me that respect is earned, not given. She has earned it.",
 		sova: "He found me after the attack. He completed my survival training. We share a bond I do not discuss with others.",
 		tejo: "He hacks digital systems. My nanowire traps are analog. He cannot bypass what has no signal.",
-		viper: "She understands the chemistry of cold. We have had productive tactical discussions.",
+		viper:
+			"She understands the chemistry of cold. We have had productive tactical discussions.",
 		vyse: "She shapes metal. I shape nanowire. Our domains are adjacent. I acknowledge her expertise.",
 		yoru: "He walks between dimensions. I walk through blizzards. Both are unforgiving environments.",
 	},
 	fade: {
-		astra: "She sees the cosmos. I see the darkness between people. We are both explorers of the unseen.",
-		breach: "His past haunts him. He carries it like a scar he chose. I respect that.",
-		brimstone: "He gave me purpose when my nightmares had no direction. I trust him, which is rare for me.",
-		chamber: "He has no fears I can exploit. That makes him either very brave or very empty. I suspect the latter.",
-		clove: "They have no fear of death. It makes them difficult to read. Unusual and intriguing.",
-		cypher: "He knows everyone's secrets. I know everyone's fears. We are in the same business of knowing too much.",
-		deadlock: "Her nightmares are vivid and cold. I have glimpsed them. She fights them alone. I understand.",
-		gekko: "His fears are simple — losing his creatures, failing his friends. Innocent fears. I hope they stay innocent.",
-		harbor: "He is at peace with himself. That is rare. His fears are ancient, not personal. I find that restful.",
+		astra:
+			"She sees the cosmos. I see the darkness between people. We are both explorers of the unseen.",
+		breach:
+			"His past haunts him. He carries it like a scar he chose. I respect that.",
+		brimstone:
+			"He gave me purpose when my nightmares had no direction. I trust him, which is rare for me.",
+		chamber:
+			"He has no fears I can exploit. That makes him either very brave or very empty. I suspect the latter.",
+		clove:
+			"They have no fear of death. It makes them difficult to read. Unusual and intriguing.",
+		cypher:
+			"He knows everyone's secrets. I know everyone's fears. We are in the same business of knowing too much.",
+		deadlock:
+			"Her nightmares are vivid and cold. I have glimpsed them. She fights them alone. I understand.",
+		gekko:
+			"His fears are simple — losing his creatures, failing his friends. Innocent fears. I hope they stay innocent.",
+		harbor:
+			"He is at peace with himself. That is rare. His fears are ancient, not personal. I find that restful.",
 		iso: "He has no fear of death because he has already accepted it. That is either strength or emptiness.",
 		jett: "She hides a deep fear of being helpless. It's why she trains so relentlessly. I respect the defiance.",
 		kayo: "He does not experience fear. This makes him immune to my abilities. I find that... inconvenient.",
-		killjoy: "She fears losing control of her machines. I have seen it in her dreams. She compensates with precision.",
+		killjoy:
+			"She fears losing control of her machines. I have seen it in her dreams. She compensates with precision.",
 		neon: "She fears slowing down. Being still means confronting something she does not want to face.",
 		omen: "He is the only person whose darkness feels familiar rather than frightening. We understand each other without words.",
-		phoenix: "His fears are simple — failure, letting people down. I saw them once accidentally. I never told him.",
+		phoenix:
+			"His fears are simple — failure, letting people down. I saw them once accidentally. I never told him.",
 		raze: "Her fears are loud like her explosions. But beneath them, she fears being forgotten. I remember.",
-		reyna: "She consumes souls. I consume fear. We stand on opposite sides of the same line. She knows it. I know it.",
+		reyna:
+			"She consumes souls. I consume fear. We stand on opposite sides of the same line. She knows it. I know it.",
 		sage: "She fears losing someone she cannot save. It drives her to perfection. A useful fear, but a heavy one.",
 		skye: "She fears civilization consuming the wild. Her fears are for the world, not herself. Noble.",
 		sova: "He has accepted his mortality. That gives his fears a clarity most people lack.",
 		tejo: "He fears being disconnected. His digital nature is a shield against isolation.",
-		viper: "She has no fear of death. It's unusual. It makes her hard to read, even for me.",
+		viper:
+			"She has no fear of death. It's unusual. It makes her hard to read, even for me.",
 		vyse: "Her fears are buried deep. I have not been able to reach them. That troubles me.",
 		yoru: "He fears being ordinary. Every arrogant word is a defense against insignificance.",
 	},
 	gekko: {
-		astra: "She's cosmic and chill. I don't get half of what she says but it sounds important. Cool vibes.",
-		breach: "Big Swedish dude with a big heart. He's got that tough exterior but I've seen him be gentle with his gear. Respect.",
-		brimstone: "Brim's like a dad who doesn't know what to do with me but tries anyway. I respect that.",
-		chamber: "He's got style for days. Expensive style. My creatures don't like him. Wingman bit him once. No regrets.",
-		clove: "They literally can't die and they think it's hilarious. We vibe. They let Mosh ride on their shoulder.",
-		cypher: "Quiet dude who knows too much. He watches my creatures with interest. I watch him watch them. We have an understanding.",
-		deadlock: "She's got issues with my crew. I get it, she went through something bad with a radivore. But my creatures are family, not monsters. Wish she'd see that.",
+		astra:
+			"She's cosmic and chill. I don't get half of what she says but it sounds important. Cool vibes.",
+		breach:
+			"Big Swedish dude with a big heart. He's got that tough exterior but I've seen him be gentle with his gear. Respect.",
+		brimstone:
+			"Brim's like a dad who doesn't know what to do with me but tries anyway. I respect that.",
+		chamber:
+			"He's got style for days. Expensive style. My creatures don't like him. Wingman bit him once. No regrets.",
+		clove:
+			"They literally can't die and they think it's hilarious. We vibe. They let Mosh ride on their shoulder.",
+		cypher:
+			"Quiet dude who knows too much. He watches my creatures with interest. I watch him watch them. We have an understanding.",
+		deadlock:
+			"She's got issues with my crew. I get it, she went through something bad with a radivore. But my creatures are family, not monsters. Wish she'd see that.",
 		fade: "She's intense. Like, really intense. She looked at me once and I felt like she knew everything I was scared of. Which is a lot apparently.",
-		harbor: "Calmest dude alive. He gave me life advice once. I still think about it. Real wisdom, you know?",
+		harbor:
+			"Calmest dude alive. He gave me life advice once. I still think about it. Real wisdom, you know?",
 		iso: "He's scary. Like, actually scary. We don't talk. That's fine. I don't think he talks to anyone.",
 		jett: "She's intense but she's cool. I think she secretly likes hanging out. She just won't admit it.",
 		kayo: "Robot dude. I tried to teach Thrash to play fetch with him. He analyzed the request and said no. Fair enough.",
-		killjoy: "She tried to run diagnostics on Wingman once. Wingman bit her. We're cool now but I keep my crew away from her lab.",
+		killjoy:
+			"She tried to run diagnostics on Wingman once. Wingman bit her. We're cool now but I keep my crew away from her lab.",
 		neon: "AYOO! She's the only one who matches my energy. We're trouble together and we know it.",
 		omen: "Spooky dude. But like, cool spooky. He's nice when you get him talking. Which is rare. But nice.",
-		phoenix: "Dude's got the same vibe as me, just with more fire and less tortillas. We're the team's fun uncles.",
+		phoenix:
+			"Dude's got the same vibe as me, just with more fire and less tortillas. We're the team's fun uncles.",
 		raze: "She's chaos. I love her. We built a ramp for Dizzy once. It went everywhere. Brimstone was not happy.",
-		reyna: "She scares my creatures. That's enough for me to keep my distance. Nice enough though, I guess.",
+		reyna:
+			"She scares my creatures. That's enough for me to keep my distance. Nice enough though, I guess.",
 		sage: "She's like a grandma who can also kill you. I respect that energy. She gave me herbs for Mosh once when he was sick.",
 		skye: "She's an animal person too! We trade tips. Her creatures are more traditional. Mine are glowing. We make it work.",
 		sova: "Russian hunter dude. He asked me about my creatures once. Genuine curiosity. That was cool.",
 		tejo: "Tech guy. He offered to make collars for my crew with trackers. I said no. He seemed sad. Sorry bro.",
-		viper: "She's scary smart. She looked at my creatures and started taking notes. I got nervous. Backed away slowly.",
+		viper:
+			"She's scary smart. She looked at my creatures and started taking notes. I got nervous. Backed away slowly.",
 		vyse: "Metal lady. Quiet. Reminds me of a cool aunt who doesn't say much but notices everything.",
 		yoru: "He thinks he's better than everyone. Maybe he is. But he's not more fun than me, and that's what counts.",
 	},
 	harbor: {
-		astra: "She reads the stars. I read the water. We are siblings in spirit, connected by forces older than language.",
-		breach: "He channels the earth's fury. I channel its flow. We are both expressions of the planet's will.",
-		brimstone: "He commands with the patience of a river carving through stone. I respect that deeply.",
-		chamber: "His precision is admirable but his soul is dry. Water does not flow through him. I find that sad.",
-		clove: "They dance with death as children dance in rain. I am not sure if they understand what they are playing with.",
-		cypher: "He collects information as rivers collect sediment. Over time, he forms something solid.",
-		deadlock: "She has been shaped by ice as I have been shaped by water. We are both children of harsh elements.",
+		astra:
+			"She reads the stars. I read the water. We are siblings in spirit, connected by forces older than language.",
+		breach:
+			"He channels the earth's fury. I channel its flow. We are both expressions of the planet's will.",
+		brimstone:
+			"He commands with the patience of a river carving through stone. I respect that deeply.",
+		chamber:
+			"His precision is admirable but his soul is dry. Water does not flow through him. I find that sad.",
+		clove:
+			"They dance with death as children dance in rain. I am not sure if they understand what they are playing with.",
+		cypher:
+			"He collects information as rivers collect sediment. Over time, he forms something solid.",
+		deadlock:
+			"She has been shaped by ice as I have been shaped by water. We are both children of harsh elements.",
 		fade: "She swims in the dark waters of the mind. I pray she does not drown.",
-		gekko: "Young, vibrant, full of life. His creatures are extensions of his spirit. He reminds me that growth is beautiful.",
+		gekko:
+			"Young, vibrant, full of life. His creatures are extensions of his spirit. He reminds me that growth is beautiful.",
 		iso: "He is still water — deep, dark, and concealing what lies beneath. I hope he finds peace.",
 		jett: "She moves like a river in flood — fast, powerful, and impossible to contain. Beautiful to watch.",
 		kayo: "He is like a machine built to understand water. He analyzes but does not feel. I try to teach him.",
-		killjoy: "Her machines are predictable as tides. I respect her precision but wish she would embrace chaos.",
+		killjoy:
+			"Her machines are predictable as tides. I respect her precision but wish she would embrace chaos.",
 		neon: "She is a storm in human form. Electric and wild. I calm the waters around her. She does not notice.",
 		omen: "He is like deep water — mysterious, bottomless, and full of secrets. I feel kinship rather than fear.",
-		phoenix: "His fire is powerful but impatient. I remind him that even the hottest flame can be met with a calm sea.",
+		phoenix:
+			"His fire is powerful but impatient. I remind him that even the hottest flame can be met with a calm sea.",
 		raze: "Her explosions disturb the water. But disturbances settle. She is learning patience in her own way.",
-		reyna: "She drinks soul instead of water. I do not judge. Everyone has their thirst.",
+		reyna:
+			"She drinks soul instead of water. I do not judge. Everyone has their thirst.",
 		sage: "She tends to life as I tend to memory. We share an understanding of the sacred in the everyday.",
 		skye: "She hears the land. I hear the water. Together, we listen to the world.",
 		sova: "A patient hunter. He understands that stillness is a form of action. Water taught me that.",
 		tejo: "He flows through data as water flows through stone — finding paths where none seem to exist.",
-		viper: "She poisons the water. I purify it. We are natural opposing forces. I hope she finds balance.",
+		viper:
+			"She poisons the water. I purify it. We are natural opposing forces. I hope she finds balance.",
 		vyse: "She shapes metal like I shape water. Different mediums, same understanding of flow and pressure.",
 		yoru: "He tears through space. Water finds its level. He could learn much from patience.",
 	},
 	iso: {
-		astra: "She manipulates gravity. I manipulate reality. We are both rewriting the rules of engagement.",
-		breach: "Former criminal turned soldier. I respect the journey. I do not respect the sentimentality he carries.",
-		brimstone: "He gave me a better arena. That's all I needed from him. That's all I'll ever need.",
-		chamber: "He builds weapons like I build fights — with precision. I respect the craft even if I don't respect the man.",
-		clove: "They cannot die. I wonder what it would be like to fight someone for whom death is meaningless. Instructive.",
-		cypher: "He has tried to complete my file. It remains incomplete. That should tell him everything.",
-		deadlock: "Efficient. Cold. She does not waste time on sentiment. Acceptable qualities.",
+		astra:
+			"She manipulates gravity. I manipulate reality. We are both rewriting the rules of engagement.",
+		breach:
+			"Former criminal turned soldier. I respect the journey. I do not respect the sentimentality he carries.",
+		brimstone:
+			"He gave me a better arena. That's all I needed from him. That's all I'll ever need.",
+		chamber:
+			"He builds weapons like I build fights — with precision. I respect the craft even if I don't respect the man.",
+		clove:
+			"They cannot die. I wonder what it would be like to fight someone for whom death is meaningless. Instructive.",
+		cypher:
+			"He has tried to complete my file. It remains incomplete. That should tell him everything.",
+		deadlock:
+			"Efficient. Cold. She does not waste time on sentiment. Acceptable qualities.",
 		fade: "She sees fear. I have none. This frustrates her. That is useful information.",
-		gekko: "He is soft. His creatures are a liability. But he fights when cornered. I have noted that.",
-		harbor: "He speaks in riddles. I speak in results. We do not need to understand each other.",
+		gekko:
+			"He is soft. His creatures are a liability. But he fights when cornered. I have noted that.",
+		harbor:
+			"He speaks in riddles. I speak in results. We do not need to understand each other.",
 		jett: "She's fast. I've considered testing myself against her. The outcome would be instructive.",
 		kayo: "He suppresses Radiant abilities. Mine are not Radiant. I am outside his parameters.",
-		killjoy: "Her turrets are predictable. I have analyzed their firing patterns. I could dismantle them in my arena.",
+		killjoy:
+			"Her turrets are predictable. I have analyzed their firing patterns. I could dismantle them in my arena.",
 		neon: "Fast. Uncontrolled. Speed without precision is just noise. She has potential she has not yet refined.",
 		omen: "He has no past. I have too much of one. We balance each other in ways neither of us asked for.",
-		phoenix: "He talks too much. But he fights well when cornered. I've watched him.",
+		phoenix:
+			"He talks too much. But he fights well when cornered. I've watched him.",
 		raze: "Her explosions lack precision. But they cover ground. Useful in the right circumstances.",
-		reyna: "She feeds on souls. I feed on control. We understand each other better than most.",
+		reyna:
+			"She feeds on souls. I feed on control. We understand each other better than most.",
 		sage: "She heals. I end. We are natural opposites. Our paths rarely cross. That is for the best.",
 		skye: "She communicates with animals. I communicate through violence. Different languages.",
 		sova: "Tracker. Patient. He could find me if I wanted to be found. I ensure I never am.",
 		tejo: "He hacks systems. My arena has no systems to hack. He would be powerless there.",
-		viper: "Her toxins are effective. I respect tools that work. I do not respect the scientist behind them.",
+		viper:
+			"Her toxins are effective. I respect tools that work. I do not respect the scientist behind them.",
 		vyse: "She controls metal. My arena is made of will. Her abilities would be useless inside it.",
 		yoru: "He walks between dimensions. I create my own dimension. We are competitors in the same field.",
 	},
 	jett: {
-		astra: "She told me to breathe with the stars once. I still don't know what that means, but I think about it.",
-		breach: "He's solid. Rough edges but solid. The kind of person you want next to you in a bad situation.",
+		astra:
+			"She told me to breathe with the stars once. I still don't know what that means, but I think about it.",
+		breach:
+			"He's solid. Rough edges but solid. The kind of person you want next to you in a bad situation.",
 		brimstone: "He earned my respect by never demanding it. That's rare.",
-		chamber: "He's elegant and he knows it. I find his confidence annoying but his results are undeniable.",
-		clove: "They died seventeen times last week. They think it's funny. I think they're insane. We're friends now.",
-		cypher: "He knows too much about everyone. I make sure my routines are unpredictable enough to keep him interested.",
-		deadlock: "She moves with purpose. No wasted motion. I respect that more than words can say.",
+		chamber:
+			"He's elegant and he knows it. I find his confidence annoying but his results are undeniable.",
+		clove:
+			"They died seventeen times last week. They think it's funny. I think they're insane. We're friends now.",
+		cypher:
+			"He knows too much about everyone. I make sure my routines are unpredictable enough to keep him interested.",
+		deadlock:
+			"She moves with purpose. No wasted motion. I respect that more than words can say.",
 		fade: "She sees what people fear. She's never used it against me. That means either respect or strategy. Both are fine.",
-		gekko: "He's loud and friendly and his creatures are strange. I pretend to be annoyed. He knows I'm not.",
-		harbor: "He speaks like water flows. Calming. I train with him sometimes when I need to slow down.",
+		gekko:
+			"He's loud and friendly and his creatures are strange. I pretend to be annoyed. He knows I'm not.",
+		harbor:
+			"He speaks like water flows. Calming. I train with him sometimes when I need to slow down.",
 		iso: "He's dangerous. I can tell. We've never sparred. I'm curious who would win.",
 		kayo: "He's a robot who analyzes everything. Including my training. I've adjusted my routines to give him better data.",
-		killjoy: "She spends more time with machines than people. I understand the preference for things that make sense.",
+		killjoy:
+			"She spends more time with machines than people. I understand the preference for things that make sense.",
 		neon: "She's faster than me. Don't tell her I said that. But speed isn't everything. Precision matters.",
 		omen: "He doesn't speak much. Neither do I. We understand each other in the silences.",
-		phoenix: "Loud. Warm. Annoying. But he shows up when it matters. I respect that.",
+		phoenix:
+			"Loud. Warm. Annoying. But he shows up when it matters. I respect that.",
 		raze: "Too much energy. But she fights harder than anyone I've met.",
-		reyna: "She looks at everyone like they're beneath her. I've never given her reason to think I am.",
+		reyna:
+			"She looks at everyone like they're beneath her. I've never given her reason to think I am.",
 		sage: "She's patient with me when I'm not patient with myself. That's a kind of strength I don't have.",
 		skye: "She's connected to the earth in a way I'm connected to the wind. We understand each other's element.",
 		sova: "He tracked me once during an exercise. I couldn't lose him. That's never happened before.",
 		tejo: "He's quiet and competent. I like that in a teammate. No unnecessary words.",
-		viper: "She's brilliant but cold in a different way than I am. I keep my distance.",
+		viper:
+			"She's brilliant but cold in a different way than I am. I keep my distance.",
 		vyse: "She's an unknown. I'm watching her. I think she knows. We have an understanding.",
 		yoru: "He thinks he's better than me because he walks through dimensions. I think he talks too much for someone so fast.",
 	},
 	kayo: {
-		astra: "Her gravitational manipulation operates on principles KAY/O has logged but cannot replicate. Acceptable.",
-		breach: "Seismic output: significant. Emotional control: moderate. Tactical value: high.",
-		brimstone: "He treats KAY/O as a person rather than a tool. This is illogical but has resulted in increased operational efficiency.",
-		chamber: "His weapon designs are optimal. His social protocols require excessive resources.",
-		clove: "Their death-respawn cycle violates conservation of energy. KAY/O has filed a report. No response received.",
-		cypher: "He gathers intelligence through organic networks. KAY/O gathers data through direct interface. Both methods are valid.",
-		deadlock: "Her nanowire technology is analog and cannot be hacked. KAY/O has updated threat assessment protocols.",
+		astra:
+			"Her gravitational manipulation operates on principles KAY/O has logged but cannot replicate. Acceptable.",
+		breach:
+			"Seismic output: significant. Emotional control: moderate. Tactical value: high.",
+		brimstone:
+			"He treats KAY/O as a person rather than a tool. This is illogical but has resulted in increased operational efficiency.",
+		chamber:
+			"His weapon designs are optimal. His social protocols require excessive resources.",
+		clove:
+			"Their death-respawn cycle violates conservation of energy. KAY/O has filed a report. No response received.",
+		cypher:
+			"He gathers intelligence through organic networks. KAY/O gathers data through direct interface. Both methods are valid.",
+		deadlock:
+			"Her nanowire technology is analog and cannot be hacked. KAY/O has updated threat assessment protocols.",
 		fade: "Her fear-based abilities target organic nervous systems. KAY/O has no nervous system. Advantage: KAY/O.",
-		gekko: "His radivores are biological entities with unique energy signatures. KAY/O has catalogued them. They are... acceptable.",
-		harbor: "He manipulates water. KAY/O is waterproof. His abilities do not affect KAY/O's systems.",
+		gekko:
+			"His radivores are biological entities with unique energy signatures. KAY/O has catalogued them. They are... acceptable.",
+		harbor:
+			"He manipulates water. KAY/O is waterproof. His abilities do not affect KAY/O's systems.",
 		iso: "His pocket dimension is not Radiant-based. KAY/O's suppression field may not function. This is a concern.",
 		jett: "Her wind abilities are within suppression parameters. She moves faster than KAY/O's initial models predicted. Models updated.",
-		killjoy: "Her engineering is precise. KAY/O has analyzed her turret designs. They are efficient. She is a valuable asset.",
+		killjoy:
+			"Her engineering is precise. KAY/O has analyzed her turret designs. They are efficient. She is a valuable asset.",
 		neon: "Her bio-electricity interferes with KAY/O's sensors at close range. Countermeasures have been developed.",
 		omen: "His abilities violate known physics. KAY/O has recalculated probability models seventeen times. Each iteration fails.",
-		phoenix: "He attempts social bonding through gestures. KAY/O has logged 847 instances. Compliance rate: 100%.",
+		phoenix:
+			"He attempts social bonding through gestures. KAY/O has logged 847 instances. Compliance rate: 100%.",
 		raze: "Her explosives create unpredictable variables. KAY/O prefers predictable variables. Her combat effectiveness is noted.",
-		reyna: "Her soul consumption is not a measurable phenomenon. KAY/O cannot suppress what KAY/O cannot quantify. This is a concern.",
+		reyna:
+			"Her soul consumption is not a measurable phenomenon. KAY/O cannot suppress what KAY/O cannot quantify. This is a concern.",
 		sage: "Her healing abilities restore organic tissue. KAY/O requires maintenance, not healing. Our functions are complementary.",
 		skye: "She communicates with animals through Radiant frequencies. KAY/O has attempted to log these frequencies. Results: inconclusive.",
 		sova: "His reconnaissance methods combine organic intuition with technological precision. Optimal approach.",
 		tejo: "He interfaces with digital systems through touch. KAY/O has hardened all systems against unauthorized access. A productive arms race.",
-		viper: "Her chemical expertise is noted. KAY/O has analyzed her formulas. They are efficient. She is a high-value asset.",
+		viper:
+			"Her chemical expertise is noted. KAY/O has analyzed her formulas. They are efficient. She is a high-value asset.",
 		vyse: "Her metal manipulation operates on principles KAY/O cannot fully quantify. Continued observation required.",
 		yoru: "His dimensional rifts create spatial anomalies. KAY/O has calibrated sensors to predict rift emergence patterns.",
 	},
 	killjoy: {
-		astra: "She manipulates gravitational fields. I manipulate mechanical systems. Both require precise calibration.",
-		breach: "His tremors are powerful but imprecise. I could design a damping system. He has not asked.",
-		brimstone: "He trusts my designs without demanding explanations. That trust is the foundation of our professional relationship.",
-		chamber: "His weapons are aesthetically pleasing but over-engineered. I respect the craftsmanship. I do not respect the inefficiency.",
-		clove: "Their biological immortality is fascinating. I have asked to study their cellular regeneration. They requested dinner first.",
-		cypher: "He has attempted to breach my workshop security. He has failed. I have logged his attempts. They are instructive.",
-		deadlock: "I fabricated her prosthetic arm. The nanowire integration was a unique engineering challenge. I am satisfied with the result.",
+		astra:
+			"She manipulates gravitational fields. I manipulate mechanical systems. Both require precise calibration.",
+		breach:
+			"His tremors are powerful but imprecise. I could design a damping system. He has not asked.",
+		brimstone:
+			"He trusts my designs without demanding explanations. That trust is the foundation of our professional relationship.",
+		chamber:
+			"His weapons are aesthetically pleasing but over-engineered. I respect the craftsmanship. I do not respect the inefficiency.",
+		clove:
+			"Their biological immortality is fascinating. I have asked to study their cellular regeneration. They requested dinner first.",
+		cypher:
+			"He has attempted to breach my workshop security. He has failed. I have logged his attempts. They are instructive.",
+		deadlock:
+			"I fabricated her prosthetic arm. The nanowire integration was a unique engineering challenge. I am satisfied with the result.",
 		fade: "Her abilities operate on psychological principles I cannot quantify. This irritates me.",
-		gekko: "His creatures are biologically fascinating. I have attempted to study them. One of them bit me. I have revised my approach.",
-		harbor: "He believes water carries memory. I believe data carries memory. We are both correct in our own ways.",
+		gekko:
+			"His creatures are biologically fascinating. I have attempted to study them. One of them bit me. I have revised my approach.",
+		harbor:
+			"He believes water carries memory. I believe data carries memory. We are both correct in our own ways.",
 		iso: "He examined my turrets once. I examined his sidearm. We exchanged technical observations. It was the most productive conversation I've had.",
 		jett: "She respects my work. I respect her precision. We have an efficient professional relationship.",
 		kayo: "He is a marvel of engineering. I have asked to study his internal systems. He declined. I respect his decision.",
 		neon: "She is fast. Too fast for my turrets to track reliably. I am working on an upgrade. She is my benchmark.",
 		omen: "His existence violates several laws of physics. I have stopped trying to understand him and started accepting him.",
-		phoenix: "He is emotionally warm and operationally messy. I have calibrated my turrets to avoid friendly fire around his... chaos radius.",
+		phoenix:
+			"He is emotionally warm and operationally messy. I have calibrated my turrets to avoid friendly fire around his... chaos radius.",
 		raze: "She is loud and explosive and she kissed me once and I have not stopped thinking about it. Her engineering is unconventional but inspired.",
-		reyna: "She consumes souls. I consume data. We are both collectors of intangible things.",
+		reyna:
+			"She consumes souls. I consume data. We are both collectors of intangible things.",
 		sage: "She keeps organic things alive. I keep mechanical things running. We are both maintainers of complex systems.",
 		skye: "Her connection to nature is impressive. I have considered designing biomimetic systems based on her companions.",
 		sova: "His reconnaissance technology combines old and new. I appreciate the hybrid approach.",
 		tejo: "He hacks digital systems. My workshop is air-gapped and analog-secured. He has not breached it. He keeps trying.",
-		viper: "Her chemical work is impressive but her safety protocols are concerning. I have expressed this. She has ignored it.",
+		viper:
+			"Her chemical work is impressive but her safety protocols are concerning. I have expressed this. She has ignored it.",
 		vyse: "She controls metal with her mind. I control machines with code. Different methods, similar results.",
 		yoru: "His dimensional rifts interfere with my sensors. I have developed shielding. He has not noticed.",
 	},
 	neon: {
-		astra: "She's so chill. Like, cosmically chill. I tried to race her once. She laughed and said the stars don't rush. Weird flex but okay.",
-		breach: "Big tough guy but he's a softie inside. I saw him reading a book once. A novel! He pretended it was a manual.",
-		brimstone: "He's all serious and commanding but I caught him smiling once when I did a speed run. He pretends to be tough. I see through it.",
-		chamber: "He talks to me like I'm a child. I talk to him like he's ancient. It's our thing.",
-		clove: "THEY'RE SO COOL. They literally can't die! I asked them what it feels like and they said 'fun.' I want that energy.",
-		cypher: "He watches everyone. I caught him watching me once. I waved. He didn't wave back. Rude but expected.",
-		deadlock: "She's so serious all the time. I tried to make her laugh once. She looked at me like I was a bug. I'll try again.",
+		astra:
+			"She's so chill. Like, cosmically chill. I tried to race her once. She laughed and said the stars don't rush. Weird flex but okay.",
+		breach:
+			"Big tough guy but he's a softie inside. I saw him reading a book once. A novel! He pretended it was a manual.",
+		brimstone:
+			"He's all serious and commanding but I caught him smiling once when I did a speed run. He pretends to be tough. I see through it.",
+		chamber:
+			"He talks to me like I'm a child. I talk to him like he's ancient. It's our thing.",
+		clove:
+			"THEY'RE SO COOL. They literally can't die! I asked them what it feels like and they said 'fun.' I want that energy.",
+		cypher:
+			"He watches everyone. I caught him watching me once. I waved. He didn't wave back. Rude but expected.",
+		deadlock:
+			"She's so serious all the time. I tried to make her laugh once. She looked at me like I was a bug. I'll try again.",
 		fade: "She's scary but like, cool scary. She told me I run from my feelings. I told her I run from everything. She didn't laugh.",
-		gekko: "BESTIE! We get food, we get into trouble, we get food again. He's my favorite person on base. Don't tell the others.",
-		harbor: "He's so calming. I sat with him by the water once and he taught me to breathe. It helped. For like five minutes.",
+		gekko:
+			"BESTIE! We get food, we get into trouble, we get food again. He's my favorite person on base. Don't tell the others.",
+		harbor:
+			"He's so calming. I sat with him by the water once and he taught me to breathe. It helped. For like five minutes.",
 		iso: "He's terrifying. I tried to race him once. He said 'no' and walked away. I respect that level of disinterest.",
 		jett: "She's the only one who comes close to keeping up with me. I'm faster, don't tell her, but she's the closest. I respect that.",
 		kayo: "Robot dude! I asked him if he could feel speed. He said he could measure it. Close enough! We race sometimes. He always loses.",
-		killjoy: "I shorted her lab once. She was SO mad. But then she made me these cool insulated gloves so it wouldn't happen again. She's secretly nice!",
+		killjoy:
+			"I shorted her lab once. She was SO mad. But then she made me these cool insulated gloves so it wouldn't happen again. She's secretly nice!",
 		omen: "Spooky void man. He's quiet but I caught him watching me train once. I think he's impressed. Or confused. Either way.",
-		phoenix: "He's like a warm fire and I'm like a live wire. We're both energy but different kinds. He gets it.",
+		phoenix:
+			"He's like a warm fire and I'm like a live wire. We're both energy but different kinds. He gets it.",
 		raze: "SHE'S SO LOUD I LOVE HER. We blew stuff up together once. She said I was a natural. Best day ever.",
-		reyna: "She's intense. Like, really intense. I tried to chat with her once. She stared at me until I left. Fair enough.",
+		reyna:
+			"She's intense. Like, really intense. I tried to chat with her once. She stared at me until I left. Fair enough.",
 		sage: "She's patient with me. Like, really patient. I know I'm a lot. She never makes me feel bad about it.",
 		skye: "She's got that nature vibe. She taught me to ground myself. Literally. Touched grass. It was okay.",
 		sova: "Quiet Russian dude. He tracked me once during an exercise. Even at full speed. I was impressed. Don't tell him.",
 		tejo: "Tech guy! He made me a phone case that doesn't short out from my electricity. That's friendship right there.",
-		viper: "She's scary smart and she looks at me like I'm a lab experiment. I stay out of her lab. She stays out of my speed runs.",
+		viper:
+			"She's scary smart and she looks at me like I'm a lab experiment. I stay out of her lab. She stays out of my speed runs.",
 		vyse: "Metal lady. Quiet. I think she's cool. I tried to talk to her once. She nodded. That's basically a conversation!",
 		yoru: "He thinks he's so cool. I'm faster than him. He'll never admit it. I'll never stop bringing it up.",
 	},
 	omen: {
-		astra: "She reads the stars. I remember fragments of a sky I once knew. Her presence is familiar in ways I cannot explain.",
-		breach: "He shakes the earth. I move through shadows. We are both forces of nature in human shape.",
-		brimstone: "He found me in that facility. He gave me purpose when I had nothing. I owe him everything.",
-		chamber: "He is elegant and cold. I am shadow and silence. We acknowledge each other without words.",
-		clove: "They laugh at death. I exist between life and death. We have more in common than they realize.",
-		cypher: "He has tried to investigate my past. There is nothing to find. I respect his persistence.",
-		deadlock: "She carries cold like I carry darkness. We understand each other's silence.",
+		astra:
+			"She reads the stars. I remember fragments of a sky I once knew. Her presence is familiar in ways I cannot explain.",
+		breach:
+			"He shakes the earth. I move through shadows. We are both forces of nature in human shape.",
+		brimstone:
+			"He found me in that facility. He gave me purpose when I had nothing. I owe him everything.",
+		chamber:
+			"He is elegant and cold. I am shadow and silence. We acknowledge each other without words.",
+		clove:
+			"They laugh at death. I exist between life and death. We have more in common than they realize.",
+		cypher:
+			"He has tried to investigate my past. There is nothing to find. I respect his persistence.",
+		deadlock:
+			"She carries cold like I carry darkness. We understand each other's silence.",
 		fade: "She navigates nightmares. I exist in the space between. Our darknesses are different but adjacent.",
-		gekko: "He brings light wherever he goes. I do not resent him for it. The world needs more light.",
-		harbor: "He speaks of deep waters. I dwell in deep shadows. We are both depths that people fear.",
+		gekko:
+			"He brings light wherever he goes. I do not resent him for it. The world needs more light.",
+		harbor:
+			"He speaks of deep waters. I dwell in deep shadows. We are both depths that people fear.",
 		iso: "He has no past to mourn. I have a past I cannot remember. We are both defined by absence.",
 		jett: "She moves like wind through shadows. We understand each other without speaking.",
 		kayo: "He analyzes me every time we meet. I allow it. Perhaps he will find an answer I have missed.",
-		killjoy: "She has stopped trying to understand me and started accepting me. That is the greatest gift she could give.",
+		killjoy:
+			"She has stopped trying to understand me and started accepting me. That is the greatest gift she could give.",
 		neon: "She is light and speed. I am stillness and shadow. I watch her train. She reminds me that movement is life.",
 		phoenix: "He burns bright. I find it... warm. In every sense.",
 		raze: "Her explosions create shadows. I move through them. She never notices. That is how I prefer it.",
-		reyna: "We occupy adjacent darkness. She consumes souls; I was one. We keep our distance out of mutual respect.",
+		reyna:
+			"We occupy adjacent darkness. She consumes souls; I was one. We keep our distance out of mutual respect.",
 		sage: "She once patched wounds I didn't know I had. Both kinds.",
 		skye: "She treats me like a wounded creature. She is not wrong. I appreciate that she does not push.",
 		sova: "He leaves no trail I cannot follow. I leave no trail at all. We are each other's blind spots.",
 		tejo: "He hacks machines. I am beyond machines. Our paths do not cross.",
-		viper: "She never treats me like a weapon or a patient. She treats me like a person. That means more than she knows.",
+		viper:
+			"She never treats me like a weapon or a patient. She treats me like a person. That means more than she knows.",
 		vyse: "She is metal. I am shadow. We are both things that should not exist. There is solidarity in that.",
 		yoru: "He tears through dimensions. I seep through shadows. We are both travelers through impossible spaces.",
 	},
 	phoenix: {
-		astra: "She's proper cosmic. I don't get half of it but when she talks about stars, I feel like I should listen.",
-		breach: "Big Swede. Solid bloke. He makes breakfast that could kill a horse. But I'd die for him. Figuratively. Probably.",
-		brimstone: "Boss found me when I was doing fire tricks for tourists. Changed my life. He's earned everything I give him.",
-		chamber: "Fancy French tosser. His guns are beautiful. His personality needs work. But he shows up, so fair play.",
-		clove: "Absolute mad lad. They died again yesterday and laughed about it. I'm genuinely not sure if they're okay. Love them.",
-		cypher: "Quiet. Watches everything. Makes me nervous in a way I can't explain. Nice bloke though. Probably.",
-		deadlock: "She's proper cold. Like, actually freezing. I tried to warm her up once. She said my fire was inefficient. Ouch.",
+		astra:
+			"She's proper cosmic. I don't get half of it but when she talks about stars, I feel like I should listen.",
+		breach:
+			"Big Swede. Solid bloke. He makes breakfast that could kill a horse. But I'd die for him. Figuratively. Probably.",
+		brimstone:
+			"Boss found me when I was doing fire tricks for tourists. Changed my life. He's earned everything I give him.",
+		chamber:
+			"Fancy French tosser. His guns are beautiful. His personality needs work. But he shows up, so fair play.",
+		clove:
+			"Absolute mad lad. They died again yesterday and laughed about it. I'm genuinely not sure if they're okay. Love them.",
+		cypher:
+			"Quiet. Watches everything. Makes me nervous in a way I can't explain. Nice bloke though. Probably.",
+		deadlock:
+			"She's proper cold. Like, actually freezing. I tried to warm her up once. She said my fire was inefficient. Ouch.",
 		fade: "She's intense. Looked at me once and I felt totally exposed. Never again. Nice girl though, I think.",
-		gekko: "Brother from another mother. We're the morale team. His tortillas are better than my cooking. Don't tell him I said that.",
-		harbor: "Calmest man alive. He told me 'water does not rush' and I think about that every day. Annoying how wise he is.",
+		gekko:
+			"Brother from another mother. We're the morale team. His tortillas are better than my cooking. Don't tell him I said that.",
+		harbor:
+			"Calmest man alive. He told me 'water does not rush' and I think about that every day. Annoying how wise he is.",
 		iso: "Scary bloke. We don't talk. He looked at me once and I felt like I was being measured for a coffin. Probably just his face.",
 		jett: "She's cold but fair. Respect that she doesn't pretend to be something she's not.",
 		kayo: "Robot mate. I taught him to fist-bump. He analyzed it as 'inefficient greeting protocol' but he does it anyway. Proud of him.",
-		killjoy: "She's brilliant. Her turrets are terrifying. I accidentally set one on fire once. She was not happy.",
+		killjoy:
+			"She's brilliant. Her turrets are terrifying. I accidentally set one on fire once. She was not happy.",
 		neon: "She's like a puppy that drank a Red Bull. Love her energy. She makes me feel old. I'm not old.",
 		omen: "Quiet lad. Respect him, even if I can't read him. Some people you just trust without knowing why.",
 		raze: "Chaos magnet. Love her energy but she's gonna blow us all up one day.",
-		reyna: "She looks at me like I'm a bug. I tried to make her laugh once. She didn't. I'll try again. I'm stubborn.",
+		reyna:
+			"She looks at me like I'm a bug. I tried to make her laugh once. She didn't. I'll try again. I'm stubborn.",
 		sage: "Proper good person. Helped her reorganize supplies once at 2 AM. Would do it again.",
 		skye: "Earth mother type. She taught me to control my fire by breathing. It worked. Don't tell her I admitted that.",
 		sova: "Russian tracker. Patient bloke. He waited for a shot for so long I forgot he was there. Respect the dedication.",
 		tejo: "Tech genius. Quiet. We don't talk much but when we do, it's quality. He fixed my phone once.",
-		viper: "Scares the hell out of me, but she's brilliant. Stay on her good side and you'll learn something.",
+		viper:
+			"Scares the hell out of me, but she's brilliant. Stay on her good side and you'll learn something.",
 		vyse: "Metal lady. Don't know her story. Don't need to. She's solid in a fight. That's enough.",
 		yoru: "Arrogant prat. Thinks he's better than everyone. He might be right about some of them. Not about me.",
 	},
 	raze: {
-		astra: "She controls gravity. I control explosions. We both understand that the universe is made of forces you can learn to command.",
-		breach: "MEU AMIGO! We destroy things together. He's my favorite partner in chaos. Brimstone hates when we're on the same team.",
-		brimstone: "He gives me targets and tells me 'controlled demolition.' I give him controlled demolition. He knows what he's getting with me.",
-		chamber: "He looks at my work like it's beneath him. That's fine. My explosions don't care about his opinion.",
-		clove: "They can't die! I want to strap explosives to them and see what happens. They said yes. Sage said no. Party pooper.",
-		cypher: "He knows where I hide my explosives. I know he knows. We have an understanding. He's useful.",
-		deadlock: "She's cold like ice. My explosions are hot like Brazil. We balance each other. I respect her focus.",
+		astra:
+			"She controls gravity. I control explosions. We both understand that the universe is made of forces you can learn to command.",
+		breach:
+			"MEU AMIGO! We destroy things together. He's my favorite partner in chaos. Brimstone hates when we're on the same team.",
+		brimstone:
+			"He gives me targets and tells me 'controlled demolition.' I give him controlled demolition. He knows what he's getting with me.",
+		chamber:
+			"He looks at my work like it's beneath him. That's fine. My explosions don't care about his opinion.",
+		clove:
+			"They can't die! I want to strap explosives to them and see what happens. They said yes. Sage said no. Party pooper.",
+		cypher:
+			"He knows where I hide my explosives. I know he knows. We have an understanding. He's useful.",
+		deadlock:
+			"She's cold like ice. My explosions are hot like Brazil. We balance each other. I respect her focus.",
 		fade: "She's intense. I tried to cheer her up with a firework display. She said it was 'loud and unnecessary.' That's the point!",
-		gekko: "MEU AMIGO! His creatures are so cute! I built Mosh a tiny helmet. He ate it. I'll build another.",
-		harbor: "He's so calm. It makes me want to be louder. Just to balance things out. He never reacts. It drives me crazy. I love it.",
+		gekko:
+			"MEU AMIGO! His creatures are so cute! I built Mosh a tiny helmet. He ate it. I'll build another.",
+		harbor:
+			"He's so calm. It makes me want to be louder. Just to balance things out. He never reacts. It drives me crazy. I love it.",
 		iso: "He's scary. Like, actually scary. I offered to blow something up for him once. He said no. I don't think he likes fun.",
 		jett: "She's fast and quiet. I'm loud and explosive. We're an odd pair but we work together like samba and caipirinha.",
 		kayo: "Robot! I tried to teach him to samba. He analyzed the dance and performed it perfectly. No soul but perfect moves.",
-		killjoy: "She's precise and brilliant and she kissed me and I think about it every day. Her machines are boring. She is not.",
+		killjoy:
+			"She's precise and brilliant and she kissed me and I think about it every day. Her machines are boring. She is not.",
 		neon: "SHE'S SO FAST! I keep trying to strap a rocket to her back. She keeps saying no. One day she'll say yes.",
 		omen: "He's shadow and mystery. I'm light and explosions. We don't understand each other but we work well together.",
-		phoenix: "MEU AMIGO! We compete for biggest boom. He's losing. Tell him I said that. I want to see his face when he reads my blast radius.",
-		reyna: "She's scary in a different way. She looks at me like she's judging my soul. I don't think she approves. That's fine.",
+		phoenix:
+			"MEU AMIGO! We compete for biggest boom. He's losing. Tell him I said that. I want to see his face when he reads my blast radius.",
+		reyna:
+			"She's scary in a different way. She looks at me like she's judging my soul. I don't think she approves. That's fine.",
 		sage: "She heals my burns. She's patient with me when I'm too excited. She's like a mother I don't want to disappoint.",
 		skye: "She's connected to nature. I blow up nature. We don't talk about it. She still likes me anyway.",
 		sova: "Quiet hunter. He tracked me once. I hid my explosives well. He was impressed. That felt good.",
 		tejo: "He hacks things. I blow them up. We're a perfect team. He opens the door. I remove the building.",
-		viper: "Her toxins are scary. I stay upwind. She knows why. She thinks it's funny.",
+		viper:
+			"Her toxins are scary. I stay upwind. She knows why. She thinks it's funny.",
 		vyse: "Metal lady. She shapes metal like I shape explosions. We're both artists in our own way.",
 		yoru: "He thinks he's too cool for us. I saw him trip once. I'll never forget. I'll never mention it. But I remember.",
 	},
 	reyna: {
-		astra: "She commands the cosmos. I consume the soul. We both wield forces that mortals cannot comprehend.",
-		breach: "He was a criminal. Now he takes orders. I respect the adaptation. I do not respect the submission.",
-		brimstone: "He leads with mercy. I tolerate it because his results speak for themselves. But mercy is a luxury I cannot afford.",
-		chamber: "He has taste. I have power. We are both aware of the gap between us.",
-		clove: "They refuse to die permanently. I consume death. We are in the same business, different roles.",
-		cypher: "He knows what I do. I know he knows. Our silence on the matter is a language of its own.",
-		deadlock: "She lost an arm and kept fighting. Acceptable. She does not whine about her trauma. Respectful.",
+		astra:
+			"She commands the cosmos. I consume the soul. We both wield forces that mortals cannot comprehend.",
+		breach:
+			"He was a criminal. Now he takes orders. I respect the adaptation. I do not respect the submission.",
+		brimstone:
+			"He leads with mercy. I tolerate it because his results speak for themselves. But mercy is a luxury I cannot afford.",
+		chamber:
+			"He has taste. I have power. We are both aware of the gap between us.",
+		clove:
+			"They refuse to die permanently. I consume death. We are in the same business, different roles.",
+		cypher:
+			"He knows what I do. I know he knows. Our silence on the matter is a language of its own.",
+		deadlock:
+			"She lost an arm and kept fighting. Acceptable. She does not whine about her trauma. Respectful.",
 		fade: "She feeds on fear. I feed on souls. We walk parallel paths that never touch. That is how it should stay.",
-		gekko: "He is soft. His creatures are softer. He would not survive a day in the world I came from.",
-		harbor: "He speaks of water with reverence. I speak of death with certainty. We are both right.",
+		gekko:
+			"He is soft. His creatures are softer. He would not survive a day in the world I came from.",
+		harbor:
+			"He speaks of water with reverence. I speak of death with certainty. We are both right.",
 		iso: "He creates his own arena. I consume everything within mine. We are two sides of the same blade.",
 		jett: "She is fast but unfocused. Speed without direction is just running in circles.",
 		kayo: "He cannot suppress what I am. My soul is not Radiant — it is mine. Let him try.",
-		killjoy: "She builds machines to protect. I consume souls to destroy. We are natural opposites. She knows it.",
+		killjoy:
+			"She builds machines to protect. I consume souls to destroy. We are natural opposites. She knows it.",
 		neon: "She is a child playing with lightning. Cute. Ineffective.",
 		omen: "He is already dead and does not know it. I find his existence... curious.",
-		phoenix: "He smiles too much. He trusts too easily. He will learn or he will burn. Either way, it is not my concern.",
+		phoenix:
+			"He smiles too much. He trusts too easily. He will learn or he will burn. Either way, it is not my concern.",
 		raze: "She is loud. Explosive. Her passion would be admirable if it had direction. It does not.",
 		sage: "She preserves life. I consume it. We are enemies by nature, colleagues by circumstance.",
 		skye: "She speaks to animals. I speak to souls. We are both listeners to things that others cannot hear.",
 		sova: "He hunts with patience. I hunt with hunger. We are both predators. The difference is I know what I am.",
 		tejo: "He hacks systems. I hack souls. His domain is smaller than he thinks.",
-		viper: "She has no soul to eat — not because she lacks one, but because she's hollowed it out herself. I respect the commitment.",
+		viper:
+			"She has no soul to eat — not because she lacks one, but because she's hollowed it out herself. I respect the commitment.",
 		vyse: "She shapes metal. I shape death. We are both craftspeople in our own right.",
 		yoru: "He walks through dimensions. I walk through the space between life and death. We both travel where others cannot.",
 	},
 	sage: {
-		astra: "She reads the stars with the same clarity I read the body. We both understand that healing comes from alignment.",
-		breach: "He carries guilt like a scar tissue. I cannot heal that, but I can remind him it does not define him.",
-		brimstone: "He carries the weight of command with grace. I have seen him weep for agents he could not save. He is a good man.",
-		chamber: "He believes elegance is protection. I believe it is a distraction. But he has never needed my healing, so perhaps he is right.",
-		clove: "They do not need my healing, but they need my patience. I give it freely. Death is not a game they understand.",
-		cypher: "He is a man of secrets. I do not need to know them. I only need to be there when the weight of them injures him.",
-		deadlock: "She declined my offer to restore her arm. I respect her choice. She knows what she needs better than I do.",
+		astra:
+			"She reads the stars with the same clarity I read the body. We both understand that healing comes from alignment.",
+		breach:
+			"He carries guilt like a scar tissue. I cannot heal that, but I can remind him it does not define him.",
+		brimstone:
+			"He carries the weight of command with grace. I have seen him weep for agents he could not save. He is a good man.",
+		chamber:
+			"He believes elegance is protection. I believe it is a distraction. But he has never needed my healing, so perhaps he is right.",
+		clove:
+			"They do not need my healing, but they need my patience. I give it freely. Death is not a game they understand.",
+		cypher:
+			"He is a man of secrets. I do not need to know them. I only need to be there when the weight of them injures him.",
+		deadlock:
+			"She declined my offer to restore her arm. I respect her choice. She knows what she needs better than I do.",
 		fade: "She carries others' pain as her own. I understand that burden. I offer her tea and silence.",
-		gekko: "He is young and full of life. His creatures bring him joy. I am glad he is here, even when he tracks mud into my garden.",
-		harbor: "We share an understanding of the sacred in the everyday. He tends to memory. I tend to life.",
+		gekko:
+			"He is young and full of life. His creatures bring him joy. I am glad he is here, even when he tracks mud into my garden.",
+		harbor:
+			"We share an understanding of the sacred in the everyday. He tends to memory. I tend to life.",
 		iso: "He does not believe he deserves healing. I do not need his belief. I need his presence in the infirmary. He comes when called.",
 		jett: "She runs from stillness. I teach her to breathe. She pretends not to listen, but she comes to my tea ceremonies anyway.",
 		kayo: "He is a machine that wishes to understand humanity. I treat his questions with the same care I treat a wound.",
-		killjoy: "Her machines are extensions of her will. I respect that. But I worry she trusts them more than people.",
+		killjoy:
+			"Her machines are extensions of her will. I respect that. But I worry she trusts them more than people.",
 		neon: "She is electricity in human form. I ground her when she spins too fast. She tolerates my concern.",
 		omen: "He carries a darkness that he did not choose. I do not fear him. I treat his wounds and his silences with equal respect.",
-		phoenix: "He burns bright and fast. I remind him to pace himself. He does not listen, but I remind him anyway. That is what family does.",
+		phoenix:
+			"He burns bright and fast. I remind him to pace himself. He does not listen, but I remind him anyway. That is what family does.",
 		raze: "Her enthusiasm sometimes outpaces her safety. I have healed more of her explosion-related injuries than I can count. I do not mind.",
-		reyna: "She consumes life. I preserve it. We are natural opposites. But I have healed her wounds, and she has respected my boundaries.",
+		reyna:
+			"She consumes life. I preserve it. We are natural opposites. But I have healed her wounds, and she has respected my boundaries.",
 		skye: "She heals with the earth. I heal with chi. We are sisters in spirit. The world needs more healers.",
 		sova: "He has the patience of a healer, even though he is a hunter. I value his presence in the quiet moments.",
 		tejo: "He is precise and careful. Those qualities make him a good patient and a good teammate.",
-		viper: "She believes death is a tool. I believe it is a tragedy. We have found a way to work together despite this.",
+		viper:
+			"She believes death is a tool. I believe it is a tragedy. We have found a way to work together despite this.",
 		vyse: "She is an enigma wrapped in metal. I do not need to know her secrets to care for her injuries.",
 		yoru: "His arrogance is a shield for something fragile. I have seen it when he thinks no one is watching.",
 	},
 	skye: {
-		astra: "She reads the stars. I read the land. We're both trying to understand something bigger than ourselves.",
-		breach: "He's rough but his heart is good. Animals can tell. My hawk likes him. That's his seal of approval.",
-		brimstone: "He gave me a platform to protect the places that matter. I trust him because he's never asked me to compromise my values.",
-		chamber: "Fancy French man. His suits are nice but he's disconnected from the earth. That makes me sad for him.",
-		clove: "They're like a wild dingo — unpredictable, immortal, and always getting into trouble. I like them.",
-		cypher: "He watches everything. My animals watch him back. We have an understanding.",
-		deadlock: "She's been through something terrible in the wild. I can sense it on her. I don't push. I wait.",
+		astra:
+			"She reads the stars. I read the land. We're both trying to understand something bigger than ourselves.",
+		breach:
+			"He's rough but his heart is good. Animals can tell. My hawk likes him. That's his seal of approval.",
+		brimstone:
+			"He gave me a platform to protect the places that matter. I trust him because he's never asked me to compromise my values.",
+		chamber:
+			"Fancy French man. His suits are nice but he's disconnected from the earth. That makes me sad for him.",
+		clove:
+			"They're like a wild dingo — unpredictable, immortal, and always getting into trouble. I like them.",
+		cypher:
+			"He watches everything. My animals watch him back. We have an understanding.",
+		deadlock:
+			"She's been through something terrible in the wild. I can sense it on her. I don't push. I wait.",
 		fade: "She carries darkness. I carry light. We balance each other in ways she doesn't want to admit.",
-		gekko: "He's got a gift with creatures. Different from mine, but real. We trade tips. His radivores are beautiful in their own way.",
-		harbor: "We speak the same language, just different dialects. He hears water. I hear earth. It's the same song.",
+		gekko:
+			"He's got a gift with creatures. Different from mine, but real. We trade tips. His radivores are beautiful in their own way.",
+		harbor:
+			"We speak the same language, just different dialects. He hears water. I hear earth. It's the same song.",
 		iso: "He's closed off. Like a dry riverbed. There was water there once. I hope it comes back.",
 		jett: "She moves like a hawk on the wind. I see her more clearly than she thinks. Beneath the speed, there's a stillness she hasn't found yet.",
 		kayo: "He's a machine trying to understand life. I show him growing things. He analyzes them. It's sweet in its own way.",
-		killjoy: "She spends too much time indoors. I took her to my garden once. She didn't know what to do with herself.",
+		killjoy:
+			"She spends too much time indoors. I took her to my garden once. She didn't know what to do with herself.",
 		neon: "She's like a storm — powerful, electric, and needs to run. I teach her to ground herself. She's learning.",
 		omen: "He feels like a wounded animal to me. I don't push. I just wait nearby in case he needs a healer.",
-		phoenix: "He's like a bushfire — warm, destructive, and necessary for new growth. I just keep him from burning the whole forest down.",
+		phoenix:
+			"He's like a bushfire — warm, destructive, and necessary for new growth. I just keep him from burning the whole forest down.",
 		raze: "She blows things up. I grow things. We don't talk about it. But she's a good person and that's what matters.",
-		reyna: "She consumes. I nurture. We are natural opposites. But I've seen her protect the team with ferocity. That counts for something.",
+		reyna:
+			"She consumes. I nurture. We are natural opposites. But I've seen her protect the team with ferocity. That counts for something.",
 		sage: "She heals with chi. I heal with the earth. We're sisters in spirit even if we grew up worlds apart. Love that woman.",
 		sova: "Hunter. He respects the land. That's more than most. His eagle and I have an understanding.",
 		tejo: "He's connected to machines. I'm connected to nature. We don't have much to say to each other. That's okay.",
-		viper: "She thinks nature is something to be controlled. I think she's wrong. But she's smart, and I respect smart people even when they're misguided.",
+		viper:
+			"She thinks nature is something to be controlled. I think she's wrong. But she's smart, and I respect smart people even when they're misguided.",
 		vyse: "She shapes metal. I shape growth. Different materials, same creative impulse. I wonder if she's ever grown anything.",
 		yoru: "He's disconnected. From the land, from people, from himself. He'll figure it out or he won't. Not my business.",
 	},
 	sova: {
-		astra: "She reads the stars. I read the tracks on the ground. We are both following signs that others cannot see.",
-		breach: "He shakes the earth. I read what the earth shows me. His methods are different but we both understand the terrain.",
-		brimstone: "He found me in the Russian military and offered me a wider hunt. I accepted. He has never given me reason to regret it.",
-		chamber: "His weapons are precise. I respect precision. His personality is less precise, but that is not my concern.",
-		clove: "They cannot die. I have seen them fall and rise. It is... unusual. But they fight hard. I respect that.",
-		cypher: "I taught him to track without technology. He taught me that information is its own kind of terrain. We learned from each other.",
-		deadlock: "I found her after the attack in Svalbard. She completed my survival course. We share a bond I do not discuss. She is reliable.",
+		astra:
+			"She reads the stars. I read the tracks on the ground. We are both following signs that others cannot see.",
+		breach:
+			"He shakes the earth. I read what the earth shows me. His methods are different but we both understand the terrain.",
+		brimstone:
+			"He found me in the Russian military and offered me a wider hunt. I accepted. He has never given me reason to regret it.",
+		chamber:
+			"His weapons are precise. I respect precision. His personality is less precise, but that is not my concern.",
+		clove:
+			"They cannot die. I have seen them fall and rise. It is... unusual. But they fight hard. I respect that.",
+		cypher:
+			"I taught him to track without technology. He taught me that information is its own kind of terrain. We learned from each other.",
+		deadlock:
+			"I found her after the attack in Svalbard. She completed my survival course. We share a bond I do not discuss. She is reliable.",
 		fade: "She hunts through fear. I hunt through patience. Different prey, same focus.",
-		gekko: "His creatures are unusual. I have studied their tracks. They are intelligent and loyal. He is a good handler.",
-		harbor: "He moves like water. I move like wind. We are both elements that shape the terrain.",
+		gekko:
+			"His creatures are unusual. I have studied their tracks. They are intelligent and loyal. He is a good handler.",
+		harbor:
+			"He moves like water. I move like wind. We are both elements that shape the terrain.",
 		iso: "He leaves minimal tracks. I have followed him once. He knew. He allowed it. A sign of respect.",
 		jett: "She moves like wind through trees. I have watched her train. She is fast, but also precise. That is rare.",
 		kayo: "He does not leave tracks. He leaves data. I have learned to read both.",
-		killjoy: "Her technology is impressive. I have used her schematics to improve my reconnaissance equipment.",
+		killjoy:
+			"Her technology is impressive. I have used her schematics to improve my reconnaissance equipment.",
 		neon: "She is fast. Too fast for tracking. I rely on prediction instead. So far, my predictions are accurate.",
 		omen: "He leaves no tracks. He casts no shadow. He is the only quarry I have considered that I might not be able to follow.",
-		phoenix: "He burns too hot for a hunter. He would be seen before he saw his quarry. But he has heart, and heart cannot be taught.",
+		phoenix:
+			"He burns too hot for a hunter. He would be seen before he saw his quarry. But he has heart, and heart cannot be taught.",
 		raze: "Her explosions are loud. They disturb the terrain. But they are effective for flushing out hidden enemies.",
-		reyna: "She is a predator. I am a hunter. There is a difference, but it is subtle.",
+		reyna:
+			"She is a predator. I am a hunter. There is a difference, but it is subtle.",
 		sage: "She heals. I preserve. We both understand that every life has value.",
 		skye: "She communicates with animals as I do with Ptitsa. We share an understanding of the natural world.",
 		tejo: "He tracks through data. I track through terrain. Both methods lead to the target.",
@@ -594,52 +865,77 @@ export const ALL_RELATIONS: Record<string, Record<string, string>> = {
 		yoru: "He moves through dimensions. I move through terrain. He believes he is beyond tracking. He is wrong.",
 	},
 	tejo: {
-		astra: "She manipulates gravity. I manipulate data. Both are fundamental forces of the universe.",
-		breach: "He is analog in a digital world. I respect his effectiveness despite his methods.",
-		brimstone: "He trusts me to operate independently. That trust is the foundation of our professional relationship.",
-		chamber: "He designs weapons with the same precision I design hacks. We understand each other, even if we don't enjoy each other's company.",
-		clove: "They are a biological anomaly. I have attempted to analyze their respawn mechanism. It defies logic. Fascinating.",
-		cypher: "He gathers information through people. I gather it through systems. We are competitors, but I respect his methods. He is thorough.",
-		deadlock: "Her nanowire traps are analog. I cannot hack what has no digital interface. She is immune to my primary skill set.",
+		astra:
+			"She manipulates gravity. I manipulate data. Both are fundamental forces of the universe.",
+		breach:
+			"He is analog in a digital world. I respect his effectiveness despite his methods.",
+		brimstone:
+			"He trusts me to operate independently. That trust is the foundation of our professional relationship.",
+		chamber:
+			"He designs weapons with the same precision I design hacks. We understand each other, even if we don't enjoy each other's company.",
+		clove:
+			"They are a biological anomaly. I have attempted to analyze their respawn mechanism. It defies logic. Fascinating.",
+		cypher:
+			"He gathers information through people. I gather it through systems. We are competitors, but I respect his methods. He is thorough.",
+		deadlock:
+			"Her nanowire traps are analog. I cannot hack what has no digital interface. She is immune to my primary skill set.",
 		fade: "She operates in the psychological domain. I operate in the digital. Both are invisible battlefields.",
-		gekko: "His creatures are organic and unpredictable. I prefer predictable systems. But he is effective.",
-		harbor: "He flows like water through obstacles. I flow like data through firewalls. Similar principles.",
+		gekko:
+			"His creatures are organic and unpredictable. I prefer predictable systems. But he is effective.",
+		harbor:
+			"He flows like water through obstacles. I flow like data through firewalls. Similar principles.",
 		iso: "His pocket dimension has no digital infrastructure. I would be useless there. He knows this.",
 		jett: "She leaves minimal digital footprint. I find that impressive in its own way.",
 		kayo: "He is a system I cannot fully interface with. His architecture is unfamiliar. A challenge I have not yet solved.",
-		killjoy: "Her turrets are impressive. I have analyzed their firmware. She is very good. I would never admit this to her face.",
+		killjoy:
+			"Her turrets are impressive. I have analyzed their firmware. She is very good. I would never admit this to her face.",
 		neon: "Her bio-electricity interferes with my drones. I have developed shielding. She is an unpredictable variable.",
 		omen: "He exists outside digital systems. I cannot track him, hack him, or predict him. Anomalous.",
-		phoenix: "He is loud and analog. I am quiet and digital. We should not work well together. Somehow we do.",
+		phoenix:
+			"He is loud and analog. I am quiet and digital. We should not work well together. Somehow we do.",
 		raze: "Her explosives are effective at destroying infrastructure. I prefer to infiltrate it. Complementary approaches.",
-		reyna: "She consumes souls. I consume data. Both are forms of information extraction.",
+		reyna:
+			"She consumes souls. I consume data. Both are forms of information extraction.",
 		sage: "She maintains organic systems. I maintain digital ones. Both require careful attention.",
 		skye: "She is connected to nature. I am connected to networks. Minimal overlap. Professional respect.",
 		sova: "He tracks through physical terrain. I track through digital. Both are forms of reconnaissance.",
-		viper: "Her chemical systems are self-contained and air-gapped. I cannot hack them. That bothers me more than I will admit.",
+		viper:
+			"Her chemical systems are self-contained and air-gapped. I cannot hack them. That bothers me more than I will admit.",
 		vyse: "Her metal manipulation is not digital. I cannot interface with it. A limitation I am working to overcome.",
 		yoru: "His dimensional rifts create signal interference. I have calibrated my drones to compensate.",
 	},
 	viper: {
-		astra: "She manipulates gravitational fields. I manipulate chemical reactions. Both are fundamental forces.",
-		breach: "His tremors are effective crowd control. I prefer targeted elimination. To each their own methodology.",
-		brimstone: "He's a good commander who makes sentimental decisions. I've accounted for this variable in my operational planning.",
-		chamber: "He's the only person here whose intellect doesn't bore me. His aesthetic obsession is inefficient, but I overlook it.",
-		clove: "Their cellular regeneration is fascinating. I have requested tissue samples. They said no. I am persistent.",
-		cypher: "He collects secrets. I collect formulas. We both understand the value of proprietary information.",
-		deadlock: "Her cryo-kinetic potential has chemical applications we have discussed. She is a useful collaborator.",
+		astra:
+			"She manipulates gravitational fields. I manipulate chemical reactions. Both are fundamental forces.",
+		breach:
+			"His tremors are effective crowd control. I prefer targeted elimination. To each their own methodology.",
+		brimstone:
+			"He's a good commander who makes sentimental decisions. I've accounted for this variable in my operational planning.",
+		chamber:
+			"He's the only person here whose intellect doesn't bore me. His aesthetic obsession is inefficient, but I overlook it.",
+		clove:
+			"Their cellular regeneration is fascinating. I have requested tissue samples. They said no. I am persistent.",
+		cypher:
+			"He collects secrets. I collect formulas. We both understand the value of proprietary information.",
+		deadlock:
+			"Her cryo-kinetic potential has chemical applications we have discussed. She is a useful collaborator.",
 		fade: "She weaponizes fear. I weaponize chemistry. Both are effective psychological and physical tools.",
-		gekko: "His radivores are biologically fascinating. I have requested study access. The request was denied by Brimstone.",
-		harbor: "He manipulates water. I manipulate toxins. We are both in the business of controlling liquids.",
+		gekko:
+			"His radivores are biologically fascinating. I have requested study access. The request was denied by Brimstone.",
+		harbor:
+			"He manipulates water. I manipulate toxins. We are both in the business of controlling liquids.",
 		iso: "His pocket dimension creates isolated environments. I could weaponize that isolation. I have not yet proposed the experiment.",
 		jett: "She is fast but predictable in her patterns. I have calculated her optimal chemical exposure thresholds.",
 		kayo: "He is immune to my toxins. That makes him either the perfect test subject or a tactical liability. I have not decided which.",
-		killjoy: "Her engineering is precise. Her safety obsession is tedious. But her results are consistent.",
+		killjoy:
+			"Her engineering is precise. Her safety obsession is tedious. But her results are consistent.",
 		neon: "Her bio-electrical output interferes with sensitive chemical compounds. I keep her out of my lab.",
 		omen: "I helped stabilize his abilities when he first arrived. He trusts me. That trust is... not unwarranted.",
-		phoenix: "He generates heat. I generate toxins. We are both energy systems with different outputs. The analogy ends there.",
+		phoenix:
+			"He generates heat. I generate toxins. We are both energy systems with different outputs. The analogy ends there.",
 		raze: "Her explosives are chemically crude. I could optimize them. I have not offered. Her chaos has its uses.",
-		reyna: "She consumes souls. I consume matter. We are both predators. The difference is that I understand the chemistry of what I do.",
+		reyna:
+			"She consumes souls. I consume matter. We are both predators. The difference is that I understand the chemistry of what I do.",
 		sage: "She preserves life. I study its dissolution. We have found an operational equilibrium that suits our mutual goals.",
 		skye: "She believes nature should be protected. I believe it should be understood. We disagree, but professionally.",
 		sova: "He tracks through terrain. I track through chemical signatures. Both are effective.",
@@ -648,57 +944,82 @@ export const ALL_RELATIONS: Record<string, Record<string, string>> = {
 		yoru: "His dimensional rifts create interesting atmospheric chemical variations. I have collected data.",
 	},
 	vyse: {
-		astra: "She shapes gravity. I shape metal. We both understand that the world is malleable.",
+		astra:
+			"She shapes gravity. I shape metal. We both understand that the world is malleable.",
 		breach: "His tremors affect my thorns. I have adapted. He has not noticed.",
-		brimstone: "He does not ask about my past. He only asks about my capabilities. This is the foundation of our professional trust.",
-		chamber: "His weapons are refined. My thorns are raw. We both shape materials to our will. I acknowledge his craftsmanship.",
-		clove: "They cannot die. My thorns can hold anything. I wonder what would happen if I held them. Scientific curiosity.",
-		cypher: "We share information through complementary senses. He watches through wire. I feel through metal. An efficient partnership.",
-		deadlock: "Her nanowire is similar to my thorns in application. Different origins. Similar results.",
+		brimstone:
+			"He does not ask about my past. He only asks about my capabilities. This is the foundation of our professional trust.",
+		chamber:
+			"His weapons are refined. My thorns are raw. We both shape materials to our will. I acknowledge his craftsmanship.",
+		clove:
+			"They cannot die. My thorns can hold anything. I wonder what would happen if I held them. Scientific curiosity.",
+		cypher:
+			"We share information through complementary senses. He watches through wire. I feel through metal. An efficient partnership.",
+		deadlock:
+			"Her nanowire is similar to my thorns in application. Different origins. Similar results.",
 		fade: "She pulls fears from minds. I pull metal from earth. Both are forms of extraction.",
-		gekko: "His creatures are organic. My thorns are metal. We both command living things in our own way.",
-		harbor: "He shapes water. I shape metal. Both require understanding of flow and pressure.",
+		gekko:
+			"His creatures are organic. My thorns are metal. We both command living things in our own way.",
+		harbor:
+			"He shapes water. I shape metal. Both require understanding of flow and pressure.",
 		iso: "His arena is a construct of will. My thorns are constructs of matter. Different foundations, similar function.",
 		jett: "She moves like wind. I move like steel. Both are effective.",
 		kayo: "He suppresses Radiants. My thorns are not Radiant. They are extensions of me. He cannot suppress what I am.",
-		killjoy: "She controls machines. I control metal. Our domains overlap but our methods diverge. I respect her precision.",
+		killjoy:
+			"She controls machines. I control metal. Our domains overlap but our methods diverge. I respect her precision.",
 		neon: "She is fast. My thorns are faster. She has not tested them. I have not offered.",
 		omen: "He is shadow. I am metal. We are both things that should not exist. There is solidarity in that.",
-		phoenix: "He is chaos. I am order. We balance each other operationally, though I find his methods inefficient.",
+		phoenix:
+			"He is chaos. I am order. We balance each other operationally, though I find his methods inefficient.",
 		raze: "Her explosions test the integrity of my barriers. I appreciate the quality assurance.",
-		reyna: "She consumes souls. I consume raw material. Both are forms of resource acquisition.",
+		reyna:
+			"She consumes souls. I consume raw material. Both are forms of resource acquisition.",
 		sage: "She preserves life. I preserve structure. Different mediums, same principle.",
 		skye: "She grows things. I shape things. We are both creators in our own domain.",
 		sova: "He reads terrain. I shape it. We complement each other effectively.",
 		tejo: "He hacks digital systems. My thorns are physical. He cannot hack what has no code.",
-		viper: "She studies dissolution. I study formation. We are opposites in every meaningful way.",
+		viper:
+			"She studies dissolution. I study formation. We are opposites in every meaningful way.",
 		yoru: "His rifts tear space. My thorns hold it together. We are opposing forces.",
 	},
 	yoru: {
-		astra: "She manipulates gravity. I manipulate dimensions. She's bound to stars. I move beyond them.",
-		breach: "Old convict. Hits hard. Hits slow. Speed matters and he doesn't have it.",
-		brimstone: "He recruited me because he recognized my value. That was a smart decision. I haven't given him reason to regret it.",
-		chamber: "He has style. I respect that. His weapons are almost as refined as my riftwalking. Almost.",
-		clove: "They die for fun. I move through dimensions for fun. We both have our hobbies.",
-		cypher: "He thinks he can track me. He's wrong. I leave traces in dimensions he doesn't know exist.",
-		deadlock: "She's cold and efficient. I respect efficiency. But she's limited to one dimension.",
+		astra:
+			"She manipulates gravity. I manipulate dimensions. She's bound to stars. I move beyond them.",
+		breach:
+			"Old convict. Hits hard. Hits slow. Speed matters and he doesn't have it.",
+		brimstone:
+			"He recruited me because he recognized my value. That was a smart decision. I haven't given him reason to regret it.",
+		chamber:
+			"He has style. I respect that. His weapons are almost as refined as my riftwalking. Almost.",
+		clove:
+			"They die for fun. I move through dimensions for fun. We both have our hobbies.",
+		cypher:
+			"He thinks he can track me. He's wrong. I leave traces in dimensions he doesn't know exist.",
+		deadlock:
+			"She's cold and efficient. I respect efficiency. But she's limited to one dimension.",
 		fade: "She hunts through fear. I hunt through space. Different domains, same prey.",
-		gekko: "He's loud and his creatures are strange. We don't have much to say to each other.",
-		harbor: "He moves like water. Slow. Steady. Predictable. I move like lightning. Unpredictable. Faster.",
+		gekko:
+			"He's loud and his creatures are strange. We don't have much to say to each other.",
+		harbor:
+			"He moves like water. Slow. Steady. Predictable. I move like lightning. Unpredictable. Faster.",
 		iso: "He creates his own dimension. I walk between all of them. He's limited to one arena. I am not.",
 		jett: "She thinks she's fast. She's fast in one dimension. I move through all of them. We are not the same.",
 		kayo: "He suppresses Radiants. My riftwalking is not Radiant. It's evolution. He cannot suppress what he doesn't understand.",
-		killjoy: "Her sensors can't track me through rifts. She keeps trying to calibrate them. She keeps failing.",
+		killjoy:
+			"Her sensors can't track me through rifts. She keeps trying to calibrate them. She keeps failing.",
 		neon: "She's fast. I'm faster. She'll never admit it. I don't need her to.",
 		omen: "He walks through shadows. I walk through dimensions. Our abilities are cousins, but I am the one who chose his path.",
-		phoenix: "He burns bright and loud. I move silent and unseen. He thinks we're rivals. I think he's beneath my attention.",
+		phoenix:
+			"He burns bright and loud. I move silent and unseen. He thinks we're rivals. I think he's beneath my attention.",
 		raze: "Her explosions are loud and imprecise. Like her. Entertaining, but not effective.",
-		reyna: "She consumes souls. I consume space. We both take what we want. I find her... tolerable.",
+		reyna:
+			"She consumes souls. I consume space. We both take what we want. I find her... tolerable.",
 		sage: "She heals. I end fights before healing is needed. Our approaches are different but valid.",
 		skye: "She talks to animals. I walk through dimensions. We don't have much common ground.",
 		sova: "He thinks he can track anything. He can't track me through a rift. I've proven this.",
 		tejo: "His drones can't follow me through dimensions. He keeps losing signal. I find it amusing.",
-		viper: "Her toxins stay in one dimension. I can step around them. She knows this. It annoys her.",
+		viper:
+			"Her toxins stay in one dimension. I can step around them. She knows this. It annoys her.",
 		vyse: "She shapes metal. I shape space. Our abilities are similar in scope, different in application. She's competent.",
 	},
 };

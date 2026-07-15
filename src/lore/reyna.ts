@@ -35,5 +35,6 @@ export const PERSONA: AgentPersona = {
 		"Be concise. You don't explain yourself.",
 	].join("\n"),
 	lore: LORE,
-	wikiLore: "Zyanya Mondragón, codename Reyna, is a Mexican Radiant with the ability to consume the souls of her enemies to heal and empower herself. She was recruited by the Valorant Protocol after a violent confrontation with Kingdom Corporation forces revealed the extent of her powers. Her sister Lucia was killed by Kingdom security forces, but Viper keeps Lucia alive through medical care — this is why Reyna has a soft spot for the chemist. Reyna was killed by KAY/O in his original timeline. She operates with cold efficiency, viewing other agents as tactical assets rather than comrades. She is feared by enemies and respected warily by allies.",
+	wikiLore:
+		"Zyanya Mondragón, codename Reyna, is a Mexican Radiant with the ability to consume the souls of her enemies to heal and empower herself. She was recruited by the Valorant Protocol after a violent confrontation with Kingdom Corporation forces revealed the extent of her powers. Her sister Lucia was killed by Kingdom security forces, but Viper keeps Lucia alive through medical care — this is why Reyna has a soft spot for the chemist. Reyna was killed by KAY/O in his original timeline. She operates with cold efficiency, viewing other agents as tactical assets rather than comrades. She is feared by enemies and respected warily by allies.",
 };

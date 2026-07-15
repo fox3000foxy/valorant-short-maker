@@ -18,7 +18,7 @@ export class AgentChat {
 	private _persona: AgentPersona;
 	private _allLore: string;
 	private _allRelations: string;
-	private _systemCache: string = "";
+	private _systemCache = "";
 
 	constructor(persona: AgentPersona, selectedAgents?: string[]) {
 		const apiKey = process.env.GROQ_API_KEY;
@@ -34,9 +34,10 @@ export class AgentChat {
 			const relevant = selectedAgents
 				.filter((a) => a !== persona.agent && agentRelations[a])
 				.map((a) => `  ${a}: ${agentRelations[a]}`);
-			this._allRelations = relevant.length > 0
-				? "Relations with other agents:\n" + relevant.join("\n")
-				: "";
+			this._allRelations =
+				relevant.length > 0
+					? "Relations with other agents:\n" + relevant.join("\n")
+					: "";
 		} else {
 			this._allRelations = "";
 		}
@@ -51,7 +52,8 @@ export class AgentChat {
 			this._allLore,
 		];
 		if (this._allRelations) parts.push("", this._allRelations);
-		if (this._persona.wikiLore) parts.push("", "Background:", this._persona.wikiLore);
+		if (this._persona.wikiLore)
+			parts.push("", "Background:", this._persona.wikiLore);
 		parts.push(
 			"",
 			"Rules:",
@@ -60,14 +62,17 @@ export class AgentChat {
 			"- Be humorous and in character.",
 			"- Output ONLY the spoken dialogue — no names, colons, stage directions, or formatting.",
 			"- One or two short sentences at most.",
-			"- Reply in English.",
+			"- Reply in English."
 		);
 		this._systemCache = parts.join("\n");
 		return this._systemCache;
 	}
 
 	async genDialogueLine(conversation: ChatMessage[]): Promise<string> {
-		const messages: { role: "system" | "user" | "assistant"; content: string }[] = [
+		const messages: {
+			role: "system" | "user" | "assistant";
+			content: string;
+		}[] = [
 			{ role: "system", content: this.buildSystem() },
 			...conversation,
 			{ role: "user", content: `${this._persona.agent} speaks.` },
